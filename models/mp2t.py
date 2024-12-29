@@ -13,5 +13,4 @@ class KLVModel(BaseSettings):
 
 class MP2TStreamModel(BaseStreamModel):
     stream_type: str = "mp2t"
-    is_rtp: Optional[bool] = Field(default=False, description="Is RTP enabled")
     klv: Optional[KLVModel] = None

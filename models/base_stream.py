@@ -16,7 +16,7 @@ class RTPConfig(BaseSettings):
 
 
 class BaseStreamModel(BaseSettings):
-    command: str = "play"
+    command: str
     stream_type: str
     is_rtp: Optional[bool] = False
     encoding: Optional[str]
