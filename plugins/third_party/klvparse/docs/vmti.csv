@@ -1,0 +1,19 @@
+1, Checksum, checksum, 0x01
+2, Precision Time Stamp, precision_time_stamp, 0x02
+3, VMTI System Name / Description, system_name, 0x03
+4, VMTI LS Version Number, ls_version, 0x04
+5, Total Number of Targets Detected in the Frame, number_detected, 0x05
+6, Number of Reported Targets, number_reported, 0x06
+7, Motion Imagery Frame Number, frame_number, 0x07
+8, Frame Width, frame_width, 0x08
+9, Frame Height, frame_height, 0x09
+10, VMTI Source Sensor, source_sensor, 0x0a
+11, VMTI Sensor Horizontal Field of View, horizontal_fov, 0x0b
+12, VMTI Sensor Vertical Field of View, vertical_fov, 0x0c
+13, Motion Imagery Identification System ID, miis_id, 0x0d
+101, VTargetSeries, target_series, 0x65
+102, VAlgorithmSeries, algorithm_series, 0x66
+103, VOntologySeries, ontology_series, 0x67
+
+
+(.+), (.+), (.+), (.+)
