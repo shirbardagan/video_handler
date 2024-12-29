@@ -7,6 +7,7 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/api-docs"
 )
+app.state.PIPELINE_DATA = None
 
 app.include_router(command.router)
 
