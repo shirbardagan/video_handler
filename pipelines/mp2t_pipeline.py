@@ -2,6 +2,9 @@ from pipelines.base_pipeline import BaseStreamPipeline
 
 
 class MP2TStreamPipeline(BaseStreamPipeline):
+    def create_pipeline(self):
+        pass
+
     def start_pipeline(self, data) -> None:
         pass
 
