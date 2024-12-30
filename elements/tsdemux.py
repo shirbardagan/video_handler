@@ -21,5 +21,3 @@ class TSDemuxWrapper(GStreamerElementWrapper):
                     logger.info(f"Linked pad {pad_name} to h265parse sink.")
                 else:
                     logger.error(f"Failed to link pad {pad_name} to h265parse sink.")
-
-                self.pipeline.sync_children_states()
