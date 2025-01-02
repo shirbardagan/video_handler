@@ -5,3 +5,8 @@ uvicorn
 PyGObject
 pygobject
 pycairo
+websockets
+aiortc
+asyncio
+opencv-python-headless
+av

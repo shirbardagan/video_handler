@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Video Stream</title>
+</head>
+<body>
+    <video id="videoElement" autoplay playsinline></video>
+
+    <script>
+        const videoElement = document.getElementById('videoElement');
+        const signalingServer = "ws://127.0.0.1:8000/ws";
+        const peerConnection = new RTCPeerConnection();
+
+        const socket = new WebSocket(signalingServer);
+
+        socket.onopen = () => {
+            console.log("Connected to signaling server");
+        };
+
+        socket.onmessage = async (message) => {
+            const data = JSON.parse(message.data);
+
+            if (data.sdp) {
+                const sdp = new RTCSessionDescription(data.sdp);
+                await peerConnection.setRemoteDescription(sdp);
+                if (peerConnection.remoteDescription.type === "offer") {
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+                    socket.send(JSON.stringify({ sdp: peerConnection.localDescription }));
+                }
+            } else if (data.ice) {
+                const candidate = new RTCIceCandidate(data.ice);
+                await peerConnection.addIceCandidate(candidate);
+            }
+        };
+
+        peerConnection.onicecandidate = event => {
+            if (event.candidate) {
+                socket.send(JSON.stringify({ ice: event.candidate }));
+            }
+        };
+
+        peerConnection.ontrack = event => {
+            videoElement.srcObject = event.streams[0];
+        };
+    </script>
+</body>
+</html>

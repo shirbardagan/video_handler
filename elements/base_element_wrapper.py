@@ -1,3 +1,5 @@
+import threading
+
 import gi
 
 gi.require_version('Gst', '1.0')
@@ -6,11 +8,22 @@ from common.base_logger import logger
 
 
 class GStreamerElementWrapper:
+    _instances = {}
+    _lock = threading.Lock()
+
+    def __new__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            with cls._lock:
+                if cls not in cls._instances:
+                    instance = super().__new__(cls)
+                    cls._instances[cls] = instance
+        return cls._instances[cls]
+
     def __init__(self, element_name: str, element_type: str):
-        self.element = Gst.ElementFactory.make(element_type, element_name)
-        if not self.element:
-            raise ValueError(f"While creating element: {element_type}")
-        self.name = element_name
+        if not hasattr(self, "element"):
+            with self._lock:
+                self.element = Gst.ElementFactory.make(element_type, element_name)
+                self.name = element_name
 
     def set_property(self, property_name: str, value) -> None:
         self.element.set_property(property_name, value)

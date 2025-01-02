@@ -8,7 +8,9 @@ from .nvh265dec import NVH265DecWrapper
 from .tsdemux import TSDemuxWrapper
 from .udpsrc import UDPSrcElementWrapper
 from .videoconvert import VideoConvertWrapper
-from .webrtcsink import WebRTCSinkWrapper
+from .webrtcbin import WebRTCBinWrapper
+from .rtph264pay import RTPH264Pay
+from .x264enc import X264enc
 
 __all__ = [
     UDPSrcElementWrapper,
@@ -21,7 +23,9 @@ __all__ = [
     NVH265DecWrapper,
     VideoConvertWrapper,
     TSDemuxWrapper,
-    WebRTCSinkWrapper
+    WebRTCBinWrapper,
+    RTPH264Pay,
+    X264enc
 ]
 
 

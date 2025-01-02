@@ -1,14 +1,10 @@
-import uvicorn
+from app_instance import app, start_server
+from routes import command, websocket, index
 
-from routes import command
-from fastapi import FastAPI
-
-app = FastAPI(
-    version="1.0.0",
-    docs_url="/api-docs"
-)
-app.state.PIPELINE_DATA = None
 
 app.include_router(command.router)
+app.include_router(websocket.router)
+app.include_router(index.router)
 
-uvicorn.run(app, host="0.0.0.0", port=8000)
+if __name__ == "__main__":
+    start_server()
