@@ -1,5 +1,7 @@
 import asyncio
 import functools
+import threading
+
 from gi.repository import Gst, GLib, GstApp, GObject, GstWebRTC
 
 from common.base_logger import logger
@@ -25,9 +27,8 @@ from elements import (
     X264enc
 )
 
-loop = GObject.MainLoop()
-def create_pipeline():
-    Gst.init(None)
+
+def create_pipeline(webrtcbin):
     pipeline = Gst.Pipeline.new("pipeline")
     initialized_pipeline_elements_tuple = (FileSrcWrapper("filesrc"),
                                            TSDemuxWrapper("tsdemux"),
@@ -35,17 +36,16 @@ def create_pipeline():
                                            NVH265DecWrapper("nvh265dec"),
                                            X264enc("x264enc"),
                                            H264ParseWrapper("h264parse"),
-                                           RTPH264Pay("rtph264Pay"),
-                                           WebRTCBinWrapper("webrtcbin")
+                                           RTPH264Pay("rtph264pay")
                                            )
 
-    filesrc, tsdemux, h265parse, nvh265dec, x264enc, h264parse, rtph264pay, webrtcbin = initialized_pipeline_elements_tuple
+    filesrc, tsdemux, h265parse, nvh265dec, x264enc, h264parse, rtph264pay = initialized_pipeline_elements_tuple
 
     if not all([filesrc.get_element(), tsdemux.get_element(), h265parse.get_element(), nvh265dec.get_element(),
                webrtcbin.get_element()]):
         logger.error("Not all elements could be created.")
 
-    filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
+    filesrc.set_property("location", "/home/shir/Desktop/flights/VNIR_ZOOM.ts")
 
     pipeline.add(filesrc.get_element())
     pipeline.add(tsdemux.get_element())
@@ -62,7 +62,7 @@ def create_pipeline():
     nvh265dec.link(x264enc)
     x264enc.link(h264parse)
     h264parse.link(rtph264pay)
-    rtph264pay.link(webrtcbin)
+    rtph264pay.connect("pad-added", functools.partial(rtph264pay.on_pad_added, elements=webrtcbin.get_element()))
 
     return pipeline
 
@@ -76,8 +76,8 @@ def play(pipe):
         logger.warning("Pipeline might be missing a prerolled source.")
     else:
         logger.info("Pipeline is in PLAYING state successfully.")
-    try:
-        loop.run()
-    except KeyboardInterrupt:
-        pass
+    # try:
+    #     loop.run()
+    # except KeyboardInterrupt:
+    #     pass
 

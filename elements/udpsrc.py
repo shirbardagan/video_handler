@@ -1,4 +1,4 @@
-from typing import overload, override
+from typing import override
 
 import gi
 from gi.repository import Gst, GLib, GstApp

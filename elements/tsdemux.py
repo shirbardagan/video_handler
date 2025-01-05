@@ -12,8 +12,9 @@ class TSDemuxWrapper(GStreamerElementWrapper):
     def __init__(self, name="tsdemux"):
         super().__init__(name, "tsdemux")
 
-    def on_pad_added(self, _, pad, elements) -> None:
-        print("hhhhh")
+    @staticmethod
+    def on_pad_added(_, pad, elements) -> None:
+        print("On pad_added tsdemux.")
         pad_name = pad.get_name()
         pad_caps = pad.query_caps(None)
         structure_name = pad_caps.to_string()

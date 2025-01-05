@@ -8,5 +8,4 @@ pycairo
 websockets
 aiortc
 asyncio
-opencv-python-headless
-av
+typing

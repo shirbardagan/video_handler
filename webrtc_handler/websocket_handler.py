@@ -1,9 +1,72 @@
 import asyncio
-from test_webrtc_pipeline import pipeline
+import json
+
+from common.base_logger import logger
+import gi
+from gi.repository import Gst, GObject, GstSdp
+
+from elements import WebRTCBinWrapper
+from test_webrtc_pipeline import create_pipeline
+
+gi.require_version('Gst', '1.0')
+gi.require_version('GstWebRTC', '1.0')
+gi.require_version('GstSdp', '1.0')
+
 
 class WebRTCClient:
     def __init__(self, conn):
         self.conn = conn
         self.loop = asyncio.get_running_loop()
+        self.webrtc = WebRTCBinWrapper("webrtcbin")
+        self.pipeline = create_pipeline(self.webrtc)
 
-        self.pipeline = pipeline
+        self.webrtc.get_element().connect('on-negotiation-needed', self.on_negotiation_needed)
+        self.webrtc.get_element().connect('on-ice-candidate', self.send_ice_candidate_message)
+
+
+    def start(self):
+        logger.info("Starting pipeline")
+        ret = self.pipeline.set_state(Gst.State.PLAYING)
+        if ret == Gst.StateChangeReturn.FAILURE:
+            logger.error("Unable to set the pipeline to the playing state")
+        else:
+            logger.info("Pipeline is now playing")
+
+
+    def play(self):
+        self.pipeline.set_state(Gst.State.PLAYING)
+        logger.info("Playing pipeline")
+
+    def send_sdp_offer(self, offer):
+        text = offer.sdp.as_text()
+        logger.info(f"sending SDP offer")
+        msg = json.dumps({'event': 'offer', 'data':
+            {
+                'type': 'offer',
+                'sdp': text
+            }
+                          })
+        asyncio.run_coroutine_threadsafe(self.conn.send_text(msg), self.loop)
+
+    def on_offer_created(self, promise, _, __):
+        promise.wait()
+        reply = promise.get_reply()
+        offer = reply.get_value('offer')
+        promise = Gst.Promise.new()
+        logger.info("set local description")
+        promise.interrupt()
+        self.send_sdp_offer(offer)
+
+    def on_negotiation_needed(self, element):
+        promise = Gst.Promise.new_with_change_func(self.on_offer_created, None, None)
+        logger.info("Creating offer")
+        element.emit('create-offer', None, promise)
+
+    def send_ice_candidate_message(self, _, mlineindex, candidate):
+        icemsg = json.dumps({'event': 'candidate', 'data':
+            {
+                'candidate': candidate,
+                'sdpMLineIndex': mlineindex}
+                             })
+        asyncio.run_coroutine_threadsafe(self.conn.send_text(icemsg), self.loop)
+

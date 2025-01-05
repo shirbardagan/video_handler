@@ -10,6 +10,11 @@ from common.base_logger import logger
 class GStreamerElementWrapper:
     _instances = {}
     _lock = threading.Lock()
+    def __init__(self, element_name: str, element_type: str):
+        if not hasattr(self, "element"):
+            with self._lock:
+                self.element = Gst.ElementFactory.make(element_type, element_name)
+                self.name = element_name
 
     def __new__(cls, *args, **kwargs):
         if cls not in cls._instances:
@@ -19,19 +24,13 @@ class GStreamerElementWrapper:
                     cls._instances[cls] = instance
         return cls._instances[cls]
 
-    def __init__(self, element_name: str, element_type: str):
-        if not hasattr(self, "element"):
-            with self._lock:
-                self.element = Gst.ElementFactory.make(element_type, element_name)
-                self.name = element_name
-
     def set_property(self, property_name: str, value) -> None:
         self.element.set_property(property_name, value)
 
     def get_property(self, property_name: str):
         return self.element.get_property(property_name)
 
-    def link(self, other_element) -> bool:
+    def link(self, other_element: Gst.Element) -> bool:
         src_pad = self.element.get_static_pad('src')
         sink_pad = other_element.element.get_static_pad('sink')
 
