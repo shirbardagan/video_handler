@@ -33,7 +33,7 @@ if not all([filesrc.get_element(), tsdemux.get_element(), h265parse.get_element(
             videoconvert.get_element(), autovideosink.get_element()]):
     logger.error("Not all elements could be created.")
 
-filesrc.set_property("location", "/home/shir/Desktop/flights/VNIR_ZOOM.ts")
+filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
 autovideosink.set_property("sync", False)
 
 pipeline.add(filesrc.get_element())

@@ -1,26 +1,34 @@
-from pydantic_settings import BaseSettings
-from typing import Optional, Union, List, Dict
-from pydantic import Field
+from typing import Optional
+from pydantic import Field, BaseModel
 
 
-class MulticastIn(BaseSettings):
-    ip: Optional[str] = Field(default="127.0.0.1", description="Multicast IP")
+class MulticastIn(BaseModel):
+    ip: Optional[str] = Field(description="Multicast IP")
     port: int
     nic: Optional[str] = Field(default=None, description="Network interface")
 
+    class Config:
+        extra = "ignore"
 
-class RTPConfig(BaseSettings):
+
+class RTPConfig(BaseModel):
     enable: bool = Field(default=False, description="Enable RTP extension")
     datachannel: bool = Field(default=True, description="Enable datachannel for RTP")
     websocket: bool = Field(default=False, description="Enable websocket for RTP")
 
+    class Config:
+        extra = "ignore"
 
-class BaseStreamModel(BaseSettings):
+
+class BaseStreamModel(BaseModel):
     command: str
     stream_type: str
     is_rtp: Optional[bool] = False
-    encoding: Optional[str]
+    encoding: Optional[str] = None
     uri: Optional[str] = Field(default=None, description="Stream URI")
     multicast_in: Optional[MulticastIn] = None
     dedupe: Optional[bool] = False
     rtp_ext: Optional[RTPConfig] = None
+
+    class Config:
+        extra = "ignore"

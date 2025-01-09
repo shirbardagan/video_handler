@@ -1,7 +1,7 @@
-from pipelines.base_pipeline import BaseStreamPipeline
+from pipelines.base_pipeline import BaseSinkPipeline
 
 
-class MPEG4IStreamPipeline(BaseStreamPipeline):
+class MPEG4IStreamPipeline(BaseSinkPipeline):
     def create_pipeline(self):
         pass
 

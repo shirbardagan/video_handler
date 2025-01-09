@@ -1,7 +1,7 @@
-from pipelines.base_pipeline import BaseStreamPipeline
+from pipelines.base_pipeline import BaseStreamPipeline, BaseSinkPipeline
 
 
-class TESTStreamPipeline(BaseStreamPipeline):
+class TESTStreamPipeline(BaseSinkPipeline):
     def create_pipeline(self):
         pass
 

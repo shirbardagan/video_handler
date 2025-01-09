@@ -1,11 +1,14 @@
 import asyncio
 import functools
+import json
 import threading
 
 from gi.repository import Gst, GLib, GstApp, GObject, GstWebRTC
 
 from common.base_logger import logger
 import gi
+
+from webrtc_handler.websocket_handler import WebRTCClient
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
@@ -24,11 +27,11 @@ from elements import (
     H264ParseWrapper,
     WebRTCBinWrapper,
     RTPH264Pay,
-    X264enc
+    X264enc, AppSinkWrapper
 )
 
 
-def create_pipeline(webrtcbin):
+def create_pipeline(webrtc_client, webrtcbin):
     pipeline = Gst.Pipeline.new("pipeline")
     initialized_pipeline_elements_tuple = (FileSrcWrapper("filesrc"),
                                            TSDemuxWrapper("tsdemux"),
@@ -36,25 +39,31 @@ def create_pipeline(webrtcbin):
                                            NVH265DecWrapper("nvh265dec"),
                                            X264enc("x264enc"),
                                            H264ParseWrapper("h264parse"),
-                                           RTPH264Pay("rtph264pay")
+                                           RTPH264Pay("rtph264pay"),
+                                           AppSinkWrapper("appsink")
                                            )
 
-    filesrc, tsdemux, h265parse, nvh265dec, x264enc, h264parse, rtph264pay = initialized_pipeline_elements_tuple
+    filesrc, tsdemux, h265parse, nvh265dec, x264enc, h264parse, rtph264pay, appsink = initialized_pipeline_elements_tuple
 
     if not all([filesrc.get_element(), tsdemux.get_element(), h265parse.get_element(), nvh265dec.get_element(),
-               webrtcbin.get_element()]):
+                webrtcbin]):
         logger.error("Not all elements could be created.")
 
-    filesrc.set_property("location", "/home/shir/Desktop/flights/VNIR_ZOOM.ts")
+    filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
+    appsink.set_property("emit-signals", True)
 
-    pipeline.add(filesrc.get_element())
-    pipeline.add(tsdemux.get_element())
-    pipeline.add(h265parse.get_element())
-    pipeline.add(nvh265dec.get_element())
-    pipeline.add(x264enc.get_element())
-    pipeline.add(h264parse.get_element())
-    pipeline.add(rtph264pay.get_element())
-    pipeline.add(webrtcbin.get_element())
+    try:
+        pipeline.add(filesrc.get_element())
+        pipeline.add(tsdemux.get_element())
+        pipeline.add(h265parse.get_element())
+        pipeline.add(nvh265dec.get_element())
+        pipeline.add(x264enc.get_element())
+        pipeline.add(h264parse.get_element())
+        pipeline.add(rtph264pay.get_element())
+        pipeline.add(webrtcbin)
+    except Exception as e:
+        logger.error("While adding elements to the pipeline: %s", e)
+
 
     filesrc.link(tsdemux)
     tsdemux.connect("pad-added", functools.partial(tsdemux.on_pad_added, elements=h265parse.get_element()))
@@ -62,22 +71,8 @@ def create_pipeline(webrtcbin):
     nvh265dec.link(x264enc)
     x264enc.link(h264parse)
     h264parse.link(rtph264pay)
-    rtph264pay.connect("pad-added", functools.partial(rtph264pay.on_pad_added, elements=webrtcbin.get_element()))
-
+    rtph264pay.connect("pad-added", functools.partial(rtph264pay.on_pad_added, elements=webrtcbin))
+    webrtcbin.connect('on-negotiation-needed', webrtc_client.on_negotiation_needed)
+    webrtcbin.connect('on-ice-candidate', webrtc_client.send_ice_candidate_message)
     return pipeline
-
-def play(pipe):
-    ret = pipe.set_state(Gst.State.PLAYING)
-    if ret == Gst.StateChangeReturn.FAILURE:
-        logger.error("Failed to set pipeline to PLAYING state.")
-    elif ret == Gst.StateChangeReturn.ASYNC:
-        logger.info("Pipeline state change is happening asynchronously.")
-    elif ret == Gst.StateChangeReturn.NO_PREROLL:
-        logger.warning("Pipeline might be missing a prerolled source.")
-    else:
-        logger.info("Pipeline is in PLAYING state successfully.")
-    # try:
-    #     loop.run()
-    # except KeyboardInterrupt:
-    #     pass
 

@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 
 router = APIRouter()
 
-html_path = "/home/shir/PycharmProjects/video_handler/routes/index.html"
+html_path = "/home/elbit/Downloads/video_handler/routes/index.html"
 
 @router.get("/")
 async def index():

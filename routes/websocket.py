@@ -3,7 +3,7 @@ import gi
 
 from app_instance import app
 from common.base_logger import logger
-from test_webrtc_pipeline import create_pipeline,play
+from test_webrtc_pipeline import create_pipeline
 from webrtc_handler.websocket_handler import WebRTCClient
 
 gi.require_version('Gst', '1.0')
@@ -14,7 +14,6 @@ from gi.repository import GstWebRTC
 
 gi.require_version('GstSdp', '1.0')
 from gi.repository import GstSdp
-from threading import Thread
 
 router = APIRouter()
 
@@ -28,13 +27,13 @@ async def websocket_handler(conn: WebSocket):
     try:
         pipeline = WebRTCClient(conn)
         pipeline.start()
-        print("before while loop")
+
         while True:
-            print("in while loop")
             data = await conn.receive_json()
             event = data.get("event")
 
             if event == "answer":
+                print("In answer")
                 answer = data["data"]
                 sdp = answer["sdp"]
 
@@ -45,18 +44,19 @@ async def websocket_handler(conn: WebSocket):
                 GstSdp.sdp_message_parse_buffer(bytes(sdp.encode()), sdpmsg)
                 answer = GstWebRTC.WebRTCSessionDescription.new(GstWebRTC.WebRTCSDPType.ANSWER, sdpmsg)
                 promise = Gst.Promise.new()
-                pipeline.webrtc.get_element().emit('set-remote-description', answer, promise)
+                pipeline.webrtc.emit('set-remote-description', answer, promise)
                 promise.interrupt()
-                pipeline.play()
+                pipeline.start()
 
             elif event == "candidate":
+                print("In candidate")
                 candidate = data["data"]
                 candidate_val = candidate['candidate']
-                pipeline.webrtc.get_element().emit('add-ice-candidate', candidate["sdpMLineIndex"], candidate_val)
-                pipeline.play()
+                pipeline.webrtc.emit('add-ice-candidate', candidate["sdpMLineIndex"], candidate_val)
 
             elif event == "play":
-                pipeline.play()
+                print("In play")
+                pipeline.start()
 
     except Exception as e:
         logger.error("In websocket_endpoint: %s", e)
