@@ -1,5 +1,3 @@
-import functools
-
 from common.base_logger import logger
 
 from elements.base_element_wrapper import GStreamerElementWrapper

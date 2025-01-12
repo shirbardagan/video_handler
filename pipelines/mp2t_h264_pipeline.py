@@ -6,14 +6,12 @@ from elements import (
     AppSinkWrapper
 )
 from common.base_logger import logger
-from gi.repository import Gst, GObject, GstSdp
-
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
 
 
 class MP2TH264StreamPipeline(MP2TStreamPipeline):
     def __init__(self):
-        self._instance = Gst.Pipeline.new("pipeline")
+        super().__init__()
         initialized_pipeline_elements_tuple = (FileSrcWrapper("filesrc"),
                                                TSDemuxWrapper("tsdemux"),
                                                H264ParseWrapper("h264parse"),

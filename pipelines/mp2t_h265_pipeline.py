@@ -1,9 +1,5 @@
 import functools
 
-from gi.overrides import override
-
-from pipelines.base_pipeline import BaseStreamPipeline
-
 from elements import (
     FileSrcWrapper,
     TSDemuxWrapper,
@@ -11,17 +7,17 @@ from elements import (
     NVH265DecWrapper,
     H264ParseWrapper,
     RTPH264Pay,
-    X264enc, AppSinkWrapper, WebRTCBinWrapper
+    X264enc,
+    WebRTCBinWrapper
 )
 from common.base_logger import logger
-from gi.repository import Gst, GObject
 
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
 
 
 class MP2TH265StreamPipeline(MP2TStreamPipeline):
     def __init__(self):
-        self._instance = Gst.Pipeline.new("pipeline")
+        super().__init__()
         initialized_pipeline_elements_tuple = (FileSrcWrapper("filesrc"),
                                                TSDemuxWrapper("tsdemux"),
                                                H265ParseWrapper("h265parse"),
@@ -38,8 +34,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         elements = [self.filesrc, self.tsdemux, self.h265parse, self.nvh265dec, self.x264enc, self.h264parse,
                     self.rtph264pay, self.webrtcbin]
 
-        if not all(elements):
-            logger.error("Not all elements could be created.")
+        super().has_elements_initialized(elements)
 
         self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
         # self.appsink.set_property("emit-signals", True)

@@ -24,12 +24,15 @@ class BaseStreamPipeline:
         pass
 
     @staticmethod
-    def has_element_initialized(elements):
+    def has_elements_initialized(elements):
         if not all(elements):
             logger.error("Not all elements could be created.")
 
 
 class BaseSinkPipeline(BaseStreamPipeline):
+    def __init__(self):
+        self._instance = Gst.Pipeline.new("pipeline")
+
     def create_pipeline(self):
         pass
 
@@ -44,18 +47,19 @@ class BaseSinkPipeline(BaseStreamPipeline):
         except Exception as e:
             logger.error("While starting pipeline: %s", e)
 
-    def on_data_sample(self, appsink: Gst.Element) -> Gst.FlowReturn:
-        try:
-            sample = appsink.pull_sample()
-            buffer = sample.get_buffer()
-            succ, info = buffer.map(Gst.MapFlags.READ)
-            buffer.unmap(info)
-            json_data = json.loads(info.data.decode('utf-8'))
-            # self.data_queue.put(json_data)
-        except Exception as e:
-            logger.error("In in_data_sample: %s", e)
-        return Gst.FlowReturn.OK
+    # def on_data_sample(self, appsink: Gst.Element) -> Gst.FlowReturn:
+    #     try:
+    #         sample = appsink.pull_sample()
+    #         buffer = sample.get_buffer()
+    #         succ, info = buffer.map(Gst.MapFlags.READ)
+    #         buffer.unmap(info)
+    #         json_data = json.loads(info.data.decode('utf-8'))
+    #         # self.data_queue.put(json_data)
+    #     except Exception as e:
+    #         logger.error("In in_data_sample: %s", e)
+    #     return Gst.FlowReturn.OK
 
 
 class BaseSrcPipeline(BaseStreamPipeline):
-    pass
+    def __init__(self):
+        self._instance = Gst.Pipeline.new("pipeline")

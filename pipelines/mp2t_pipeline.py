@@ -3,17 +3,17 @@ import functools
 from elements import TSDemuxWrapper, FileSrcWrapper
 from pipelines.base_pipeline import BaseSinkPipeline
 from common.base_logger import logger
-from gi.repository import Gst, GObject
+
 
 class MP2TStreamPipeline(BaseSinkPipeline):
     def __init__(self):
-        self._instance = Gst.Pipeline.new("pipeline")
+        super().__init__()
         initialized_pipeline_elements_tuple = (FileSrcWrapper("filesrc"),
                                                TSDemuxWrapper("tsdemux"))
         (self.filesrc, self.tsdemux) = initialized_pipeline_elements_tuple
 
         elements = [self.filesrc, self.tsdemux]
-        super().has_element_initialized(elements)
+        super().has_elements_initialized(elements)
 
         self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
 
