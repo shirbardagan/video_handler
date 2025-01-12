@@ -1,9 +1,34 @@
-from pipelines.base_pipeline import BaseSinkPipeline
+import functools
 
+from elements import TSDemuxWrapper, FileSrcWrapper
+from pipelines.base_pipeline import BaseSinkPipeline
+from common.base_logger import logger
+from gi.repository import Gst, GObject
 
 class MP2TStreamPipeline(BaseSinkPipeline):
+    def __init__(self):
+        self._instance = Gst.Pipeline.new("pipeline")
+        initialized_pipeline_elements_tuple = (FileSrcWrapper("filesrc"),
+                                               TSDemuxWrapper("tsdemux"))
+        (self.filesrc, self.tsdemux) = initialized_pipeline_elements_tuple
+
+        elements = [self.filesrc, self.tsdemux]
+        super().has_element_initialized(elements)
+
+        self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
+
     def create_pipeline(self):
-        pass
+        try:
+            self._instance.add(self.filesrc.get_element())
+            self._instance.add(self.tsdemux.get_element())
+        except Exception as e:
+            logger.error("While adding elements to the pipeline: %s", e)
+
+        self.filesrc.link(self.tsdemux)
+        self.tsdemux.get_element().connect("pad-added",
+                                      functools.partial(self.tsdemux.on_pad_added))
+
+        return self._instance
 
     def start_pipeline(self, data) -> None:
         pass

@@ -1,9 +1,8 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Request
+from fastapi import APIRouter, WebSocket
 import gi
 
 from app_instance import app
 from common.base_logger import logger
-from test_webrtc_pipeline import create_pipeline
 from webrtc_handler.websocket_handler import WebRTCClient
 
 gi.require_version('Gst', '1.0')
@@ -46,17 +45,18 @@ async def websocket_handler(conn: WebSocket):
                 promise = Gst.Promise.new()
                 pipeline.webrtc.emit('set-remote-description', answer, promise)
                 promise.interrupt()
-                pipeline.start()
+                pipeline.play()
 
             elif event == "candidate":
                 print("In candidate")
                 candidate = data["data"]
                 candidate_val = candidate['candidate']
                 pipeline.webrtc.emit('add-ice-candidate', candidate["sdpMLineIndex"], candidate_val)
+                pipeline.play()
 
             elif event == "play":
                 print("In play")
-                pipeline.start()
+                pipeline.play()
 
     except Exception as e:
         logger.error("In websocket_endpoint: %s", e)

@@ -44,7 +44,7 @@ pipeline.add(videoconvert.get_element())
 pipeline.add(autovideosink.get_element())
 
 filesrc.link(tsdemux)
-tsdemux.connect("pad-added", functools.partial(tsdemux.on_pad_added, elements=h265parse.get_element()))
+tsdemux.connect("pad-added", functools.partial(tsdemux.on_pad_added, h265parse.get_element()))
 h265parse.link(nvh265dec)
 nvh265dec.link(videoconvert)
 videoconvert.link(autovideosink)

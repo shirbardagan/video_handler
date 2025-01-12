@@ -1,6 +1,8 @@
 import functools
+from typing import Self
 
 from common.base_logger import logger
+from elements import WebRTCBinWrapper
 
 from elements.h265parse import H265ParseWrapper
 from elements.base_element_wrapper import GStreamerElementWrapper
@@ -24,3 +26,12 @@ class RTPH264Pay(GStreamerElementWrapper):
                 logger.info(f"Linked pad {pad_name} to webrtcbin sink.")
             else:
                 logger.error(f"Failed to link pad {pad_name} to webrtcbin sink.")
+
+    def link(self, other_element: WebRTCBinWrapper) -> bool:
+        try:
+            rtph264pay_src_pad = self.element.get_static_pad("src")
+            webrtcbin_dynamic_sink_pad = other_element.element.request_pad_simple("sink_%u")
+            if rtph264pay_src_pad.link(webrtcbin_dynamic_sink_pad) == Gst.PadLinkReturn.OK:
+                logger.info("Successfully linked %s to %s", self.name, other_element.name)
+        except Exception as e:
+            logger.error("While linking rtph264pay with %s. %s", other_element.name, e)

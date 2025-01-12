@@ -1,4 +1,5 @@
 import threading
+from typing import Self
 
 import gi
 
@@ -30,7 +31,7 @@ class GStreamerElementWrapper:
     def get_property(self, property_name: str):
         return self.element.get_property(property_name)
 
-    def link(self, other_element: Gst.Element) -> bool:
+    def link(self, other_element) -> bool:
         src_pad = self.element.get_static_pad('src')
         sink_pad = other_element.element.get_static_pad('sink')
 

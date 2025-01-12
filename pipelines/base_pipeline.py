@@ -2,7 +2,6 @@ import json
 from abc import ABC, abstractmethod
 
 from common.base_logger import logger
-from elements import AppSinkWrapper
 from gi.repository import Gst, GLib, GstApp
 
 
@@ -24,8 +23,27 @@ class BaseStreamPipeline:
     def stop_pipeline(self) -> None:
         pass
 
+    @staticmethod
+    def has_element_initialized(elements):
+        if not all(elements):
+            logger.error("Not all elements could be created.")
+
 
 class BaseSinkPipeline(BaseStreamPipeline):
+    def create_pipeline(self):
+        pass
+
+    def start_pipeline(self, data) -> None:
+        try:
+            logger.info("Starting pipeline")
+            ret = self.set_state(Gst.State.PLAYING)
+            if ret == Gst.StateChangeReturn.FAILURE:
+                logger.error("Unable to set the pipeline to the playing state")
+            else:
+                logger.info("Pipeline is now playing")
+        except Exception as e:
+            logger.error("While starting pipeline: %s", e)
+
     def on_data_sample(self, appsink: Gst.Element) -> Gst.FlowReturn:
         try:
             sample = appsink.pull_sample()

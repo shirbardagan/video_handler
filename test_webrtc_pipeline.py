@@ -66,12 +66,12 @@ def create_pipeline(webrtc_client, webrtcbin):
 
 
     filesrc.link(tsdemux)
-    tsdemux.connect("pad-added", functools.partial(tsdemux.on_pad_added, elements=h265parse.get_element()))
+    tsdemux.connect("pad-added", functools.partial(tsdemux.on_pad_added))
     h265parse.link(nvh265dec)
     nvh265dec.link(x264enc)
     x264enc.link(h264parse)
     h264parse.link(rtph264pay)
-    rtph264pay.connect("pad-added", functools.partial(rtph264pay.on_pad_added, elements=webrtcbin))
+    rtph264pay.connect("pad-added", functools.partial(rtph264pay.on_pad_added))
     webrtcbin.connect('on-negotiation-needed', webrtc_client.on_negotiation_needed)
     webrtcbin.connect('on-ice-candidate', webrtc_client.send_ice_candidate_message)
     return pipeline
