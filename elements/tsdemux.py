@@ -6,8 +6,8 @@ from gi.repository import Gst, GLib, GstApp
 
 
 class TSDemuxWrapper(GStreamerElementWrapper):
-    def __init__(self, name="tsdemux"):
-        super().__init__(name, "tsdemux")
+    def __init__(self, type="tsdemux"):
+        super().__init__(type, "tsdemux")
 
     @staticmethod
     def on_pad_added(_, pad, elements) -> None:

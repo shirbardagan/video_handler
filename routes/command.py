@@ -1,4 +1,4 @@
-from typing import Union
+from typing_extensions import Union
 
 from fastapi import APIRouter, Request, Body
 

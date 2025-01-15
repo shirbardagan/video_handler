@@ -1,3 +1,4 @@
+from common.base_logger import logger
 from pipelines.base_pipeline import BaseStreamPipeline
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
 from pipelines.mpeg4i_pipeline import MPEG4IStreamPipeline
@@ -19,7 +20,8 @@ class StreamPipelineFactory:
 
     @classmethod
     def get_pipeline_type(cls, stream_type: str) -> BaseStreamPipeline:
-        pipeline_class = cls._pipeline_mapping.get(stream_type)
-        if pipeline_class:
+        try:
+            pipeline_class = cls._pipeline_mapping.get(stream_type)
             return pipeline_class()
-        raise ValueError(f"Unsupported stream type: {stream_type}")
+        except Exception as e:
+            logger.error("While trying to define pipeline type: %s", e)

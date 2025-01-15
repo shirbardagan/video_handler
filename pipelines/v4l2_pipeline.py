@@ -1,4 +1,4 @@
-from pipelines.base_pipeline import BaseStreamPipeline, BaseSinkPipeline
+from pipelines.base_pipeline import BaseSinkPipeline
 
 
 class V4L2StreamPipeline(BaseSinkPipeline):

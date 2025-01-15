@@ -18,14 +18,14 @@ from pipelines.mp2t_pipeline import MP2TStreamPipeline
 class MP2TH265StreamPipeline(MP2TStreamPipeline):
     def __init__(self):
         super().__init__()
-        initialized_pipeline_elements_tuple = (FileSrcWrapper("filesrc"),
-                                               TSDemuxWrapper("tsdemux"),
-                                               H265ParseWrapper("h265parse"),
-                                               NVH265DecWrapper("nvh265dec"),
-                                               X264enc("x264enc"),
-                                               H264ParseWrapper("h264parse"),
-                                               RTPH264Pay("rtph264pay"),
-                                               WebRTCBinWrapper("webrtcbin")
+        initialized_pipeline_elements_tuple = (FileSrcWrapper(),
+                                               TSDemuxWrapper(),
+                                               H265ParseWrapper(),
+                                               NVH265DecWrapper(),
+                                               X264enc(),
+                                               H264ParseWrapper(),
+                                               RTPH264Pay(),
+                                               WebRTCBinWrapper()
                                                )
 
         (self.filesrc, self.tsdemux, self.h265parse, self.nvh265dec, self.x264enc, self.h264parse,

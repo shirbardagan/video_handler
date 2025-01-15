@@ -1,6 +1,6 @@
+from common.base_logger import logger
 from pipelines.mp2t_h264_pipeline import MP2TH264StreamPipeline
 from pipelines.mp2t_h265_pipeline import MP2TH265StreamPipeline
-
 
 
 class MP2TFactory:
@@ -11,7 +11,8 @@ class MP2TFactory:
 
     @classmethod
     def get_pipeline_type(cls, encode_type: str):
-        mp2t_pipeline_class = cls._pipeline_mapping.get(encode_type)
-        if mp2t_pipeline_class:
+        try:
+            mp2t_pipeline_class = cls._pipeline_mapping.get(encode_type)
             return mp2t_pipeline_class()
-        raise ValueError(f"Unsupported encoding type: {encode_type}")
+        except Exception as e:
+            logger.error("While trying to define stream encoding: %s", e)

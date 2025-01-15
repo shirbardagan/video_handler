@@ -8,6 +8,6 @@ from elements.base_element_wrapper import GStreamerElementWrapper
 
 
 class WebRTCBinWrapper(GStreamerElementWrapper):
-    def __init__(self, name="webrtcbin"):
-        super().__init__(name, "webrtcbin")
+    def __init__(self, type="webrtcbin"):
+        super().__init__(type, "webrtcbin")
 

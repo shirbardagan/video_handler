@@ -9,3 +9,4 @@ websockets
 aiortc
 asyncio
 typing
+typing-extensions

@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
-
+import os
 
 router = APIRouter()
 
-html_path = "/home/elbit/Downloads/video_handler/routes/index.html"
+html_path = os.getenv("HTML_PATH")
 
 @router.get("/")
 async def index():

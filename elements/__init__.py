@@ -6,14 +6,14 @@ from .h265parse import H265ParseWrapper
 from .klvparse import KLVParseWrapper
 from .nvh265dec import NVH265DecWrapper
 from .tsdemux import TSDemuxWrapper
-from .udpsrc import UDPSrcElementWrapper
+from .udpsrc import UDPSrcWrapper
 from .videoconvert import VideoConvertWrapper
 from .webrtcbin import WebRTCBinWrapper
 from .rtph264pay import RTPH264Pay
 from .x264enc import X264enc
 
 __all__ = [
-    UDPSrcElementWrapper,
+    UDPSrcWrapper,
     AppSinkWrapper,
     AutoVideoSinkWrapper,
     FileSrcWrapper,

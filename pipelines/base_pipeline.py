@@ -1,5 +1,5 @@
 import json
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 from common.base_logger import logger
 from gi.repository import Gst, GLib, GstApp

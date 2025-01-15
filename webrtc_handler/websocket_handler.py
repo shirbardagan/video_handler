@@ -8,22 +8,13 @@ from gi.repository import Gst, GObject, GstSdp
 
 from elements import WebRTCBinWrapper
 from pipelines.mp2t_h265_pipeline import MP2TH265StreamPipeline
+from pipelines.mp2t_pipeline import MP2TStreamPipeline
 from pipelines.mpeg4i_pipeline import MPEG4IStreamPipeline
+from pipelines.test_pipeline import TESTStreamPipeline
 
 gi.require_version('Gst', '1.0')
 gi.require_version('GstWebRTC', '1.0')
 gi.require_version('GstSdp', '1.0')
-
-from elements import (
-    FileSrcWrapper,
-    TSDemuxWrapper,
-    H265ParseWrapper,
-    NVH265DecWrapper,
-    H264ParseWrapper,
-    WebRTCBinWrapper,
-    RTPH264Pay,
-    X264enc
-)
 
 
 class WebRTCClient:
@@ -31,7 +22,7 @@ class WebRTCClient:
         self.conn = conn
         self.loop = asyncio.get_running_loop()
 
-        pipe = MPEG4IStreamPipeline()
+        pipe = TESTStreamPipeline()
         self.pipeline = pipe.create_pipeline()
         self.webrtc = self.pipeline.get_by_name("webrtcbin")
         if self.webrtc is None:

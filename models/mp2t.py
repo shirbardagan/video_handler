@@ -1,4 +1,4 @@
-from typing import Optional
+from typing_extensions import Optional
 
 from pydantic import Field, BaseModel
 from models.base_stream import BaseStreamModel

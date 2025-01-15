@@ -8,8 +8,8 @@ from common.base_logger import logger
 class MP2TStreamPipeline(BaseSinkPipeline):
     def __init__(self):
         super().__init__()
-        initialized_pipeline_elements_tuple = (FileSrcWrapper("filesrc"),
-                                               TSDemuxWrapper("tsdemux"))
+        initialized_pipeline_elements_tuple = (FileSrcWrapper(),
+                                               TSDemuxWrapper())
         (self.filesrc, self.tsdemux) = initialized_pipeline_elements_tuple
 
         elements = [self.filesrc, self.tsdemux]

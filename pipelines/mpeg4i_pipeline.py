@@ -9,11 +9,11 @@ from pipelines.base_pipeline import BaseSinkPipeline
 class MPEG4IStreamPipeline(BaseSinkPipeline):
     def __init__(self):
         super().__init__()
-        initialized_pipeline_elements_tuple = (FileSrcWrapper("filesrc"),
-                                               QTDemuxWrapper("qtdemux"),
-                                               H264ParseWrapper("h264parse"),
-                                               RTPH264Pay("rtph264pay"),
-                                               WebRTCBinWrapper("webrtcbin")
+        initialized_pipeline_elements_tuple = (FileSrcWrapper(),
+                                               QTDemuxWrapper(),
+                                               H264ParseWrapper(),
+                                               RTPH264Pay(),
+                                               WebRTCBinWrapper()
                                                )
 
         (self.filesrc, self.qtdemux, self.h264parse, self.rtph264pay,

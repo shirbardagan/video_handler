@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing_extensions import Optional, Union
 
 from models.base_stream import BaseStreamModel
 from pydantic import Field, root_validator
@@ -9,7 +9,6 @@ reinterlace_options = [None, False, True, 1, 0, 2, "reinterlace", "crop"]
 class MPEG4IStreamConfig(BaseStreamModel):
     stream_type: str = "mpeg4i"
     reinterlace: Optional[Union[bool, int, str]] = Field(default=0, description="Reinterlace option")
-
 
 # @root_validator(pre=True)
 # def validate_reinterlace(values):
