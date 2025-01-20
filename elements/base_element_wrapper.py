@@ -12,6 +12,9 @@ class GStreamerElementWrapper:
     _lock = threading.Lock()
 
     def __new__(cls, *args, **kwargs):
+        if getattr(cls, "allow_multiple_instances", False):
+            return super(GStreamerElementWrapper, cls).__new__(cls)
+
         with cls._lock:
             if cls not in cls._instances:
                 instance = super().__new__(cls)
@@ -51,3 +54,5 @@ class GStreamerElementWrapper:
     def get_element(self) -> Gst.Element:
         """Returns the underlying Gst.Element instance."""
         return self._element
+
+

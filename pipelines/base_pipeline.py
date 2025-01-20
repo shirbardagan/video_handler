@@ -2,6 +2,9 @@ import json
 from abc import abstractmethod
 
 from common.base_logger import logger
+import gi
+gi.require_version('Gst', '1.0')
+gi.require_version("GstApp", "1.0")
 from gi.repository import Gst, GLib, GstApp
 
 
@@ -16,7 +19,7 @@ class BaseStreamPipeline:
         pass
 
     @abstractmethod
-    def start_pipeline(self, data) -> None:
+    def start_pipeline(self) -> None:
         pass
 
     @abstractmethod
@@ -36,10 +39,10 @@ class BaseSinkPipeline(BaseStreamPipeline):
     def create_pipeline(self):
         pass
 
-    def start_pipeline(self, data) -> None:
+    def start_pipeline(self) -> None:
         try:
             logger.info("Starting pipeline")
-            ret = self.set_state(Gst.State.PLAYING)
+            ret = self._instance.set_state(Gst.State.PLAYING)
             if ret == Gst.StateChangeReturn.FAILURE:
                 logger.error("Unable to set the pipeline to the playing state")
             else:

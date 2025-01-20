@@ -3,6 +3,8 @@ import gi
 
 from app_instance import app
 from common.base_logger import logger
+from pipelines.mp2t_h265_pipeline import MP2TH265StreamPipeline
+from pipelines.webrtc_pipeline import WebRTCPipeline
 from webrtc_handler.websocket_handler import WebRTCClient
 
 gi.require_version('Gst', '1.0')
@@ -24,8 +26,12 @@ async def websocket_handler(conn: WebSocket):
     print("connection accepted")
     app.state.CONN = conn
     try:
-        pipeline = WebRTCClient(conn)
-        pipeline.start()
+        webrtc_client = WebRTCClient(conn)
+        webrtc_client.start()
+
+        mpeg_pipe = MP2TH265StreamPipeline()
+        mpeg_pipeline = mpeg_pipe.create_pipeline()
+        mpeg_pipeline.set_state(Gst.State.PLAYING)
 
         while True:
             data = await conn.receive_json()
@@ -43,20 +49,20 @@ async def websocket_handler(conn: WebSocket):
                 GstSdp.sdp_message_parse_buffer(bytes(sdp.encode()), sdpmsg)
                 answer = GstWebRTC.WebRTCSessionDescription.new(GstWebRTC.WebRTCSDPType.ANSWER, sdpmsg)
                 promise = Gst.Promise.new()
-                pipeline.webrtc.emit('set-remote-description', answer, promise)
+                webrtc_client.webrtc.emit('set-remote-description', answer, promise)
                 promise.interrupt()
-                pipeline.play()
+                webrtc_client.play()
 
             elif event == "candidate":
                 print("In candidate")
                 candidate = data["data"]
                 candidate_val = candidate['candidate']
-                pipeline.webrtc.emit('add-ice-candidate', candidate["sdpMLineIndex"], candidate_val)
-                pipeline.play()
+                webrtc_client.webrtc.emit('add-ice-candidate', candidate["sdpMLineIndex"], candidate_val)
+                webrtc_client.play()
 
             elif event == "play":
                 print("In play")
-                pipeline.play()
+                webrtc_client.play()
 
     except Exception as e:
         logger.error("In websocket_endpoint: %s", e)

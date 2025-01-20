@@ -2,6 +2,7 @@ import asyncio
 import functools
 import json
 
+from app_instance import app
 from common.base_logger import logger
 import gi
 from gi.repository import Gst, GObject, GstSdp
@@ -11,6 +12,7 @@ from pipelines.mp2t_h265_pipeline import MP2TH265StreamPipeline
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
 from pipelines.mpeg4i_pipeline import MPEG4IStreamPipeline
 from pipelines.test_pipeline import TESTStreamPipeline
+from pipelines.webrtc_pipeline import WebRTCPipeline
 
 gi.require_version('Gst', '1.0')
 gi.require_version('GstWebRTC', '1.0')
@@ -22,8 +24,8 @@ class WebRTCClient:
         self.conn = conn
         self.loop = asyncio.get_running_loop()
 
-        pipe = TESTStreamPipeline()
-        self.pipeline = pipe.create_pipeline()
+        webrtc_pipeline = WebRTCPipeline()
+        self.pipeline = webrtc_pipeline.create_pipeline()
         self.webrtc = self.pipeline.get_by_name("webrtcbin")
         if self.webrtc is None:
             raise Exception("Failed to find webrtcbin element in the pipeline.")
