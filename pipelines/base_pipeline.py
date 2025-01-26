@@ -3,6 +3,7 @@ from abc import abstractmethod
 
 from common.base_logger import logger
 import gi
+
 gi.require_version('Gst', '1.0')
 gi.require_version("GstApp", "1.0")
 from gi.repository import Gst, GLib, GstApp
@@ -41,6 +42,7 @@ class BaseSinkPipeline(BaseStreamPipeline):
 
     def start_pipeline(self) -> None:
         try:
+            self.create_pipeline()
             logger.info("Starting pipeline")
             ret = self._instance.set_state(Gst.State.PLAYING)
             if ret == Gst.StateChangeReturn.FAILURE:
@@ -49,18 +51,6 @@ class BaseSinkPipeline(BaseStreamPipeline):
                 logger.info("Pipeline is now playing")
         except Exception as e:
             logger.error("While starting pipeline: %s", e)
-
-    # def on_data_sample(self, appsink: Gst.Element) -> Gst.FlowReturn:
-    #     try:
-    #         sample = appsink.pull_sample()
-    #         buffer = sample.get_buffer()
-    #         succ, info = buffer.map(Gst.MapFlags.READ)
-    #         buffer.unmap(info)
-    #         json_data = json.loads(info.data.decode('utf-8'))
-    #         # self.data_queue.put(json_data)
-    #     except Exception as e:
-    #         logger.error("In in_data_sample: %s", e)
-    #     return Gst.FlowReturn.OK
 
 
 class BaseSrcPipeline(BaseStreamPipeline):

@@ -13,8 +13,7 @@ video_stream_factory = StreamPipelineFactory()
 
 
 @router.post("/video/command/enable")
-async def get_vmd_command(request: Request, data: StreamData = Body(...)):
-    print("Aaaaaaaaa")
+async def enable_video(request: Request, data: StreamData = Body(...)):
     print(data)
     request.app.state.PIPELINE_DATA = data
     pipeline = video_stream_factory.get_pipeline_type(data.stream_type)

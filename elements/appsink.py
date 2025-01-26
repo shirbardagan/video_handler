@@ -19,14 +19,23 @@ class DataAppSink(AppSinkWrapper):
 
 
 class VideoAppSink(AppSinkWrapper):
+    first_time = True
+
     def __init__(self, type="appsink"):
         super().__init__(type, "videosink")
 
     def on_data_sample(self, appsink) -> Gst.FlowReturn:
         try:
             sample = appsink.pull_sample()
+            buffer = sample.get_buffer()
+            # buffer.dts = 0
+            # buffer.pts = 0
+            if self.first_time:
+                print("In on_data_sample", len(app.state.OPEN_CONNECTIONS))
+                self.first_time = False
             for appsrc in app.state.OPEN_CONNECTIONS:
-                appsrc.push_sample(sample)
+                appsrc.get_element().push_sample(sample)
+                print(appsrc.get_element().get_current_level_bytes())
         except Exception as e:
             logger.error("In data_sample: %s", e)
         return Gst.FlowReturn.OK

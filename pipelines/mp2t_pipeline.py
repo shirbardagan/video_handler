@@ -15,7 +15,7 @@ class MP2TStreamPipeline(BaseSinkPipeline):
         elements = [self.filesrc, self.tsdemux]
         super().has_elements_initialized(elements)
 
-        self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
+        # self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
 
     def create_pipeline(self):
         try:

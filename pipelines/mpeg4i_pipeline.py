@@ -22,7 +22,7 @@ class MPEG4IStreamPipeline(BaseSinkPipeline):
         elements = [self.filesrc, self.qtdemux, self.h264parse, self.rtph264pay, self.webrtcbin]
         super().has_elements_initialized(elements)
 
-        self.filesrc.set_property("location", "/home/elbit/Downloads/butt.mp4")
+        # self.filesrc.set_property("location", "/home/elbit/Downloads/butt.mp4")
         self.h264parse.set_property("config-interval", -1)
         self.rtph264pay.set_property("config-interval", -1)
         # self.appsink.set_property("emit-signals", True)

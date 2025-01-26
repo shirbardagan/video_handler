@@ -27,5 +27,5 @@ class MP2TH264StreamPipeline(MP2TStreamPipeline):
         if not all(elements):
             logger.error("Not all elements could be created.")
 
-        self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
+        # self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
         self.appsink.set_property("emit-signals", True)

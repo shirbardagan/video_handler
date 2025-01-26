@@ -6,12 +6,6 @@ from app_instance import app
 from common.base_logger import logger
 import gi
 from gi.repository import Gst, GObject, GstSdp
-
-from elements import WebRTCBinWrapper
-from pipelines.mp2t_h265_pipeline import MP2TH265StreamPipeline
-from pipelines.mp2t_pipeline import MP2TStreamPipeline
-from pipelines.mpeg4i_pipeline import MPEG4IStreamPipeline
-from pipelines.test_pipeline import TESTStreamPipeline
 from pipelines.webrtc_pipeline import WebRTCPipeline
 
 gi.require_version('Gst', '1.0')
@@ -22,7 +16,7 @@ gi.require_version('GstSdp', '1.0')
 class WebRTCClient:
     def __init__(self, conn):
         self.conn = conn
-        self.loop = asyncio.get_running_loop()
+        self.loop = asyncio.get_event_loop()
 
         webrtc_pipeline = WebRTCPipeline()
         self.pipeline = webrtc_pipeline.create_pipeline()
@@ -33,6 +27,7 @@ class WebRTCClient:
         self.webrtc.connect('on-negotiation-needed', self.on_negotiation_needed)
         self.webrtc.connect('on-ice-candidate', self.send_ice_candidate_message)
 
+        # self.webrtc.connect("on-sdp-set", self.on_sdp_set())
     def start(self):
         try:
             logger.info("Starting pipeline")
@@ -44,9 +39,6 @@ class WebRTCClient:
         except Exception as e:
             logger.error("While starting pipeline: %s", e)
 
-    def play(self):
-        self.pipeline.set_state(Gst.State.PLAYING)
-        logger.info("Playing pipeline")
 
     def send_sdp_offer(self, offer):
         text = offer.sdp.as_text()
@@ -81,4 +73,8 @@ class WebRTCClient:
                 'candidate': candidate,
                 'sdpMLineIndex': mlineindex}
                              })
+        print((f"Sending ICE candidate: {icemsg}"))
         asyncio.run_coroutine_threadsafe(self.conn.send_text(icemsg), self.loop)
+
+    # def on_sdp_set(self):
+    #     print("ggggg")
