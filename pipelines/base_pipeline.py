@@ -1,5 +1,6 @@
-import json
 from abc import abstractmethod
+
+from google_crc32c import value
 
 from common.base_logger import logger
 import gi
@@ -36,6 +37,33 @@ class BaseStreamPipeline:
 class BaseSinkPipeline(BaseStreamPipeline):
     def __init__(self):
         self._instance = Gst.Pipeline.new("pipeline")
+        self._bus = self._instance.get_bus()
+        self._bus.add_watch(0, self.on_bus_message)
+
+    def on_bus_message(self, bus, msg):
+        if msg.type == Gst.MessageType.STATE_CHANGED:
+            print(msg.parse_state_changed())
+        elif msg.type == Gst.MessageType.ERROR:
+            print(msg.parse_error())
+        elif msg.type == Gst.MessageType.INFO:
+            print(msg.parse_info())
+        elif msg.type == Gst.MessageType.WARNING:
+            print(msg.parse_warning())
+        elif msg.type == Gst.MessageType.ELEMENT:
+            structure = msg.get_structure()
+        # elif msg.type == Gst.MessageType.STREAM_STATUS:
+        #     for i in range(structure.n_fields()):
+        #         field_name = structure.nth_field_name(i)
+                # value = structure.
+
+
+                # if isinstance(structure.get_value(field_name), GBoxed):
+                #     pass
+                # else:
+                #     print("hh")
+
+        return True
+        # print("In on bus msg")
 
     def create_pipeline(self):
         pass

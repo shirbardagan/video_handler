@@ -5,7 +5,7 @@ from pipelines.mp2t_h265_pipeline import MP2TH265StreamPipeline
 
 class MP2TFactory:
     _pipeline_mapping = {
-        "video/x-h2654": MP2TH264StreamPipeline,
+        "video/x-h264": MP2TH264StreamPipeline,
         "video/x-h265": MP2TH265StreamPipeline
     }
 

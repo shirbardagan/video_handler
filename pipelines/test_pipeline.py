@@ -1,11 +1,19 @@
 import functools
 
 from common.base_logger import logger
-from elements import X264enc, H264ParseWrapper, RTPH264Pay, WebRTCBinWrapper
-from elements.appsink import VideoAppSink, DataAppSink
-from elements.fakesink import FakeSinkWrapper
-from elements.videotestsrc import VideoTestSrcWrapper
+from elements import (X264enc,
+                      H264ParseWrapper,
+                      RTPH264Pay,
+                      WebRTCBinWrapper,
+                      VideoAppSink,
+                      DataAppSink,
+                      FakeSinkWrapper,
+                      VideoTestSrcWrapper)
 from pipelines.base_pipeline import BaseSinkPipeline
+
+import gi
+
+gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
 
@@ -32,7 +40,8 @@ class TESTStreamPipeline(BaseSinkPipeline):
         self.videosink.set_property("emit-signals", True)
         self.fakesink.set_property("dump", True)
 
-    def on_data_sample(self, appsink) -> Gst.FlowReturn:
+    @staticmethod
+    def on_data_sample(appsink) -> Gst.FlowReturn:
         try:
             sample = appsink.pull_sample()
             print(sample)
@@ -67,7 +76,7 @@ class TESTStreamPipeline(BaseSinkPipeline):
 
         return self._instance
 
-    def start_pipeline(self, data) -> None:
+    def start_pipeline(self) -> None:
         pass
 
     def stop_pipeline(self) -> None:

@@ -31,9 +31,10 @@ class WebRTCPipeline(BaseSrcPipeline):
             self.videosrc.connect("enough-data", self.videosrc.on_enough_data)
             self.videosrc.set_property("format", Gst.Format.TIME)
             self.videosrc.set_property("is-live", True)
-            self.videosrc.set_property("do-timestamp", True)
+            self.videosrc.set_property("do-timestamp", False)
             # self.videosrc.set_property("leaky-type", 2)
             self.identity.set_property("dump", True)
+            # self.videosrc.set_property("stream-type", )
 
         except Exception as e:
             logger.error("While initializing webrtcbin pipeline: %s", e)
@@ -47,3 +48,5 @@ class WebRTCPipeline(BaseSrcPipeline):
         self.videosrc.link(self.identity)
         self.identity.link(self.webrtcbin)
         return self._instance
+
+    # def on_bus_message

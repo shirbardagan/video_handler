@@ -34,12 +34,13 @@ class AppSrcWrapper(GStreamerElementWrapper):
 
 
     def on_enough_data(self, _):
-        app.state.PUSH_SAMPLE = False
-        element = self.get_element()
-        current_level = element.get_current_level_bytes()
-        max_level = element.get_max_bytes()
-        if current_level >= max_level:
-            print(f"Buffer full: current level {current_level}/{max_level}")
+        pass
+    #     app.state.PUSH_SAMPLE = False
+    #     element = self.get_element()
+    #     current_level = element.get_current_level_bytes()
+    #     max_level = element.get_max_bytes()
+    #     if current_level >= max_level:
+    #         print(f"Buffer full: current level {current_level}/{max_level}")
 
 
 class DataAppSrc(AppSrcWrapper):

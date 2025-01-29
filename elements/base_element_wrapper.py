@@ -17,7 +17,7 @@ class GStreamerElementWrapper:
 
         with cls._lock:
             if cls not in cls._instances:
-                instance = super().__new__(cls)
+                instance = super(GStreamerElementWrapper, cls).__new__(cls)
                 cls._instances[cls] = instance
         return cls._instances[cls]
 
@@ -33,19 +33,22 @@ class GStreamerElementWrapper:
     def get_property(self, property_name: str):
         return self._element.get_property(property_name)
 
+    def get_name(self):
+        return self._name
+
     def link(self, other_element) -> bool:
         src_pad = self._element.get_static_pad('src')
         sink_pad = other_element.get_element().get_static_pad('sink')
 
         if not src_pad or not sink_pad:
-            logger.error(f"Cannot find static pads: {self._name} or {other_element._name}")
+            logger.error(f"Cannot find static pads: {self.get_name()} or {other_element.get_name()}")
             return False
 
-        if src_pad.link(sink_pad) != Gst.PadLinkReturn.OK:
-            logger.error(f"Failed to link {self._name} to {other_element._name}")
+        if src_pad.link(sink_pad) == Gst.PadLinkReturn.OK:
+            logger.info(f"Successfully linked {self.get_name()} to {other_element.get_name()}")
+        else:
+            logger.error(f"Failed to link {self.get_name()} to {other_element.get_name()}")
             return False
-
-        logger.info(f"Successfully linked {self._name} to {other_element._name}")
         return True
 
     def connect(self, signal_name: str, callback, *user_data) -> None:
@@ -54,5 +57,3 @@ class GStreamerElementWrapper:
     def get_element(self) -> Gst.Element:
         """Returns the underlying Gst.Element instance."""
         return self._element
-
-

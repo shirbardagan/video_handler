@@ -1,4 +1,5 @@
 import json
+import time
 
 from app_instance import app
 from common.base_logger import logger
@@ -28,14 +29,15 @@ class VideoAppSink(AppSinkWrapper):
         try:
             sample = appsink.pull_sample()
             buffer = sample.get_buffer()
-            # buffer.dts = 0
-            # buffer.pts = 0
+            buffer.dts = 0
+            buffer.pts = 0
             if self.first_time:
-                print("In on_data_sample", len(app.state.OPEN_CONNECTIONS))
+                print("In on_data_sample")
+                time.sleep(5)
                 self.first_time = False
             for appsrc in app.state.OPEN_CONNECTIONS:
                 appsrc.get_element().push_sample(sample)
-                print(appsrc.get_element().get_current_level_bytes())
+                # print(appsrc.get_current_level_bytes())
         except Exception as e:
             logger.error("In data_sample: %s", e)
         return Gst.FlowReturn.OK

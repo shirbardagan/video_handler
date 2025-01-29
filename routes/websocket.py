@@ -26,21 +26,21 @@ async def websocket_handler(conn: WebSocket):
     print("connection accepted")
     app.state.CONN = conn
     try:
-        mpeg_pipe = MP2TH265StreamPipeline()
-        mpeg_pipeline = mpeg_pipe.create_pipeline()
-
-        filesrc = mpeg_pipeline.get_by_name("filesrc")
-        filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
-
-        ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
-        app.state.CURR_PIPELINE = mpeg_pipeline
-        if ret == Gst.StateChangeReturn.FAILURE:
-            logger.error("Unable to set the MPEGPipeline to the playing state")
-        else:
-            logger.info("MPEGPipeline is now playing!!")
-
         webrtc_client = WebRTCClient(conn)
         webrtc_client.start()
+
+        # while webrtc_client.pipeline.get_state(Gst.CLOCK_TIME_NONE)[1] != Gst.State.PLAYING:
+        #     print("not playing yet")
+
+        # mpeg_pipe = MP2TH265StreamPipeline()
+        # mpeg_pipeline = mpeg_pipe.create_pipeline()
+        #
+        # ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
+        # app.state.CURR_PIPELINE = mpeg_pipeline
+        # if ret == Gst.StateChangeReturn.FAILURE:
+        #     logger.error("Unable to set the MPEGPipeline to the playing state")
+        # else:
+        #     logger.info("MPEGPipeline is now playing!!")
 
         while True:
             data = await conn.receive_json()
@@ -58,15 +58,16 @@ async def websocket_handler(conn: WebSocket):
                 GstSdp.sdp_message_parse_buffer(bytes(sdp.encode()), sdpmsg)
                 answer = GstWebRTC.WebRTCSessionDescription.new(GstWebRTC.WebRTCSDPType.ANSWER, sdpmsg)
                 promise = Gst.Promise.new()
-                webrtc_client.webrtc.emit('set-remote-description', answer, promise)
+                webrtc_client.webrtc.emit("set-remote-description", answer, promise)
                 promise.interrupt()
+                print("sending remote description")
                 webrtc_client.start()
 
             elif event == "candidate":
                 print("In candidate")
                 candidate = data["data"]
                 candidate_val = candidate['candidate']
-                webrtc_client.webrtc.emit('add-ice-candidate', candidate["sdpMLineIndex"], candidate_val)
+                webrtc_client.webrtc.emit("add-ice-candidate", candidate["sdpMLineIndex"], candidate_val)
                 webrtc_client.start()
 
             elif event == "play":
