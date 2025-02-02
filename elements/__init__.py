@@ -1,5 +1,6 @@
 from .appsink import AppSinkWrapper
 from .autovideosink import AutoVideoSinkWrapper
+from .capsfilter import CapsFilterWrapper
 from .filesrc import FileSrcWrapper
 from .h264parse import H264ParseWrapper
 from .h265parse import H265ParseWrapper
@@ -25,7 +26,8 @@ __all__ = [
     TSDemuxWrapper,
     WebRTCBinWrapper,
     RTPH264Pay,
-    X264enc
+    X264enc,
+    CapsFilterWrapper
 ]
 
 

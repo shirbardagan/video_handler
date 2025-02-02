@@ -17,8 +17,6 @@
 				conn.send(JSON.stringify({event: 'play', data: ''}))
 			}
 
-			pc.createDataChannel('dummyChannel', { ordered: true });
-
 			pc.ontrack = function (event) {
 			  console.log('track received', event.track.kind, event.track);
 			  if (event.track.kind === 'video') {
@@ -92,6 +90,7 @@
 				case 'offer':
 					console.log('received offer from server')
 					await pc.setRemoteDescription(new RTCSessionDescription(msg.data))
+					console.log("Remote SDP:", pc.remoteDescription?.sdp);
 					const answer = await pc.createAnswer()
 					await pc.setLocalDescription(answer)
 					conn.send(JSON.stringify({

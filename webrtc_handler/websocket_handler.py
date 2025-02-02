@@ -5,6 +5,8 @@ import json
 from app_instance import app
 from common.base_logger import logger
 import gi
+gi.require_version('GstSdp', '1.0')
+gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GObject, GstSdp
 from pipelines.webrtc_pipeline import WebRTCPipeline
 
@@ -74,6 +76,8 @@ class WebRTCClient:
                 'sdpMLineIndex': mlineindex}
                              })
         print((f"Sending ICE candidate: {icemsg}"))
+        print(self.webrtc.get_static_pad("sink_0").is_blocked())
+        print(self.webrtc.get_static_pad("sink_0").is_blocking())
         asyncio.run_coroutine_threadsafe(self.conn.send_text(icemsg), self.loop)
 
     # def on_sdp_set(self):
