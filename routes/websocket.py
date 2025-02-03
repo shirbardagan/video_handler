@@ -34,11 +34,11 @@ async def websocket_handler(conn: WebSocket):
         while webrtc_client.appsrc.get_state(Gst.CLOCK_TIME_NONE)[1] != Gst.State.PLAYING:
             print("Not ready Yet")
         # app.state.OPEN_CONNECTIONS.append(webrtc_client.appsrc)
-        mpeg_pipe = UDPSRCPipeline()
+        mpeg_pipe = MP2TH265StreamPipeline()
         mpeg_pipeline = mpeg_pipe.create_pipeline()
 
-        # filesrc = mpeg_pipeline.get_by_name("filesrc")
-        # filesrc.set_property("location", "/home/shir/Desktop/flights/VNIR_ZOOM.ts")
+        filesrc = mpeg_pipeline.get_by_name("filesrc")
+        filesrc.set_property("location", "/home/shir/Desktop/flights/VNIR_ZOOM.ts")
 
         ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
         app.state.CURR_PIPELINE = mpeg_pipeline
