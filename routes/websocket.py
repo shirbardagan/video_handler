@@ -6,6 +6,8 @@ import gi
 from app_instance import app
 from common.base_logger import logger
 from pipelines.mp2t_h265_pipeline import MP2TH265StreamPipeline
+from pipelines.test1_pipeline import TEST1StreamPipeline
+from pipelines.udpsrc_pipeline import UDPSRCPipeline
 from webrtc_handler.websocket_handler import WebRTCClient
 
 gi.require_version('Gst', '1.0')
@@ -29,13 +31,14 @@ async def websocket_handler(conn: WebSocket):
     try:
         webrtc_client = WebRTCClient(conn)
         webrtc_client.start()
-        while webrtc_client.webrtc.get_state(Gst.CLOCK_TIME_NONE)[1] != Gst.State.PLAYING:
+        while webrtc_client.appsrc.get_state(Gst.CLOCK_TIME_NONE)[1] != Gst.State.PLAYING:
             print("Not ready Yet")
-        mpeg_pipe = MP2TH265StreamPipeline()
+        # app.state.OPEN_CONNECTIONS.append(webrtc_client.appsrc)
+        mpeg_pipe = UDPSRCPipeline()
         mpeg_pipeline = mpeg_pipe.create_pipeline()
 
-        filesrc = mpeg_pipeline.get_by_name("filesrc")
-        filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
+        # filesrc = mpeg_pipeline.get_by_name("filesrc")
+        # filesrc.set_property("location", "/home/shir/Desktop/flights/VNIR_ZOOM.ts")
 
         ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
         app.state.CURR_PIPELINE = mpeg_pipeline
@@ -64,18 +67,18 @@ async def websocket_handler(conn: WebSocket):
                 promise.interrupt()
                 promise.wait()
                 promise_result = promise.get_reply()
-                webrtc_client.webrtc.get_static_pad("sink_0").remove_probe(1)
+                # webrtc_client.webrtc.get_static_pad("sink_0").remove_probe(1)
                 print(f"Set remote description result: {promise_result}")
-                print(webrtc_client.webrtc.get_static_pad("sink_0").is_blocked())
-                print(webrtc_client.webrtc.get_static_pad("sink_0").is_blocking())
-                webrtc_client.start()
+                # print(webrtc_client.webrtc.get_static_pad("sink_0").is_blocked())
+                # print(webrtc_client.webrtc.get_static_pad("sink_0").is_blocking())
+                # webrtc_client.start()
 
             elif event == "candidate":
                 print("In candidate")
                 candidate = data["data"]
                 candidate_val = candidate['candidate']
                 webrtc_client.webrtc.emit('add-ice-candidate', candidate["sdpMLineIndex"], candidate_val)
-                webrtc_client.start()
+                # webrtc_client.start()
 
             elif event == "play":
                 print("In play")

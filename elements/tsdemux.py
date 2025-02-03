@@ -13,13 +13,14 @@ class TSDemuxWrapper(GStreamerElementWrapper):
     def on_pad_added(_, pad, elements) -> None:
         from factory.mp2t_encoded_pipeline import MP2TFactory
         print("On pad_added tsdemux.")
+
         pad_name = pad.get_name()
         pad_caps = pad.query_caps(None)
         structure_name = pad_caps.to_string()
         if 'video' in structure_name:
-            mp2t_pipeline = MP2TFactory().get_pipeline_type(structure_name.split(",")[0])
-            h265parse = mp2t_pipeline.h265parse
-            sink_pad = h265parse.get_element().get_static_pad('sink')
+            # mp2t_pipeline = MP2TFactory().get_pipeline_type(structure_name.split(",")[0])
+            # h264parse = mp2t_pipeline.h264parse
+            sink_pad = elements.get_static_pad('sink')
             if not sink_pad.is_linked():
                 result = pad.link(sink_pad)
                 if result == Gst.PadLinkReturn.OK:

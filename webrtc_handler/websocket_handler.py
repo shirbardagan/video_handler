@@ -15,6 +15,7 @@ gi.require_version('GstWebRTC', '1.0')
 gi.require_version('GstSdp', '1.0')
 
 
+
 class WebRTCClient:
     def __init__(self, conn):
         self.conn = conn
@@ -23,13 +24,15 @@ class WebRTCClient:
         webrtc_pipeline = WebRTCPipeline()
         self.pipeline = webrtc_pipeline.create_pipeline()
         self.webrtc = self.pipeline.get_by_name("webrtcbin")
+
+        self.appsrc = self.pipeline.get_by_name("videosrc")
         if self.webrtc is None:
             raise Exception("Failed to find webrtcbin element in the pipeline.")
 
         self.webrtc.connect('on-negotiation-needed', self.on_negotiation_needed)
         self.webrtc.connect('on-ice-candidate', self.send_ice_candidate_message)
+        # print("aaa ", self.webrtc.request_pad_simple("sink_%u").add_probe(Gst.PadProbeType.BUFFER, self.on_probe_webrtcbin))
 
-        # self.webrtc.connect("on-sdp-set", self.on_sdp_set())
     def start(self):
         try:
             logger.info("Starting pipeline")
@@ -76,9 +79,12 @@ class WebRTCClient:
                 'sdpMLineIndex': mlineindex}
                              })
         print((f"Sending ICE candidate: {icemsg}"))
-        print(self.webrtc.get_static_pad("sink_0").is_blocked())
-        print(self.webrtc.get_static_pad("sink_0").is_blocking())
+        # print(self.webrtc.get_static_pad("sink_0").is_blocked())
+        # print(self.webrtc.get_static_pad("sink_0").is_blocking())
         asyncio.run_coroutine_threadsafe(self.conn.send_text(icemsg), self.loop)
 
-    # def on_sdp_set(self):
-    #     print("ggggg")
+    # def on_probe_webrtcbin(self, pad, probe_info):
+    #     print("aaaaaaaaaaaaaaaaaaaaaaa")
+    #     return Gst.PadProbeReturn.OK
+    # # def on_sdp_set(self):
+    # #     print("ggggg")
