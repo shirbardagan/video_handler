@@ -1,13 +1,10 @@
-import time
-
+import functools
 from fastapi import APIRouter, WebSocket
 import gi
 
 from app_instance import app
 from common.base_logger import logger
 from pipelines.mp2t_h265_pipeline import MP2TH265StreamPipeline
-from pipelines.test1_pipeline import TEST1StreamPipeline
-from pipelines.udpsrc_pipeline import UDPSRCPipeline
 from webrtc_handler.websocket_handler import WebRTCClient
 
 gi.require_version('Gst', '1.0')
@@ -22,6 +19,24 @@ from gi.repository import GstSdp
 router = APIRouter()
 
 
+def on_data_sample(appsrc, appsink):
+    print("on data sample")
+    try:
+        sample = appsink.pull_sample()
+        buffer = sample.get_buffer()
+        buffer.pts = 0
+        buffer. dts = 0
+        appsrc.emit("push-sample", sample)
+    except Exception as e:
+        print("error in on data sample", e)
+    return Gst.FlowReturn.OK
+
+
+# def h264parse_probe(pad, probe_info, _):
+#     caps = pad.get_current_caps()
+#     print("hhh")
+
+
 @router.websocket("/ws")
 async def websocket_handler(conn: WebSocket):
     print("in /ws")
@@ -29,16 +44,18 @@ async def websocket_handler(conn: WebSocket):
     print("connection accepted")
     app.state.CONN = conn
     try:
+
         webrtc_client = WebRTCClient(conn)
         webrtc_client.start()
-        while webrtc_client.appsrc.get_state(Gst.CLOCK_TIME_NONE)[1] != Gst.State.PLAYING:
-            print("Not ready Yet")
-        # app.state.OPEN_CONNECTIONS.append(webrtc_client.appsrc)
+
         mpeg_pipe = MP2TH265StreamPipeline()
         mpeg_pipeline = mpeg_pipe.create_pipeline()
+        videosink = mpeg_pipeline.get_by_name("videosink")
 
-        filesrc = mpeg_pipeline.get_by_name("filesrc")
-        filesrc.set_property("location", "/home/shir/Desktop/flights/VNIR_ZOOM.ts")
+        videosink.connect("new-sample", functools.partial(on_data_sample, webrtc_client.videosrc))
+        # h264parse_src_pad.add_probe(Gst.PadProbeType.BUFFER, h264parse_probe, None)
+
+        videosink.set_property("emit-signals", True)
 
         ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
         app.state.CURR_PIPELINE = mpeg_pipeline
@@ -46,12 +63,12 @@ async def websocket_handler(conn: WebSocket):
             logger.error("Unable to set the MPEGPipeline to the playing state")
         else:
             logger.info("MPEGPipeline is now playing!!")
+
         while True:
             data = await conn.receive_json()
             event = data.get("event")
 
             if event == "answer":
-                # webrtc_client.webrtc.get_static_pad("sink_0").remove_probe(1)
                 print("In answer")
                 answer = data["data"]
                 sdp = answer["sdp"]
@@ -59,7 +76,7 @@ async def websocket_handler(conn: WebSocket):
                 answer_type = answer["type"]
                 assert answer_type == "answer"
 
-                res, sdpmsg = GstSdp.SDPMessage.new_from_text(sdp)
+                res, sdpmsg = GstSdp.SDPMessage.new()
                 GstSdp.sdp_message_parse_buffer(bytes(sdp.encode()), sdpmsg)
                 answer = GstWebRTC.WebRTCSessionDescription.new(GstWebRTC.WebRTCSDPType.ANSWER, sdpmsg)
                 promise = Gst.Promise.new()
@@ -67,18 +84,16 @@ async def websocket_handler(conn: WebSocket):
                 promise.interrupt()
                 promise.wait()
                 promise_result = promise.get_reply()
-                # webrtc_client.webrtc.get_static_pad("sink_0").remove_probe(1)
+
                 print(f"Set remote description result: {promise_result}")
-                # print(webrtc_client.webrtc.get_static_pad("sink_0").is_blocked())
-                # print(webrtc_client.webrtc.get_static_pad("sink_0").is_blocking())
-                # webrtc_client.start()
+                webrtc_client.start()
 
             elif event == "candidate":
                 print("In candidate")
                 candidate = data["data"]
                 candidate_val = candidate['candidate']
                 webrtc_client.webrtc.emit('add-ice-candidate', candidate["sdpMLineIndex"], candidate_val)
-                # webrtc_client.start()
+                webrtc_client.start()
 
             elif event == "play":
                 print("In play")

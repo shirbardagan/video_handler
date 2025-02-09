@@ -22,16 +22,15 @@ class WebRTCClient:
         self.loop = asyncio.get_event_loop()
 
         webrtc_pipeline = WebRTCPipeline()
-        self.pipeline = webrtc_pipeline.create_pipeline()
+        self.pipeline =  webrtc_pipeline.create_pipeline()
         self.webrtc = self.pipeline.get_by_name("webrtcbin")
 
-        self.appsrc = self.pipeline.get_by_name("videosrc")
+        self.videosrc = self.pipeline.get_by_name("videosrc")
         if self.webrtc is None:
             raise Exception("Failed to find webrtcbin element in the pipeline.")
 
         self.webrtc.connect('on-negotiation-needed', self.on_negotiation_needed)
         self.webrtc.connect('on-ice-candidate', self.send_ice_candidate_message)
-        # print("aaa ", self.webrtc.request_pad_simple("sink_%u").add_probe(Gst.PadProbeType.BUFFER, self.on_probe_webrtcbin))
 
     def start(self):
         try:

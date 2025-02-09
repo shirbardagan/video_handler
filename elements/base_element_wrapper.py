@@ -11,21 +11,23 @@ class GStreamerElementWrapper:
     _instances = {}
     _lock = threading.Lock()
 
-    def __new__(cls, *args, **kwargs):
-        if getattr(cls, "allow_multiple_instances", False):
-            return super(GStreamerElementWrapper, cls).__new__(cls)
-
-        with cls._lock:
-            if cls not in cls._instances:
-                instance = super().__new__(cls)
-                cls._instances[cls] = instance
-        return cls._instances[cls]
+    # def __new__(cls, *args, **kwargs):
+    #     if getattr(cls, "allow_multiple_instances", False):
+    #         return super(GStreamerElementWrapper, cls).__new__(cls)
+    #
+    #     with cls._lock:
+    #         if cls not in cls._instances:
+    #             instance = super().__new__(cls)
+    #             cls._instances[cls] = instance
+    #     return cls._instances[cls]
 
     def __init__(self, element_type: str, element_name: str):
-        if not hasattr(self, "initialized"):
-            self._element = Gst.ElementFactory.make(element_type, element_name)
-            self._name = element_name
-            self.initialized = True
+        # if not hasattr(self, "initialized"):
+        self._element = Gst.ElementFactory.make(element_type, element_name)
+        self._name = element_name
+        self.initialized = True
+
+        self._instances[self] = self._element
 
     def set_property(self, property_name: str, value) -> None:
         self._element.set_property(property_name, value)

@@ -3,10 +3,9 @@ from elements.base_element_wrapper import GStreamerElementWrapper
 
 from gi.repository import Gst
 
-class CapsFilterWrapper(GStreamerElementWrapper):
-    def __init__(self, name="capsfilter"):
-        super().__init__("capsfilter", name)
-
+class Queue1Wrapper(GStreamerElementWrapper):
+    def __init__(self, type="queue"):
+        super().__init__(type, "queue")
 
     # def link(self, other_element) -> None:
     #     try:
@@ -15,4 +14,4 @@ class CapsFilterWrapper(GStreamerElementWrapper):
     #         if identity_src_pad.link(webrtcbin_dynamic_sink_pad) == Gst.PadLinkReturn.OK:
     #             logger.info("Successfully linked %s to %s", self._name, other_element._name)
     #     except Exception as e:
-    #         logger.error("While linking capsfilter with %s. %s", other_element._name, e)
+    #         logger.error("While linking queue with %s. %s", other_element._name, e)

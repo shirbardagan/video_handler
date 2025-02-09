@@ -18,6 +18,8 @@ class DataAppSink(AppSinkWrapper):
     def __init__(self, type="appsink"):
         super().__init__(type, "datasink")
 
+# import threading
+# pad_lock = threading.Lock()
 
 class VideoAppSink(AppSinkWrapper):
     first_time = True
@@ -26,6 +28,7 @@ class VideoAppSink(AppSinkWrapper):
         super().__init__(type, "videosink")
 
     def on_data_sample(self, appsink) -> Gst.FlowReturn:
+        # with pad_lock:
         try:
             sample = appsink.pull_sample()
             buffer = sample.get_buffer()
@@ -35,12 +38,18 @@ class VideoAppSink(AppSinkWrapper):
                 self.first_time = False
                 # print(time.time())
             for appsrc in app.state.OPEN_CONNECTIONS:
-                buffer.dts = 0
-                buffer.pts = 0
+                # print(type(appsink))
+                # base_time = appsink.get_base_time()
+                # appsrc.get_element().set_base_time(base_time)
+                # running_time = appsrc.get_element().get_clock().get_time() - appsrc.get_element().get_base_time()
+                #
+                # buffer.pts = running_time + base_time
+                # buffer.dts = 0
+                # buffer.pts = 0
                 # buffer.pts = appsrc.get_element().get_clock().get_time()
                 # buffer = Gst.Buffer.new_allocate(None, 1280 * 960 * 3, None)
-                # flow_return = appsrc.get_element().emit("push-buffer", buffer)
-                appsrc.get_element().push_sample(sample)
+                appsrc.get_element().emit("push-sample", sample)
+                # appsrc.get_element().push_sample(sample)
                 # time.sleep(3)
         except Exception as e:
             logger.error("In data_sample: %s", e)

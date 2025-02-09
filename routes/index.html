@@ -17,6 +17,7 @@
 				conn.send(JSON.stringify({event: 'play', data: ''}))
 			}
 
+
 			pc.ontrack = function (event) {
 			  console.log('track received', event.track.kind, event.track);
 			  if (event.track.kind === 'video') {
@@ -100,7 +101,6 @@
 					console.log('sent sdp answer')
                     break;
 				case 'candidate':
-					console.log("In candidate")
 					console.log('received ice candidates from server', msg.data)
 					try {
 						await pc.addIceCandidate(new RTCIceCandidate(msg.data));

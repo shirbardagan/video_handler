@@ -4,7 +4,9 @@ from elements.base_element_wrapper import GStreamerElementWrapper
 
 from gi.repository import Gst, GLib, GstApp
 
+import threading
 
+pad_lock = threading.Lock()
 class TSDemuxWrapper(GStreamerElementWrapper):
     def __init__(self, type="tsdemux"):
         super().__init__(type, "tsdemux")
@@ -13,7 +15,7 @@ class TSDemuxWrapper(GStreamerElementWrapper):
     def on_pad_added(_, pad, elements) -> None:
         from factory.mp2t_encoded_pipeline import MP2TFactory
         print("On pad_added tsdemux.")
-
+        # with pad_lock:
         pad_name = pad.get_name()
         pad_caps = pad.query_caps(None)
         structure_name = pad_caps.to_string()
