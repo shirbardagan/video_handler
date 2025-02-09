@@ -44,13 +44,11 @@ class VideoAppSink(AppSinkWrapper):
                 # running_time = appsrc.get_element().get_clock().get_time() - appsrc.get_element().get_base_time()
                 #
                 # buffer.pts = running_time + base_time
-                # buffer.dts = 0
+                buffer.dts = 0
                 # buffer.pts = 0
-                # buffer.pts = appsrc.get_element().get_clock().get_time()
-                # buffer = Gst.Buffer.new_allocate(None, 1280 * 960 * 3, None)
+                buffer.pts = appsrc.get_element().get_clock().get_time()
+
                 appsrc.get_element().emit("push-sample", sample)
-                # appsrc.get_element().push_sample(sample)
-                # time.sleep(3)
         except Exception as e:
             logger.error("In data_sample: %s", e)
         return Gst.FlowReturn.OK

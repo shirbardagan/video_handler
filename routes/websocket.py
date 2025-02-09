@@ -19,23 +19,6 @@ from gi.repository import GstSdp
 router = APIRouter()
 
 
-def on_data_sample(appsrc, appsink):
-    print("on data sample")
-    try:
-        sample = appsink.pull_sample()
-        buffer = sample.get_buffer()
-        buffer.pts = 0
-        buffer. dts = 0
-        appsrc.emit("push-sample", sample)
-    except Exception as e:
-        print("error in on data sample", e)
-    return Gst.FlowReturn.OK
-
-
-# def h264parse_probe(pad, probe_info, _):
-#     caps = pad.get_current_caps()
-#     print("hhh")
-
 
 @router.websocket("/ws")
 async def websocket_handler(conn: WebSocket):
@@ -52,10 +35,9 @@ async def websocket_handler(conn: WebSocket):
         mpeg_pipeline = mpeg_pipe.create_pipeline()
         videosink = mpeg_pipeline.get_by_name("videosink")
 
-        videosink.connect("new-sample", functools.partial(on_data_sample, webrtc_client.videosrc))
-        # h264parse_src_pad.add_probe(Gst.PadProbeType.BUFFER, h264parse_probe, None)
+        # videosink.connect("new-sample", functools.partial(on_data_sample, webrtc_client.videosrc))
 
-        videosink.set_property("emit-signals", True)
+        # videosink.set_property("emit-signals", True)
 
         ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
         app.state.CURR_PIPELINE = mpeg_pipeline
