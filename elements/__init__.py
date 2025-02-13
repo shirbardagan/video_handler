@@ -11,6 +11,7 @@ from .rtph264depay import RTPH264DePayWrapper
 from .rtspsrc import RTSPSrcWrapper
 from .tsdemux import TSDemuxWrapper
 from .udpsrc import UDPSrcWrapper
+from .v4l2src import V4L2SrcWrapper
 from .videoconvert import VideoConvertWrapper
 from .webrtcbin import WebRTCBinWrapper
 from .rtph264pay import RTPH264Pay
@@ -36,7 +37,8 @@ __all__ = [
     AVDecH264Wrapper,
     X265enc,
     RTSPSrcWrapper,
-    VideoAppSink
+    VideoAppSink,
+    V4L2SrcWrapper
 ]
 
 

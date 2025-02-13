@@ -12,15 +12,6 @@ from elements import (
 from common.base_logger import logger
 from elements.appsink import VideoAppSink
 from elements.nvh264enc import NVH264EncWrapper
-
-
-
-
-
-
-
-
-
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
 
 import gi

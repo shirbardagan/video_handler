@@ -4,6 +4,11 @@ from common.base_logger import logger
 from elements import RTSPSrcWrapper, VideoAppSink
 from pipelines.base_pipeline import BaseSinkPipeline
 
+import gi
+from gi.repository import Gst
+
+gi.require_version('Gst', '1.0')
+
 
 class RTSPStreamPipeline(BaseSinkPipeline):
     def __init__(self):
