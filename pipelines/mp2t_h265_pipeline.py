@@ -7,14 +7,19 @@ from elements import (
     NVH265DecWrapper,
     H264ParseWrapper,
     RTPH264Pay,
-    X264enc,
-    WebRTCBinWrapper, CapsFilterWrapper
+    CapsFilterWrapper
 )
 from common.base_logger import logger
 from elements.appsink import VideoAppSink
 from elements.nvh264enc import NVH264EncWrapper
-from elements.queue import QueueWrapper
-from elements.queue1 import Queue1Wrapper
+
+
+
+
+
+
+
+
 
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
 
@@ -51,7 +56,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
 
         super().has_elements_initialized(elements)
 
-        self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
+        self.filesrc.set_property("location", "/home/shir/Desktop/flights/VNIR_ZOOM.ts")
 
         self.videosink.set_property("emit-signals", True)
 
@@ -68,11 +73,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
             self._instance.add(self.filesrc.get_element())
             self._instance.add(self.tsdemux.get_element())
             self._instance.add(self.h265parse.get_element())
-            # self._instance.add(self.capsfilter.get_element())
             self._instance.add(self.capsfilter1.get_element())
-            # self._instance.add(self.capsfilter2.get_element())
-            # self._instance.add(self.capsfilter3.get_element())
-            # self._instance.add(self.capsfilter4.get_element())
             self._instance.add(self.nvh265dec.get_element())
             self._instance.add(self.nvh264enc.get_element())
             self._instance.add(self.h264parse.get_element())

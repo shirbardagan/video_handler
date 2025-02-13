@@ -25,7 +25,6 @@ class AppSrcWrapper(GStreamerElementWrapper):
             logger.error("While linking identity with %s. %s", other_element._name, e)
 
     def on_need_data(self, _, __):
-        print("in need data")
         if self not in app.state.OPEN_CONNECTIONS:
             app.state.OPEN_CONNECTIONS.append(self)
 
