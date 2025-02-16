@@ -12,6 +12,7 @@ router = APIRouter()
 async def startup_event() -> None:
     print("On setup")
     app.state.OPEN_CONNECTIONS = []
+    app.state.OPEN_CONNECTIONS_DATA = []
     app.state.CURRENT_PIPELINE = None
     app.state.STREAM = None
     Gst.init(None)

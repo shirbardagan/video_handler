@@ -5,6 +5,8 @@ import gi
 from app_instance import app
 from common.base_logger import logger
 from pipelines.mp2t_h265_pipeline import MP2TH265StreamPipeline
+from pipelines.udpsrc_pipeline import UDPSRCPipeline
+from pipelines.v4l2_pipeline import V4L2StreamPipeline
 from webrtc_handler.websocket_handler import WebRTCClient
 
 gi.require_version('Gst', '1.0')
@@ -22,9 +24,7 @@ router = APIRouter()
 
 @router.websocket("/ws")
 async def websocket_handler(conn: WebSocket):
-    print("in /ws")
     await conn.accept()
-    print("connection accepted")
     app.state.CONN = conn
     try:
 
@@ -33,11 +33,7 @@ async def websocket_handler(conn: WebSocket):
 
         mpeg_pipe = MP2TH265StreamPipeline()
         mpeg_pipeline = mpeg_pipe.create_pipeline()
-        videosink = mpeg_pipeline.get_by_name("videosink")
 
-        # videosink.connect("new-sample", functools.partial(on_data_sample, webrtc_client.videosrc))
-
-        # videosink.set_property("emit-signals", True)
 
         ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
         app.state.CURR_PIPELINE = mpeg_pipeline

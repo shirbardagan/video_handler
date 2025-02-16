@@ -7,10 +7,10 @@ from elements import (
     NVH265DecWrapper,
     H264ParseWrapper,
     RTPH264Pay,
-    CapsFilterWrapper
+    CapsFilterWrapper, KLVParseWrapper
 )
 from common.base_logger import logger
-from elements.appsink import VideoAppSink
+from elements.appsink import VideoAppSink, DataAppSink
 from elements.nvh264enc import NVH264EncWrapper
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
 
@@ -25,44 +25,44 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         super().__init__()
         initialized_pipeline_elements_tuple = (FileSrcWrapper(),
                                                TSDemuxWrapper(),
+                                               # KLVParseWrapper(),
+                                               # DataAppSink(),
                                                H265ParseWrapper(),
-                                               CapsFilterWrapper("capsfilter0"),
                                                NVH265DecWrapper(),
-                                               CapsFilterWrapper("capsfilter4"),
                                                NVH264EncWrapper(),
                                                CapsFilterWrapper("capsfilter1"),
                                                H264ParseWrapper(),
-                                               CapsFilterWrapper("capsfilter3"),
                                                RTPH264Pay(),
-                                               CapsFilterWrapper("capsfilter2"),
                                                VideoAppSink()
                                                )
 
-        (self.filesrc, self.tsdemux, self.h265parse, self.capsfilter, self.nvh265dec, self.capsfilter4, self.nvh264enc, self.capsfilter1,
-         self.h264parse, self.capsfilter3,
-         self.rtph264pay, self.capsfilter2, self.videosink) = initialized_pipeline_elements_tuple
+        (self.filesrc, self.tsdemux, self.h265parse, self.nvh265dec, self.nvh264enc,
+         self.capsfilter1,
+         self.h264parse,
+         self.rtph264pay, self.videosink) = initialized_pipeline_elements_tuple
 
         elements = [self.filesrc, self.tsdemux, self.h265parse, self.nvh265dec, self.nvh264enc, self.h264parse,
                     self.rtph264pay, self.videosink]
 
         super().has_elements_initialized(elements)
 
-        self.filesrc.set_property("location", "/home/shir/Desktop/flights/VNIR_ZOOM.ts")
+        self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
 
         self.videosink.set_property("emit-signals", True)
+        # self.datasink.set_property("emit-signals", True)
+        # self.videosink.set_property("sync", False)
+        # self.datasink.set_property("sync", False)
 
-        # self.rtph264pay.set_property("config-interval", 1)
 
-        # self.capsfilter2.set_property("caps",Gst.Caps.from_string("application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, packetization-mode=(string)1, profile=(string)main, payload=(int)96"))
-        # self.capsfilter.set_property("caps", Gst.Caps.from_string("video/x-h265, stream-format=(string)hev1, width=(int)1920, height=(int)1080, chroma-format=(string)4:2:0, bit-depth-luma=(uint)8, bit-depth-chroma=(uint)8, parsed=(boolean)true, alignment=(string)au, profile=(string)main, tier=(string)main, level=(string)4"))
-        self.capsfilter1.set_property("caps", Gst.Caps.from_string("video/x-h264, stream-format=(string)byte-stream, alignment=(string)au, level=(string)4, profile=(string)main"))
-        # self.capsfilter3.set_property("caps", Gst.Caps.from_string("video/x-h264, stream-format=(string)avc, alignment=(string)au, level=(string)4, profile=(string)main, width=(int)1920, height=(int)1080, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)0/1, interlace-mode=(string)progressive, colorimetry=(string)bt709, chroma-site=(string)mpeg2, multiview-mode=(string)mono, coded-picture-structure=(string)frame, chroma-format=(string)4:2:0, bit-depth-luma=(uint)8, bit-depth-chroma=(uint)8, parsed=(boolean)true"))
-        # self.capsfilter4.set_property("caps", Gst.Caps.from_string("video/x-raw(memory:CUDAMemory), format=(string)NV12, width=(int)1920, height=(int)1080, interlace-mode=(string)progressive, multiview-mode=(string)mono, pixel-aspect-ratio=(fraction)1/1, framerate=(fraction)0/1"))
+        self.capsfilter1.set_property("caps", Gst.Caps.from_string(
+            "video/x-h264, stream-format=(string)byte-stream, alignment=(string)au, level=(string)4, profile=(string)main"))
 
     def create_pipeline(self):
         try:
             self._instance.add(self.filesrc.get_element())
             self._instance.add(self.tsdemux.get_element())
+            # self._instance.add(self.klvparse.get_element())
+            # self._instance.add(self.datasink.get_element())
             self._instance.add(self.h265parse.get_element())
             self._instance.add(self.capsfilter1.get_element())
             self._instance.add(self.nvh265dec.get_element())
@@ -75,9 +75,13 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
 
         self.filesrc.link(self.tsdemux)
         self.tsdemux.connect("pad-added",
-                             functools.partial(self.tsdemux.on_pad_added, elements=self.h265parse.get_element()))
-        self.videosink.connect("new-sample", functools.partial(self.videosink.on_data_sample))
+                             functools.partial(self.tsdemux.on_pad_added,
+                                               elements=self.h265parse.get_element()))
 
+        self.videosink.connect("new-sample", functools.partial(self.videosink.on_data_sample))
+        # self.datasink.connect("new-sample", functools.partial(self.datasink.on_data_sample))
+
+        # self.klvparse.link(self.datasink)
         self.h265parse.link(self.nvh265dec)
         self.nvh265dec.link(self.nvh264enc)
         self.nvh264enc.link(self.capsfilter1)
@@ -86,5 +90,3 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         self.rtph264pay.link(self.videosink)
 
         return self._instance
-
-

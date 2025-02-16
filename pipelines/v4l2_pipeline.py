@@ -41,6 +41,7 @@ class V4L2StreamPipeline(BaseSinkPipeline):
     def create_pipeline(self):
         try:
             self._instance.add(self.v4l2src.get_element())
+            self._instance.add(self.videoconvert.get_element())
             self._instance.add(self.nvh264enc.get_element())
             self._instance.add(self.capsfilter.get_element())
             self._instance.add(self.h264parse.get_element())

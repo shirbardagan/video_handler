@@ -24,10 +24,6 @@ class AppSrcWrapper(GStreamerElementWrapper):
         except Exception as e:
             logger.error("While linking identity with %s. %s", other_element._name, e)
 
-    def on_need_data(self, _, __):
-        if self not in app.state.OPEN_CONNECTIONS:
-            app.state.OPEN_CONNECTIONS.append(self)
-
 
     def on_enough_data(self, _):
         app.state.PUSH_SAMPLE = False
@@ -39,8 +35,15 @@ class AppSrcWrapper(GStreamerElementWrapper):
 class DataAppSrc(AppSrcWrapper):
     def __init__(self, type="appsrc"):
         super().__init__(type, "datasrc")
+    def on_need_data(self, _, __):
+        if self not in app.state.OPEN_CONNECTIONS:
+            app.state.OPEN_CONNECTIONS_DATA.append(self)
 
 
 class VideoAppSrc(AppSrcWrapper):
     def __init__(self, type="appsrc"):
         super().__init__(type, "videosrc")
+
+    def on_need_data(self, _, __):
+        if self not in app.state.OPEN_CONNECTIONS:
+            app.state.OPEN_CONNECTIONS.append(self)
