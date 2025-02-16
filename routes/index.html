@@ -1,116 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>synced-playback</title>
-	</head>
-	<body id="body">
-		<video id="video1" autoplay playsinline></video>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synced Video Playback</title>
+</head>
+<body id="body">
+    <video id="video1" autoplay playsinline muted controls></video>
+    <div>
+        <button type="button" onClick="playClick()">Play</button>
+    </div>
 
-		<div>
-		  <button type="button" onClick="playClick()">Play</button>
-		</div>
+    <script>
+        let conn = new WebSocket('ws://' + window.location.host + '/ws');
+        let pc = new RTCPeerConnection();
 
-		<script>
-			let conn = new WebSocket('ws://' + window.location.host + '/ws')
-			let pc = new RTCPeerConnection()
-			window.playClick = () => {
-				conn.send(JSON.stringify({event: 'play', data: ''}))
-			}
+        // Function to start video playback via WebSocket message
+        window.playClick = () => {
+            console.log("Sending play event to server...");
+            conn.send(JSON.stringify({ event: 'play', data: '' }));
+        };
 
+        // Handling incoming WebRTC tracks
+        pc.ontrack = function(event) {
+            console.log('Track received:', event.track.kind);
+            if (event.track.kind === 'video') {
+                var el = document.getElementById('video1');
+                el.srcObject = event.streams[0];
+                el.autoplay = true;
+                el.controls = true;
+                console.log("video1 element", el);
+                el.onloadedmetadata = () => {
+                    console.log('Video metadata loaded');
+                    el.play().then(() => console.log('Video playback started'))
+                        .catch(e => console.log('Video playback failed', e));
+                };
+            }
+        };
 
-			pc.ontrack = function (event) {
-			  console.log('track received', event.track.kind, event.track);
-			  if (event.track.kind === 'video') {
-				var el = document.getElementById('video1')
-				el.srcObject = event.streams[0]
-				el.autoplay = true
-				el.controls = true
-				console.log("get element by id video1", el)
-				el.onloadedmetadata = ()=>{
-					console.log('video metadata loaded');
-					el.play().then(() => console.log('video playback started')).catch(e=> console.log('video playback failed',e))
-					}
-				}
+        // ICE Candidate management for WebRTC
+        pc.onicecandidate = event => {
+            if (event.candidate) {
+                console.log('Sending ICE candidate to server');
+                conn.send(JSON.stringify({
+                    event: 'candidate',
+                    data: event.candidate
+                }));
+            } else {
+                console.log('ICE candidate gathering complete');
+            }
+        };
 
+        // Handling incoming WebSocket messages
+        conn.onopen = () => {
+            console.log('WebSocket connection opened, waiting for offer...');
+        };
 
-			  el.onloadedmetadata = () => {
-					console.log('Video metadata loaded');
-				}
-			  el.onplaying = () => {
-					console.log('Video started playing');
-				}
-			  el.onwaiting = () => {
-					console.log('Video is waiting for data');
-				}
-			  el.onerror = (e) => {
-					console.error('Video error:', e);
-				}
-			}
-			pc.onconnectionstatechange = event => {
-				console.log("Connection State Change:", pc.connectionState);
-				if (pc.connectionState === "failed") {
-					console.error("Connection Failed. Possible SDP Mismatch or ICE Failure.");
-				}
-			}
+        conn.onclose = evt => {
+            console.log('WebSocket connection closed');
+        };
 
-			pc.onicecandidate = event =>{
-				if (event.candidate){
-					console.log('sending ice candidate to server')
-					conn.send(JSON.stringify({
-						event: 'candidate',
-						data: event.candidate
-					}))
-				}else{
-					console.log('ice candidate gathering complete')
-				}
-			}
-			pc.oniceconnectionstatechange = () => {
-				if (pc.iceConnectionState == "connected") {
-					console.log("ICE gathering complete");
-				}
-				console.log('Connection state:', pc.connectionState);
-			}
+        conn.onmessage = async evt => {
+            let msg = JSON.parse(evt.data);
+            console.log('Received message:', msg);
 
-			pc.onicegatheringstatechange = () => {
-				console.log('ICE gathering state:', pc.iceGatheringState);
-			}
+            if (!msg) {
+                return console.log('Failed to parse message');
+            }
 
-			conn.onopen = () => {
-				console.log('websocket connection opened, waiting for offer')
-			}
-			conn.onclose = evt => {
-				console.log('Connection closed')
-			}
-			conn.onmessage = async evt => {
-				let msg = JSON.parse(evt.data)
-				if (!msg) {
-					return console.log('failed to parse msg')
-				}
-
-				switch (msg.event) {
-				case 'offer':
-					console.log('received offer from server')
-					await pc.setRemoteDescription(new RTCSessionDescription(msg.data))
-					console.log("Remote SDP:", pc.remoteDescription?.sdp);
-					const answer = await pc.createAnswer()
-					await pc.setLocalDescription(answer)
-					conn.send(JSON.stringify({
-						event:'answer',
-						data:answer
-					}))
-					console.log('sent sdp answer')
+            switch (msg.event) {
+                case 'offer':
+                    console.log('Received offer from server');
+                    await pc.setRemoteDescription(new RTCSessionDescription(msg.data));
+                    const answer = await pc.createAnswer();
+                    await pc.setLocalDescription(answer);
+                    conn.send(JSON.stringify({ event: 'answer', data: answer }));
+                    console.log('Sent SDP answer');
                     break;
-				case 'candidate':
-					console.log('received ice candidates from server', msg.data)
-					try {
-						await pc.addIceCandidate(new RTCIceCandidate(msg.data));
-					} catch (error) {
-						console.error('Error adding ICE candidate:', error);
-					}
-					break;
-				}
-			}
-			window.conn = conn
-		</script>
-	</body>
+
+                case 'candidate':
+                    console.log('Received ICE candidate from server', msg.data);
+                    try {
+                        await pc.addIceCandidate(new RTCIceCandidate(msg.data));
+                    } catch (error) {
+                        console.error('Error adding ICE candidate:', error);
+                    }
+                    break;
+
+                case 'video_data': // Handle video data frames from the server
+                    console.log('Received video frame data');
+                    const videoData = msg.data; // Assuming video data is base64-encoded
+                    if (videoData) {
+                        const byteArray = Uint8Array.from(atob(videoData), c => c.charCodeAt(0));
+                        const blob = new Blob([byteArray], { type: 'video/mp4' });
+                        const url = URL.createObjectURL(blob);
+
+                        const videoElement = document.getElementById('video1');
+                        videoElement.src = url;
+                        videoElement.play().then(() => console.log('Video playback started'))
+                            .catch(e => console.log('Video playback failed', e));
+                    } else {
+                        console.error('No video data received');
+                    }
+                    break;
+
+                default:
+                    console.log('Unknown event:', msg.event);
+                    break;
+            }
+        };
+
+        // WebRTC connection state change
+        pc.onconnectionstatechange = event => {
+            console.log("Connection state change:", pc.connectionState);
+            if (pc.connectionState === "failed") {
+                console.error("Connection failed. Possible SDP mismatch or ICE failure.");
+            }
+        };
+
+        // Handling ICE connection state changes
+        pc.oniceconnectionstatechange = () => {
+            if (pc.iceConnectionState === "connected") {
+                console.log("ICE gathering complete");
+            }
+            console.log('Connection state:', pc.connectionState);
+        };
+
+        // Handling ICE gathering state changes
+        pc.onicegatheringstatechange = () => {
+            console.log('ICE gathering state:', pc.iceGatheringState);
+        };
+    </script>
+</body>
 </html>

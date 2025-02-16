@@ -7,7 +7,7 @@ from elements import (
     NVH265DecWrapper,
     H264ParseWrapper,
     RTPH264Pay,
-    CapsFilterWrapper, KLVParseWrapper
+    CapsFilterWrapper, KLVParseWrapper, RTPKLVPayWrapper
 )
 from common.base_logger import logger
 from elements.appsink import VideoAppSink, DataAppSink
@@ -25,21 +25,19 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         super().__init__()
         initialized_pipeline_elements_tuple = (FileSrcWrapper(),
                                                TSDemuxWrapper(),
-                                               # KLVParseWrapper(),
-                                               # DataAppSink(),
+                                               KLVParseWrapper(),
+                                               DataAppSink("datasink"),
                                                H265ParseWrapper(),
                                                NVH265DecWrapper(),
                                                NVH264EncWrapper(),
                                                CapsFilterWrapper("capsfilter1"),
                                                H264ParseWrapper(),
                                                RTPH264Pay(),
-                                               VideoAppSink()
+                                               VideoAppSink("videosink")
                                                )
 
-        (self.filesrc, self.tsdemux, self.h265parse, self.nvh265dec, self.nvh264enc,
-         self.capsfilter1,
-         self.h264parse,
-         self.rtph264pay, self.videosink) = initialized_pipeline_elements_tuple
+        (self.filesrc, self.tsdemux, self.klvparse, self.datasink, self.h265parse, self.nvh265dec, self.nvh264enc,
+         self.capsfilter1, self.h264parse, self.rtph264pay, self.videosink) = initialized_pipeline_elements_tuple
 
         elements = [self.filesrc, self.tsdemux, self.h265parse, self.nvh265dec, self.nvh264enc, self.h264parse,
                     self.rtph264pay, self.videosink]
@@ -49,7 +47,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
 
         self.videosink.set_property("emit-signals", True)
-        # self.datasink.set_property("emit-signals", True)
+        self.datasink.set_property("emit-signals", True)
         # self.videosink.set_property("sync", False)
         # self.datasink.set_property("sync", False)
 
@@ -61,8 +59,8 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         try:
             self._instance.add(self.filesrc.get_element())
             self._instance.add(self.tsdemux.get_element())
-            # self._instance.add(self.klvparse.get_element())
-            # self._instance.add(self.datasink.get_element())
+            self._instance.add(self.klvparse.get_element())
+            self._instance.add(self.datasink.get_element())
             self._instance.add(self.h265parse.get_element())
             self._instance.add(self.capsfilter1.get_element())
             self._instance.add(self.nvh265dec.get_element())
@@ -76,12 +74,12 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         self.filesrc.link(self.tsdemux)
         self.tsdemux.connect("pad-added",
                              functools.partial(self.tsdemux.on_pad_added,
-                                               elements=self.h265parse.get_element()))
+                                               elements=[self.h265parse.get_element(),self.klvparse.get_element()]))
 
         self.videosink.connect("new-sample", functools.partial(self.videosink.on_data_sample))
-        # self.datasink.connect("new-sample", functools.partial(self.datasink.on_data_sample))
+        self.datasink.connect("new-sample", functools.partial(self.datasink.on_data_sample))
 
-        # self.klvparse.link(self.datasink)
+        self.klvparse.link(self.datasink)
         self.h265parse.link(self.nvh265dec)
         self.nvh265dec.link(self.nvh264enc)
         self.nvh264enc.link(self.capsfilter1)

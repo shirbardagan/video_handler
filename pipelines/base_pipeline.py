@@ -1,6 +1,7 @@
 import json
 from abc import abstractmethod
 
+from app_instance import app
 from common.base_logger import logger
 import gi
 
@@ -36,6 +37,7 @@ class BaseStreamPipeline:
 class BaseSinkPipeline(BaseStreamPipeline):
     def __init__(self):
         self._instance = Gst.Pipeline.new("pipeline")
+        app.state.CURRENT_PIPELINE = self._instance
         self._bus = self._instance.get_bus()
         self._bus.add_watch(0, self.on_bus_message)
 

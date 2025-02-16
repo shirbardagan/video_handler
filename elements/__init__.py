@@ -7,7 +7,9 @@ from .h264parse import H264ParseWrapper
 from .h265parse import H265ParseWrapper
 from .klvparse import KLVParseWrapper
 from .nvh265dec import NVH265DecWrapper
+from .rtpgstpay import RTPGSTPayWrapper
 from .rtph264depay import RTPH264DePayWrapper
+from .rtpklvpay import RTPKLVPayWrapper
 from .rtspsrc import RTSPSrcWrapper
 from .tsdemux import TSDemuxWrapper
 from .udpsrc import UDPSrcWrapper
@@ -38,7 +40,9 @@ __all__ = [
     X265enc,
     RTSPSrcWrapper,
     VideoAppSink,
-    V4L2SrcWrapper
+    V4L2SrcWrapper,
+    RTPKLVPayWrapper,
+    RTPGSTPayWrapper
 ]
 
 

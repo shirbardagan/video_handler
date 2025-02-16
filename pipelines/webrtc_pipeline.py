@@ -1,6 +1,6 @@
 from common.base_logger import logger
 from elements import WebRTCBinWrapper, CapsFilterWrapper, RTPH264DePayWrapper, H264ParseWrapper, NVH265DecWrapper, \
-    VideoConvertWrapper, AutoVideoSinkWrapper
+    VideoConvertWrapper, AutoVideoSinkWrapper, RTPGSTPayWrapper
 from elements.appsrc import VideoAppSrc, DataAppSrc
 from pipelines.base_pipeline import BaseSrcPipeline
 
@@ -15,13 +15,11 @@ class WebRTCPipeline(BaseSrcPipeline):
         try:
             super().__init__()
             self._instance = Gst.Pipeline.new("pipeline")
-            initialized_pipeline_elements_tuple = (VideoAppSrc(),
-                                                   # Identity(),
-                                                   DataAppSrc(),
+            initialized_pipeline_elements_tuple = (VideoAppSrc("videosrc"),
                                                    WebRTCBinWrapper()
                                                    )
 
-            (self.videosrc, self.datasrc, self.webrtcbin) = initialized_pipeline_elements_tuple
+            (self.videosrc, self.webrtcbin) = initialized_pipeline_elements_tuple
 
             elements = [self.videosrc, self.webrtcbin]
 
@@ -29,7 +27,6 @@ class WebRTCPipeline(BaseSrcPipeline):
                 logger.error("Not all elements could be created.")
 
             self.videosrc.connect("need-data", self.videosrc.on_need_data)
-            self.datasrc.connect("need-data", self.datasrc.on_need_data)
 
             self.videosrc.set_property("format", Gst.Format.TIME)
             self.videosrc.set_property("is-live", True)
@@ -41,7 +38,6 @@ class WebRTCPipeline(BaseSrcPipeline):
 
     def create_pipeline(self):
         self._instance.add(self.videosrc.get_element())
-        # self._instance.add(self.datasrc.get_element())
         self._instance.add(self.webrtcbin.get_element())
 
         self.videosrc.link(self.webrtcbin)

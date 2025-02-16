@@ -15,14 +15,6 @@ class AppSrcWrapper(GStreamerElementWrapper):
         super().__init__(type, name)
         self.blocked = False
 
-    def link(self, other_element) -> None:
-        try:
-            rtph264pay_src_pad = self.get_element().get_static_pad("src")
-            webrtcbin_dynamic_sink_pad = other_element.get_element().request_pad_simple("sink_%u")
-            if rtph264pay_src_pad.link(webrtcbin_dynamic_sink_pad) == Gst.PadLinkReturn.OK:
-                logger.info("Successfully linked %s to %s", self._name, other_element._name)
-        except Exception as e:
-            logger.error("While linking identity with %s. %s", other_element._name, e)
 
 
     def on_enough_data(self, _):
@@ -33,17 +25,30 @@ class AppSrcWrapper(GStreamerElementWrapper):
 
 
 class DataAppSrc(AppSrcWrapper):
-    def __init__(self, type="appsrc"):
-        super().__init__(type, "datasrc")
+    def __init__(self, name="appsrc"):
+        super().__init__("appsrc", name)
+
+
     def on_need_data(self, _, __):
-        if self not in app.state.OPEN_CONNECTIONS:
+        print("in need data")
+        if self not in app.state.OPEN_CONNECTIONS_DATA:
             app.state.OPEN_CONNECTIONS_DATA.append(self)
 
 
 class VideoAppSrc(AppSrcWrapper):
-    def __init__(self, type="appsrc"):
-        super().__init__(type, "videosrc")
+    def __init__(self, name="appsrc"):
+        super().__init__("appsrc", name)
 
     def on_need_data(self, _, __):
+        # print("aaaa")
         if self not in app.state.OPEN_CONNECTIONS:
             app.state.OPEN_CONNECTIONS.append(self)
+
+    def link(self, other_element) -> None:
+        try:
+            rtph264pay_src_pad = self.get_element().get_static_pad("src")
+            webrtcbin_dynamic_sink_pad = other_element.get_element().request_pad_simple("sink_%u")
+            if rtph264pay_src_pad.link(webrtcbin_dynamic_sink_pad) == Gst.PadLinkReturn.OK:
+                logger.info("Successfully linked %s to %s", self._name, other_element._name)
+        except Exception as e:
+            logger.error("While linking identity with %s. %s", other_element._name, e)
