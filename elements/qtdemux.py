@@ -8,8 +8,8 @@ from gi.repository import Gst, GLib, GstApp
 
 
 class QTDemuxWrapper(GStreamerElementWrapper):
-    def __init__(self, type="qtdemux"):
-        super().__init__(type, "qtdemux")
+    def __init__(self, name="qtdemux"):
+        super().__init__("qtdemux", name)
 
     @staticmethod
     def on_pad_added(_, pad, elements) -> None:

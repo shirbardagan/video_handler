@@ -4,8 +4,8 @@ from elements.base_element_wrapper import GStreamerElementWrapper
 from gi.repository import Gst
 
 class Identity(GStreamerElementWrapper):
-    def __init__(self, type="identity"):
-        super().__init__(type, "identity")
+    def __init__(self, name="identity"):
+        super().__init__("identity", name)
 
 
     # def link(self, other_element) -> None:

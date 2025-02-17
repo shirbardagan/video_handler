@@ -4,8 +4,8 @@ from elements.base_element_wrapper import GStreamerElementWrapper
 from gi.repository import Gst
 
 class QueueWrapper(GStreamerElementWrapper):
-    def __init__(self, type="queue"):
-        super().__init__(type, "queue")
+    def __init__(self, name="queue"):
+        super().__init__("queue", name)
 
     def link(self, other_element) -> None:
         if isinstance(other_element, GStreamerElementWrapper):

@@ -58,3 +58,5 @@ class GStreamerElementWrapper:
         return self._element
 
 
+    def get_name(self):
+        return self._name

@@ -8,8 +8,8 @@ gi.require_version("GstApp", "1.0")
 
 
 class UDPSrcWrapper(GStreamerElementWrapper):
-    def __init__(self, type="udpsrc"):
-        super().__init__(type, "udpsrc")
+    def __init__(self, name="udpsrc"):
+        super().__init__("udpsrc", name)
 
 
     def set_properties(self, address_tuple) -> None:

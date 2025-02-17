@@ -9,8 +9,8 @@ import threading
 
 pad_lock = threading.Lock()
 class TSDemuxWrapper(GStreamerElementWrapper):
-    def __init__(self, type="tsdemux"):
-        super().__init__(type, "tsdemux")
+    def __init__(self, name="tsdemux"):
+        super().__init__("tsdemux", name)
     @staticmethod
     def on_pad_added(_, pad, elements) -> None:
         from factory.mp2t_encoded_pipeline import MP2TFactory
