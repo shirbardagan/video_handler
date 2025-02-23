@@ -31,17 +31,17 @@ async def websocket_handler(conn: WebSocket):
     webrtc_client = WebRTCClient(conn)
     webrtc_client.start()
     try:
+        if not hasattr(app.state, "CURR_PIPELINE") or app.state.CURR_PIPELINE is None:
+            mpeg_pipe = UDPSRCPipeline()
+            mpeg_pipeline = mpeg_pipe.create_pipeline()
 
-        mpeg_pipe = V4L2StreamPipeline()
-        mpeg_pipeline = mpeg_pipe.create_pipeline()
 
-
-        ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
-        app.state.CURR_PIPELINE = mpeg_pipeline
-        if ret == Gst.StateChangeReturn.FAILURE:
-            logger.error("Unable to set the MPEGPipeline to the playing state")
-        else:
-            logger.info("MPEGPipeline is now playing!!")
+            ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
+            app.state.CURR_PIPELINE = mpeg_pipeline
+            if ret == Gst.StateChangeReturn.FAILURE:
+                logger.error("Unable to set the MPEGPipeline to the playing state")
+            else:
+                logger.info("MPEGPipeline is now playing!!")
 
         while True:
             data = await conn.receive_json()
@@ -62,9 +62,7 @@ async def websocket_handler(conn: WebSocket):
                 webrtc_client.webrtc.emit('set-remote-description', answer, promise)
                 promise.interrupt()
                 promise.wait()
-                promise_result = promise.get_reply()
 
-                print(f"Set remote description result: {promise_result}")
                 webrtc_client.start()
 
             elif event == "candidate":

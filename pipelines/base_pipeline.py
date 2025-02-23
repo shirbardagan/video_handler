@@ -79,16 +79,16 @@ class BaseSinkPipeline(BaseStreamPipeline):
 
     @staticmethod
     def on_bus_message(bus, msg):
-        # if msg.type == Gst.MessageType.STATE_CHANGED:
-        #     print(msg.parse_state_changed())
-        # elif msg.type == Gst.MessageType.ERROR:
-        #     print(msg.parse_error())
-        # elif msg.type == Gst.MessageType.INFO:
-        #     print(msg.parse_info())
-        # elif msg.type == Gst.MessageType.WARNING:
-        #     print(msg.parse_warning())
-        # elif msg.type == Gst.MessageType.ELEMENT:
-        #     structure = msg.get_structure()
+        if msg.type == Gst.MessageType.STATE_CHANGED:
+            print(msg.parse_state_changed())
+        elif msg.type == Gst.MessageType.ERROR:
+            print(msg.parse_error())
+        elif msg.type == Gst.MessageType.INFO:
+            print(msg.parse_info())
+        elif msg.type == Gst.MessageType.WARNING:
+            print(msg.parse_warning())
+        elif msg.type == Gst.MessageType.ELEMENT:
+            structure = msg.get_structure()
         return True
 
     def start_pipeline(self) -> None:

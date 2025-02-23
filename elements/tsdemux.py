@@ -8,9 +8,12 @@ from gi.repository import Gst, GLib, GstApp
 import threading
 
 pad_lock = threading.Lock()
+
+
 class TSDemuxWrapper(GStreamerElementWrapper):
     def __init__(self, name="tsdemux"):
         super().__init__("tsdemux", name)
+
     @staticmethod
     def on_pad_added(_, pad, elements) -> None:
         from factory.mp2t_encoded_pipeline import MP2TFactory
@@ -42,4 +45,3 @@ class TSDemuxWrapper(GStreamerElementWrapper):
                     logger.error(f"Failed to link pad {pad_name} to h265parse sink.")
         else:
             logger.warning(f"Unexpected pad: {pad_name} {structure_name}")
-

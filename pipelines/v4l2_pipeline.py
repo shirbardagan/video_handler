@@ -30,7 +30,7 @@ class V4L2StreamPipeline(BaseSinkPipeline):
                     self.rtph264pay, self.videosink]
 
         super().has_elements_initialized(elements)
-
+        self.v4l2src.set_property("device", "/dev/video1")
         self.videosink.set_property("emit-signals", True)
 
         self.rtph264pay.set_property("config-interval", -1)

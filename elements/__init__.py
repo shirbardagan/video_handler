@@ -44,7 +44,8 @@ __all__ = [
     V4L2SrcWrapper,
     RTPKLVPayWrapper,
     RTPGSTPayWrapper,
-    NVH264EncWrapper
+    NVH264EncWrapper,
+    DataAppSink
 ]
 
 

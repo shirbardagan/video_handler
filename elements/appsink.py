@@ -59,7 +59,7 @@ class VideoAppSink(AppSinkWrapper):
                     buffer.dts = 0
                     buffer.pts = appsrc.get_element().get_clock().get_time()
                     appsrc.get_element().emit("push-sample", sample)
-                    print("In on_data_sample", len(app.state.OPEN_CONNECTIONS))
+                    # print("In on_data_sample", len(app.state.OPEN_CONNECTIONS))
         except Exception as e:
             logger.error("In data_sample of video sink: %s", e)
         return Gst.FlowReturn.OK
