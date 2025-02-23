@@ -1,5 +1,5 @@
 from app_instance import app, start_server
-from routes import command, websocket, index, setup, test
+from routes import command, websocket, index, setup
 
 app.include_router(command.router)
 app.include_router(websocket.router)

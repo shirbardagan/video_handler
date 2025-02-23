@@ -14,10 +14,10 @@ gi.require_version('Gst', '1.0')
 class V4L2StreamPipeline(BaseSinkPipeline):
     def __init__(self):
         super().__init__()
-        initialized_pipeline_elements_tuple = (V4L2SrcWrapper(),
+        initialized_pipeline_elements_tuple = (V4L2SrcWrapper("v4l2src"),
                                                VideoConvertWrapper(),
                                                NVH264EncWrapper(),
-                                               CapsFilterWrapper("capsfilter1"),
+                                               CapsFilterWrapper("capsfilter"),
                                                H264ParseWrapper(),
                                                RTPH264Pay(),
                                                VideoAppSink()

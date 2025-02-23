@@ -13,16 +13,17 @@ class GStreamerElementWrapper:
 
     # def __new__(cls, *args, **kwargs):
     #     if getattr(cls, "allow_multiple_instances", False):
-    #         return super(GStreamerElementWrapper, cls).__new__(cls)
+    #         return super().__new__(cls)
     #
     #     with cls._lock:
-    #         if cls not in cls._instances:
-    #             instance = super().__new__(cls)
-    #             cls._instances[cls] = instance
+    #         if cls in cls._instances:
+    #             cls._instances[cls].get_element().set_state(Gst.State.NULL)
+    #             cls._instances[cls].get_element().unref()
+    #         instance = super().__new__(cls)
+    #         cls._instances[cls] = instance
     #     return cls._instances[cls]
 
     def __init__(self, element_type: str, element_name: str):
-        # if not hasattr(self, "initialized"):
         self._element = Gst.ElementFactory.make(element_type, element_name)
         self._name = element_name
         self.initialized = True
@@ -40,14 +41,14 @@ class GStreamerElementWrapper:
         sink_pad = other_element.get_element().get_static_pad('sink')
 
         if not src_pad or not sink_pad:
-            logger.error(f"Cannot find static pads: {self._name} or {other_element._name}")
+            logger.error(f"Cannot find static pads: {self._name} or {other_element.get_name()}")
             return False
 
         if src_pad.link(sink_pad) != Gst.PadLinkReturn.OK:
-            logger.error(f"Failed to link {self._name} to {other_element._name}")
+            logger.error(f"Failed to link {self._name} to {other_element.get_name()}")
             return False
 
-        logger.info(f"Successfully linked {self._name} to {other_element._name}")
+        logger.info(f"Successfully linked {self._name} to {other_element.get_name()}")
         return True
 
     def connect(self, signal_name: str, callback, *user_data) -> None:

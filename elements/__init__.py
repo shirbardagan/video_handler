@@ -1,4 +1,4 @@
-from .appsink import AppSinkWrapper, VideoAppSink
+from .appsink import AppSinkWrapper, VideoAppSink, DataAppSink
 from .autovideosink import AutoVideoSinkWrapper
 from .avdec_h264 import AVDecH264Wrapper
 from .capsfilter import CapsFilterWrapper
@@ -6,6 +6,7 @@ from .filesrc import FileSrcWrapper
 from .h264parse import H264ParseWrapper
 from .h265parse import H265ParseWrapper
 from .klvparse import KLVParseWrapper
+from .nvh264enc import NVH264EncWrapper
 from .nvh265dec import NVH265DecWrapper
 from .rtpgstpay import RTPGSTPayWrapper
 from .rtph264depay import RTPH264DePayWrapper
@@ -42,7 +43,8 @@ __all__ = [
     VideoAppSink,
     V4L2SrcWrapper,
     RTPKLVPayWrapper,
-    RTPGSTPayWrapper
+    RTPGSTPayWrapper,
+    NVH264EncWrapper
 ]
 
 

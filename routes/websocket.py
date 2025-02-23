@@ -1,10 +1,12 @@
 import functools
 from fastapi import APIRouter, WebSocket
 import gi
+from starlette.websockets import WebSocketDisconnect
 
 from app_instance import app
 from common.base_logger import logger
 from pipelines.mp2t_h265_pipeline import MP2TH265StreamPipeline
+from pipelines.test_pipeline import TESTStreamPipeline
 from pipelines.udpsrc_pipeline import UDPSRCPipeline
 from pipelines.v4l2_pipeline import V4L2StreamPipeline
 from webrtc_handler.websocket_handler import WebRTCClient
@@ -26,12 +28,11 @@ router = APIRouter()
 async def websocket_handler(conn: WebSocket):
     await conn.accept()
     app.state.CONN = conn
+    webrtc_client = WebRTCClient(conn)
+    webrtc_client.start()
     try:
 
-        webrtc_client = WebRTCClient(conn)
-        webrtc_client.start()
-
-        mpeg_pipe = MP2TH265StreamPipeline()
+        mpeg_pipe = V4L2StreamPipeline()
         mpeg_pipeline = mpeg_pipe.create_pipeline()
 
 
@@ -77,5 +78,8 @@ async def websocket_handler(conn: WebSocket):
                 print("In play")
                 webrtc_client.start()
 
+    except WebSocketDisconnect:
+        logger.info("WebSocket connection closed by the client.")
+        webrtc_client.webrtc_pipeline.unref()
     except Exception as e:
         logger.error("In websocket_endpoint: %s", e)

@@ -14,9 +14,8 @@ class WebRTCPipeline(BaseSrcPipeline):
     def __init__(self):
         try:
             super().__init__()
-            self._instance = Gst.Pipeline.new("pipeline")
             initialized_pipeline_elements_tuple = (VideoAppSrc("videosrc"),
-                                                   WebRTCBinWrapper()
+                                                   WebRTCBinWrapper("webrtcbin")
                                                    )
 
             (self.videosrc, self.webrtcbin) = initialized_pipeline_elements_tuple
@@ -31,19 +30,18 @@ class WebRTCPipeline(BaseSrcPipeline):
             self.videosrc.set_property("format", Gst.Format.TIME)
             self.videosrc.set_property("is-live", True)
             self.videosrc.set_property("do-timestamp", True)
-
-
         except Exception as e:
             logger.error("While initializing webrtcbin pipeline: %s", e)
 
     def create_pipeline(self):
-        self._instance.add(self.videosrc.get_element())
-        self._instance.add(self.webrtcbin.get_element())
-
-        self.videosrc.link(self.webrtcbin)
+        self._add_elements()
+        self._link_elements()
         return self._instance
 
-    def create_webrtc_pipeline(self):
-        pipeline_str = f"""
-        appsrc name=videosrc ! webrtcbin name=webrtcbin"""
-        return pipeline_str
+    def _add_elements(self):
+        elements_to_add = [self.videosrc, self.webrtcbin]
+        self.add_elements(elements_to_add)
+
+    def _link_elements(self):
+        links = [(self.videosrc, self.webrtcbin)]
+        self.link_elements(links)
