@@ -39,13 +39,13 @@ __all__ = [
     RTPH264DePayWrapper,
     AVDecH264Wrapper,
     X265enc,
-    RTSPSrcWrapper,
     VideoAppSink,
     V4L2SrcWrapper,
     RTPKLVPayWrapper,
     RTPGSTPayWrapper,
     NVH264EncWrapper,
-    DataAppSink
+    DataAppSink,
+    RTSPSrcWrapper
 ]
 
 

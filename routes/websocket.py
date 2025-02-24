@@ -1,16 +1,13 @@
-import functools
 from fastapi import APIRouter, WebSocket
-import gi
+
 from starlette.websockets import WebSocketDisconnect
 
 from app_instance import app
 from common.base_logger import logger
-from pipelines.mp2t_h265_pipeline import MP2TH265StreamPipeline
-from pipelines.test_pipeline import TESTStreamPipeline
-from pipelines.udpsrc_pipeline import UDPSRCPipeline
-from pipelines.v4l2_pipeline import V4L2StreamPipeline
+from pipelines import RTSPStreamPipeline
 from webrtc_handler.websocket_handler import WebRTCClient
 
+import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
@@ -32,7 +29,7 @@ async def websocket_handler(conn: WebSocket):
     webrtc_client.start()
     try:
         if not hasattr(app.state, "CURR_PIPELINE") or app.state.CURR_PIPELINE is None:
-            mpeg_pipe = UDPSRCPipeline()
+            mpeg_pipe = RTSPStreamPipeline()
             mpeg_pipeline = mpeg_pipe.create_pipeline()
 
 

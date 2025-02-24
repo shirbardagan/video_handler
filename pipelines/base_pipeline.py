@@ -55,6 +55,7 @@ class BaseStreamPipeline:
     def unref(self):
         try:
             for element in self._elements:
+                # TODO: check better alternative for removing appsrc from app.state.OPEN_CONNECTIONS
                 if isinstance(element, VideoAppSrc):
                     if element in app.state.OPEN_CONNECTIONS:
                         app.state.OPEN_CONNECTIONS.remove(element)
@@ -65,24 +66,30 @@ class BaseStreamPipeline:
         except Exception as e:
             logger.error("While releasing pipeline resources: %s", e)
 
+    @staticmethod
+    def get_pipeline_string(links: List[Tuple[GStreamerElementWrapper, GStreamerElementWrapper]]):
+        """Generate a GStreamer pipeline string representation."""
+        pipeline_parts = []
+
+        for element1, element2 in links:
+            pipeline_parts.append(element1.get_element_to_string())
+            pipeline_parts.append("!")
+
+        pipeline_parts.append(links[-1][1].get_element_to_string())
+        return " ".join(pipeline_parts)
 
 class BaseSinkPipeline(BaseStreamPipeline):
     def __init__(self):
         super().__init__()
-        # app.state.CURRENT_PIPELINE = self._instance
         self._bus = self._instance.get_bus()
         self._bus.add_watch(0, self.on_bus_message)
-
-    @abstractmethod
-    def create_pipeline(self):
-        pass
 
     @staticmethod
     def on_bus_message(bus, msg):
         if msg.type == Gst.MessageType.STATE_CHANGED:
             print(msg.parse_state_changed())
         elif msg.type == Gst.MessageType.ERROR:
-            print(msg.parse_error())
+            logger.error(msg.parse_error())
         elif msg.type == Gst.MessageType.INFO:
             print(msg.parse_info())
         elif msg.type == Gst.MessageType.WARNING:
@@ -90,6 +97,10 @@ class BaseSinkPipeline(BaseStreamPipeline):
         elif msg.type == Gst.MessageType.ELEMENT:
             structure = msg.get_structure()
         return True
+
+    @abstractmethod
+    def create_pipeline(self):
+        pass
 
     def start_pipeline(self) -> None:
         try:

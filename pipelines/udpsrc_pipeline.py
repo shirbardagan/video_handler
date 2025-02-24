@@ -30,7 +30,7 @@ class UDPSRCPipeline(MP2TStreamPipeline):
                                                H265ParseWrapper(),
                                                NVH265DecWrapper(),
                                                NVH264EncWrapper(),
-                                               CapsFilterWrapper("capsfilter1"),
+                                               CapsFilterWrapper("capsfilter"),
                                                H264ParseWrapper(),
                                                RTPH264Pay(),
                                                VideoAppSink()
@@ -40,11 +40,7 @@ class UDPSRCPipeline(MP2TStreamPipeline):
          self.capsfilter, self.h264parse,
          self.rtph264pay, self.videosink) = initialized_pipeline_elements_tuple
 
-        # elements = [self.udpsrc, self.tsdemux, self.h265parse, self.nvh265dec, self.x264enc, self.h264parse,
-        #             self.rtph264pay, self.videosink]
-        #
-        #
-        # super().has_elements_initialized(elements)
+
 
         AddressTuple = namedtuple("AddressTuple", ["ip", "port", "iface"])
         addr = AddressTuple(ip="239.3.43.3", port=6146, iface="lo")

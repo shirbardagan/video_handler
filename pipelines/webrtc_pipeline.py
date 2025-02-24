@@ -33,7 +33,7 @@ class WebRTCPipeline(BaseSrcPipeline):
         except Exception as e:
             logger.error("While initializing webrtcbin pipeline: %s", e)
 
-    def create_pipeline(self):
+    def create_pipeline(self) -> Gst.Pipeline:
         self._add_elements()
         self._link_elements()
         return self._instance
@@ -45,3 +45,5 @@ class WebRTCPipeline(BaseSrcPipeline):
     def _link_elements(self):
         links = [(self.videosrc, self.webrtcbin)]
         self.link_elements(links)
+        pipeline_to_string = self.get_pipeline_string(links)
+        logger.info("Pipeline: %s", pipeline_to_string)

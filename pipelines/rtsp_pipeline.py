@@ -1,42 +1,75 @@
 import functools
 
 from common.base_logger import logger
-from elements import RTSPSrcWrapper, VideoAppSink
+from elements import VideoAppSink, UDPSrcWrapper, RTPH264DePayWrapper, H264ParseWrapper, CapsFilterWrapper, RTPH264Pay
 from pipelines.base_pipeline import BaseSinkPipeline
+from config.pipelines_config import CapsConfig
 
 import gi
-from gi.repository import Gst
+from gi.repository import Gst, GstRtsp
+
+from pipelines.udpsrc_pipeline import UDPSRCPipeline
 
 gi.require_version('Gst', '1.0')
+gi.require_version('GstRtsp', '1.0')
 
 
 class RTSPStreamPipeline(BaseSinkPipeline):
     def __init__(self):
         super().__init__()
-        initialized_pipeline_elements_tuple = (RTSPSrcWrapper(),
+        initialized_pipeline_elements_tuple = (UDPSrcWrapper(),
+                                               CapsFilterWrapper("capsfilter0"),
+                                               RTPH264DePayWrapper(),
+                                               H264ParseWrapper(),
+                                               CapsFilterWrapper("capsfilter1"),
+                                               RTPH264Pay(),
                                                VideoAppSink()
                                                )
 
-        (self.rtspsrc, self.videosink) = initialized_pipeline_elements_tuple
+        (self.udpsrc, self.capsfilter0, self.rtph264depay, self.h264parse, self.capsfilter1, self.rtph264pay,
+         self.videosink) = initialized_pipeline_elements_tuple
 
-        elements = [self.rtspsrc, self.videosink]
+        elements = [self.udpsrc, self.rtph264depay, self.h264parse, self.capsfilter1, self.rtph264pay,
+                    self.videosink]
 
-        super().has_elements_initialized(elements)
+        self.has_elements_initialized(elements)
+        self.udpsrc.set_property("uri", "udp://239.192.201.200:6011")
+        self.udpsrc.set_property("multicast-iface", "lo")
+        self.rtph264pay.set_property("config-interval", -1)
+        self.capsfilter0.set_property("caps",
+            "application/x-rtp,media=video,clock-rate=90000,encoding-name=H264,payload=96")
+        self.capsfilter1.set_property("caps",
+            "video/x-h264, stream-format=(string)byte-stream, alignment=(string)au, level=(string)4, profile=(string)main")
+        self.videosink.set_property("emit-signals", True)
+        self.videosink.set_property("sync", False)
 
-    def create_pipeline(self):
-        try:
-            self._instance.add(self.rtspsrc.get_element())
-            self._instance.add(self.videosink.get_element())
-        except Exception as e:
-            logger.error("While adding elements to the pipeline: %s", e)
-        self.videosink.connect("new-sample", functools.partial(self.videosink.on_data_sample))
-
-        self.rtspsrc.link(self.videosink)
-
+    def create_pipeline(self) -> Gst.Pipeline:
+        self._add_elements()
+        self._connect_signals()
+        self._link_elements()
         return self._instance
 
-    def start_pipeline(self) -> None:
-        pass
+    def _add_elements(self):
+        elements_to_add = [
+            self.udpsrc, self.capsfilter0, self.rtph264depay, self.h264parse, self.capsfilter1, self.rtph264pay,
+            self.videosink
+        ]
+        self.add_elements(elements_to_add)
 
-    def stop_pipeline(self) -> None:
-        pass
+    def _connect_signals(self):
+        self.videosink.connect("new-sample", functools.partial(self.videosink.on_data_sample))
+
+    def _link_elements(self):
+
+        links = [
+            (self.udpsrc, self.capsfilter0),
+            (self.capsfilter0, self.rtph264depay),
+            (self.rtph264depay, self.h264parse),
+            (self.h264parse, self.capsfilter1),
+            (self.capsfilter1, self.rtph264pay),
+            (self.rtph264pay, self.videosink),
+        ]
+        self.link_elements(links)
+        pipeline_to_string = self.get_pipeline_string(links)
+        logger.info("Pipeline: %s", pipeline_to_string)
+

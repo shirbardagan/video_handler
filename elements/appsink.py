@@ -32,8 +32,8 @@ class DataAppSink(AppSinkWrapper):
             json_string = json.dumps(json_data)
             encoded_data = base64.b64encode(json_string.encode('utf-8')).decode('utf-8')
 
-            if app.state.CONN:
-                app.state.CONN.send_json({"event": "video_data", "data": encoded_data})
+            # if app.state.CONN:
+            #     app.state.CONN.send_json({"event": "video_data", "data": encoded_data})
 
         except Exception as e:
             logger.error("In data_sample of data sink: %s", e)
@@ -59,7 +59,6 @@ class VideoAppSink(AppSinkWrapper):
                     buffer.dts = 0
                     buffer.pts = appsrc.get_element().get_clock().get_time()
                     appsrc.get_element().emit("push-sample", sample)
-                    # print("In on_data_sample", len(app.state.OPEN_CONNECTIONS))
         except Exception as e:
             logger.error("In data_sample of video sink: %s", e)
         return Gst.FlowReturn.OK
