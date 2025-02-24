@@ -1,12 +1,12 @@
 from .webrtc_pipeline import WebRTCPipeline
 from .rtsp_pipeline import RTSPStreamPipeline
-from .udpsrc_pipeline import UDPSRCPipeline
+from .udp_pipeline import UDPPipeline
 from .mp2t_h265_pipeline import MP2TH265StreamPipeline
 
 
 __all__ = [
     WebRTCPipeline,
     RTSPStreamPipeline,
-    UDPSRCPipeline,
+    UDPPipeline,
     MP2TH265StreamPipeline
 ]

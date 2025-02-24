@@ -2,7 +2,7 @@ from common.base_logger import logger
 from elements import WebRTCBinWrapper, CapsFilterWrapper, RTPH264DePayWrapper, H264ParseWrapper, NVH265DecWrapper, \
     VideoConvertWrapper, AutoVideoSinkWrapper, RTPGSTPayWrapper
 from elements.appsrc import VideoAppSrc, DataAppSrc
-from pipelines.base_pipeline import BaseSrcPipeline
+from pipelines.base_pipeline import BaseStreamPipeline
 
 import gi
 
@@ -10,7 +10,7 @@ gi.require_version("GstSdp", "1.0")
 from gi.repository import Gst, GObject, GstSdp
 
 
-class WebRTCPipeline(BaseSrcPipeline):
+class WebRTCPipeline(BaseStreamPipeline):
     def __init__(self):
         try:
             super().__init__()

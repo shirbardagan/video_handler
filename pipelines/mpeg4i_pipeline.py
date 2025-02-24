@@ -3,10 +3,10 @@ import functools
 from common.base_logger import logger
 from elements import FileSrcWrapper, H264ParseWrapper, RTPH264Pay, WebRTCBinWrapper
 from elements.qtdemux import QTDemuxWrapper
-from pipelines.base_pipeline import BaseSinkPipeline
+from pipelines.base_pipeline import BaseStreamPipeline
 
 
-class MPEG4IStreamPipeline(BaseSinkPipeline):
+class MPEG4IStreamPipeline(BaseStreamPipeline):
     def __init__(self):
         super().__init__()
         initialized_pipeline_elements_tuple = (FileSrcWrapper(),

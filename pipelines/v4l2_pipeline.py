@@ -3,7 +3,7 @@ import functools
 from common.base_logger import logger
 from elements import VideoConvertWrapper, CapsFilterWrapper, H264ParseWrapper, RTPH264Pay, VideoAppSink, V4L2SrcWrapper
 from elements.nvh264enc import NVH264EncWrapper
-from pipelines.base_pipeline import BaseSinkPipeline
+from pipelines.base_pipeline import BaseStreamPipeline
 
 import gi
 from gi.repository import Gst
@@ -11,7 +11,7 @@ from gi.repository import Gst
 gi.require_version('Gst', '1.0')
 
 
-class V4L2StreamPipeline(BaseSinkPipeline):
+class V4L2StreamPipeline(BaseStreamPipeline):
     def __init__(self):
         super().__init__()
         initialized_pipeline_elements_tuple = (V4L2SrcWrapper("v4l2src"),

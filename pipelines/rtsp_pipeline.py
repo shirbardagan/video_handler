@@ -2,19 +2,19 @@ import functools
 
 from common.base_logger import logger
 from elements import VideoAppSink, UDPSrcWrapper, RTPH264DePayWrapper, H264ParseWrapper, CapsFilterWrapper, RTPH264Pay
-from pipelines.base_pipeline import BaseSinkPipeline
+from pipelines.base_pipeline import BaseStreamPipeline
 from config.pipelines_config import CapsConfig
 
 import gi
 from gi.repository import Gst, GstRtsp
 
-from pipelines.udpsrc_pipeline import UDPSRCPipeline
+from pipelines.udp_pipeline import UDPPipeline
 
 gi.require_version('Gst', '1.0')
 gi.require_version('GstRtsp', '1.0')
 
 
-class RTSPStreamPipeline(BaseSinkPipeline):
+class RTSPStreamPipeline(BaseStreamPipeline):
     def __init__(self):
         super().__init__()
         initialized_pipeline_elements_tuple = (UDPSrcWrapper(),

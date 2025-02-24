@@ -4,11 +4,11 @@ from common.base_logger import logger
 from elements import X264enc, H264ParseWrapper, RTPH264Pay
 from elements.appsink import VideoAppSink
 from elements.videotestsrc import VideoTestSrcWrapper
-from pipelines.base_pipeline import BaseSinkPipeline
+from pipelines.base_pipeline import BaseStreamPipeline
 from gi.repository import Gst
 
 
-class TESTStreamPipeline(BaseSinkPipeline):
+class TESTStreamPipeline(BaseStreamPipeline):
     def __init__(self):
         super().__init__()
         initialized_pipeline_elements_tuple = (VideoTestSrcWrapper("videotestsrc"),

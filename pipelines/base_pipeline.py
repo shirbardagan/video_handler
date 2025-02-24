@@ -16,76 +16,30 @@ from gi.repository import Gst, GLib, GstApp
 
 class BaseStreamPipeline:
     def __init__(self):
+        """Initializes the GStreamer pipeline and sets up the message bus."""
         self._instance = Gst.Pipeline.new("pipeline")
         self._elements = []
-
-    @abstractmethod
-    def create_pipeline(self):
-        pass
-
-    @abstractmethod
-    def start_pipeline(self) -> None:
-        pass
-
-    @abstractmethod
-    def stop_pipeline(self) -> None:
-        pass
-
-    @staticmethod
-    def has_elements_initialized(elements: List[GStreamerElementWrapper]):
-        if not all(elements):
-            logger.error("Not all elements could be created.")
-
-    @staticmethod
-    def link_elements(links: List[Tuple[GStreamerElementWrapper, GStreamerElementWrapper]]):
-        for src, sink in links:
-            try:
-                src.link(sink)
-            except Exception as e:
-                logger.error("While linking elements %s -> %s: %s", src.get_name(), sink.get_name(), e)
-
-    def add_elements(self, elements):
-        for element in elements:
-            try:
-                self._instance.add(element.get_element())
-                self._elements.append(element)
-            except Exception as e:
-                logger.error("While adding %s element to the pipeline: %s", element.get_name(), e)
-
-    def unref(self):
-        try:
-            for element in self._elements:
-                # TODO: check better alternative for removing appsrc from app.state.OPEN_CONNECTIONS
-                if isinstance(element, VideoAppSrc):
-                    if element in app.state.OPEN_CONNECTIONS:
-                        app.state.OPEN_CONNECTIONS.remove(element)
-                element.get_element().set_state(Gst.State.NULL)
-                element.get_element().unref()
-            self._instance.set_state(Gst.State.NULL)
-            self._instance.unref()
-        except Exception as e:
-            logger.error("While releasing pipeline resources: %s", e)
-
-    @staticmethod
-    def get_pipeline_string(links: List[Tuple[GStreamerElementWrapper, GStreamerElementWrapper]]):
-        """Generate a GStreamer pipeline string representation."""
-        pipeline_parts = []
-
-        for element1, element2 in links:
-            pipeline_parts.append(element1.get_element_to_string())
-            pipeline_parts.append("!")
-
-        pipeline_parts.append(links[-1][1].get_element_to_string())
-        return " ".join(pipeline_parts)
-
-class BaseSinkPipeline(BaseStreamPipeline):
-    def __init__(self):
-        super().__init__()
         self._bus = self._instance.get_bus()
         self._bus.add_watch(0, self.on_bus_message)
 
+    @abstractmethod
+    def create_pipeline(self) -> Gst.Pipeline:
+        """
+        Abstract method to be implemented by subclasses to define the pipeline structure.
+        """
+        pass
+
     @staticmethod
-    def on_bus_message(bus, msg):
+    def on_bus_message(bus: Gst.Bus, msg: Gst.Message) -> bool:
+        """
+        Callback function for handling GStreamer bus messages.
+
+        Args:
+            bus: The GStreamer bus instance.
+            msg: The message received from the bus.
+        Returns:
+            True to continue receiving messages, False to stop.
+        """
         if msg.type == Gst.MessageType.STATE_CHANGED:
             print(msg.parse_state_changed())
         elif msg.type == Gst.MessageType.ERROR:
@@ -98,27 +52,91 @@ class BaseSinkPipeline(BaseStreamPipeline):
             structure = msg.get_structure()
         return True
 
-    @abstractmethod
-    def create_pipeline(self):
-        pass
+    @staticmethod
+    def has_elements_initialized(elements: List[GStreamerElementWrapper]) -> bool:
+        """
+        Checks if all elements in the pipeline are successfully initialized.
 
-    def start_pipeline(self) -> None:
+        Args:
+            elements: List of GStreamer elements.
+        Logs an error if any element is not initialized.
+        """
+        if not all(elements):
+            logger.error("Not all elements could be created.")
+            return False
+        return True
+
+    @staticmethod
+    def link_elements(links: List[Tuple[GStreamerElementWrapper, GStreamerElementWrapper]]) -> bool:
+        """
+        Links the provided GStreamer elements together.
+
+        Args:
+            links: A list of tuples where each tuple contains a source and a sink element.
+        Logs an error if linking fails.
+        """
+        for src, sink in links:
+            try:
+                src.link(sink)
+            except Exception as e:
+                logger.error("While linking elements %s -> %s: %s", src.get_name(), sink.get_name(), e)
+                return False
+        return True
+
+    def add_elements(self, elements: List[GStreamerElementWrapper]) -> None:
+        """
+        Adds elements to the GStreamer pipeline.
+
+        Args:
+            elements: List of elements to add to the pipeline.
+        Logs an error if an element cannot be added.
+        """
+        for element in elements:
+            try:
+                self._instance.add(element.get_element())
+                self._elements.append(element)
+            except Exception as e:
+                logger.error("While adding %s element to the pipeline: %s", element.get_name(), e)
+
+
+    def unref(self) -> bool:
+        """
+        Releases pipeline resources and sets all elements to NULL state.
+
+        If an element is an instance of VideoAppSrc and exists in `app.state.OPEN_CONNECTIONS`,
+        it is removed from the open connections list before being released.
+        Logs an error if resource cleanup fails.
+        """
         try:
-            self.create_pipeline()
-            logger.info("Starting pipeline")
-            ret = self._instance.set_state(Gst.State.PLAYING)
-            if ret == Gst.StateChangeReturn.FAILURE:
-                logger.error("Unable to set the pipeline to the playing state")
-            else:
-                logger.info("Pipeline is now playing")
+            for element in self._elements:
+                # TODO: check better alternative for removing appsrc from app.state.OPEN_CONNECTIONS
+                if isinstance(element, VideoAppSrc):
+                    if element in app.state.OPEN_CONNECTIONS:
+                        app.state.OPEN_CONNECTIONS.remove(element)
+                element.get_element().set_state(Gst.State.NULL)
+                element.get_element().unref()
+            self._instance.set_state(Gst.State.NULL)
+            self._instance.unref()
+            return True
         except Exception as e:
-            logger.error("While starting pipeline: %s", e)
+            logger.error("While releasing pipeline resources: %s", e)
+            return False
 
+    @staticmethod
+    def get_pipeline_string(links: List[Tuple[GStreamerElementWrapper, GStreamerElementWrapper]]) -> str:
+        """
+        Generates a string representation of the GStreamer pipeline.
 
-class BaseSrcPipeline(BaseStreamPipeline):
-    def __init__(self):
-        super().__init__()
+        Args:
+            links: A list of tuples where each tuple contains a source and a sink element.
+        Returns: The GStreamer pipeline string representation.
+        """
+        pipeline_parts = []
 
-    @abstractmethod
-    def create_pipeline(self):
-        pass
+        for element1, element2 in links:
+            pipeline_parts.append(element1.get_element_to_string())
+            pipeline_parts.append("!")
+
+        pipeline_parts.append(links[-1][1].get_element_to_string())
+        return " ".join(pipeline_parts)
+

@@ -1,11 +1,11 @@
 import functools
 
 from elements import TSDemuxWrapper, FileSrcWrapper
-from pipelines.base_pipeline import BaseSinkPipeline
+from pipelines.base_pipeline import BaseStreamPipeline
 from common.base_logger import logger
 
 
-class MP2TStreamPipeline(BaseSinkPipeline):
+class MP2TStreamPipeline(BaseStreamPipeline):
     def __init__(self):
         super().__init__()
         initialized_pipeline_elements_tuple = (FileSrcWrapper(),
