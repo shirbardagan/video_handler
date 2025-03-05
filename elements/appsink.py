@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import json
 
@@ -32,8 +33,13 @@ class DataAppSink(AppSinkWrapper):
             json_string = json.dumps(json_data)
             encoded_data = base64.b64encode(json_string.encode('utf-8')).decode('utf-8')
 
-            # if app.state.CONN:
-            #     app.state.CONN.send_json({"event": "video_data", "data": encoded_data})
+            msg = {"event": "video_data", "data": json_string}
+            if app.state.CONN:
+                future = asyncio.run_coroutine_threadsafe(app.state.CONN.send_text(json.dumps(msg, ensure_ascii=False)), app.state.event_loop)
+                try:
+                    future.result()
+                except Exception as e:
+                    logger.error(f"Error sending WebSocket message: {e}")
 
         except Exception as e:
             logger.error("In data_sample of data sink: %s", e)

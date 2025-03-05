@@ -19,7 +19,6 @@ gi.require_version('GstSdp', '1.0')
 class WebRTCClient:
     def __init__(self, conn):
         self.conn = conn
-        self.loop = asyncio.get_event_loop()
 
         self.webrtc_pipeline = WebRTCPipeline()
         self.pipeline =  self.webrtc_pipeline.create_pipeline()
@@ -55,7 +54,7 @@ class WebRTCClient:
                 'sdp': text
             }
                           })
-        asyncio.run_coroutine_threadsafe(self.conn.send_text(msg), self.loop)
+        asyncio.run_coroutine_threadsafe(self.conn.send_text(msg), app.state.event_loop)
 
     def on_offer_created(self, promise, _, __):
         promise.wait()
@@ -80,4 +79,4 @@ class WebRTCClient:
                 'sdpMLineIndex': mlineindex}
                              })
         print(f"Sending ICE candidate: {icemsg}")
-        asyncio.run_coroutine_threadsafe(self.conn.send_text(icemsg), self.loop)
+        asyncio.run_coroutine_threadsafe(self.conn.send_text(icemsg), app.state.event_loop)

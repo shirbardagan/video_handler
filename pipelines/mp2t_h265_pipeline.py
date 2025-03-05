@@ -50,8 +50,8 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         self.videosink.set_property("emit-signals", True)
         self.datasink.set_property("emit-signals", True)
 
-        self.capsfilter.set_property("caps", Gst.Caps.from_string(
-            "video/x-h264, stream-format=(string)byte-stream, alignment=(string)au, level=(string)4, profile=(string)main"))
+        self.capsfilter.set_property("caps",
+            "video/x-h264, stream-format=(string)byte-stream, alignment=(string)au, level=(string)4, profile=(string)main")
 
     def create_pipeline(self) -> Gst.Pipeline:
         self._add_elements()
