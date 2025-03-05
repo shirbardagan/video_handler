@@ -4,6 +4,11 @@ from elements import TSDemuxWrapper, FileSrcWrapper, KLVParseWrapper, DataAppSin
 from pipelines.base_pipeline import BaseStreamPipeline
 from common.base_logger import logger
 
+import gi
+from gi.repository import Gst
+
+gi.require_version('Gst', '1.0')
+
 
 class MP2TStreamPipeline(BaseStreamPipeline):
     _shared_instance = None
@@ -22,32 +27,34 @@ class MP2TStreamPipeline(BaseStreamPipeline):
             elements = [self.filesrc, self.tsdemux, self.klvparse, self.datasink]
             self.has_elements_initialized(elements)
 
-            self.tsdemux.connect("pad-added",
-                                 functools.partial(self.tsdemux.on_pad_added,
-                                                   self.klvparse.get_element()))
             self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
 
             self.datasink.set_property("emit-signals", True)
-            self.datasink.connect("new-sample", functools.partial(self.datasink.on_data_sample))
 
         else:
             self._instance = MP2TStreamPipeline._shared_instance
 
-
-
-    def create_pipeline(self):
-        try:
-            self._instance.add(self.filesrc.get_element())
-            self._instance.add(self.tsdemux.get_element())
-            self._instance.add(self.klvparse.get_element())
-            self._instance.add(self.datasink.get_element())
-        except Exception as e:
-            logger.error("While adding elements to the pipeline: %s", e)
-
-        self.filesrc.link(self.tsdemux)
-        self.klvparse.link(self.datasink)
+    def create_pipeline(self) -> Gst.Pipeline:
+        self._add_elements()
+        self._connect_signals()
+        self._link_elements()
         return self._instance
 
+    def _add_elements(self):
+        elements_to_add = [
+            self.filesrc, self.tsdemux, self.klvparse, self.datasink
+        ]
+        self.add_elements(elements_to_add)
 
-    def stop_pipeline(self) -> None:
-        pass
+    def _connect_signals(self):
+        self.tsdemux.connect("pad-added",
+                             functools.partial(self.tsdemux.on_pad_added,
+                                               self.klvparse.get_element()))
+        self.datasink.connect("new-sample", functools.partial(self.datasink.on_data_sample))
+
+    def _link_elements(self):
+        links = [
+            (self.filesrc, self.tsdemux),
+            (self.klvparse, self.datasink)
+        ]
+        self.link_elements(links)

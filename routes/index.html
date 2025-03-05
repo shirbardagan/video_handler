@@ -83,6 +83,11 @@
             }
         };
 
+        function sanitizeJSON(jsonString) {
+            // Replace non-printable characters with an empty string
+            return jsonString.replace(/[\x00-\x1F\x7F-\x9F]/g, "");
+        }
+
         function displayMessage(msg) {
             const messageContainer = document.getElementById('messageContainer');
 
@@ -93,12 +98,16 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message';
 
-            // Limit message length
-            let displayText = JSON.stringify(msg.data);
-<!--            if (displayText.length > 100) {-->
-<!--                displayText = displayText.substring(0, 100) + '...'; // Truncate long messages-->
-<!--            }-->
+            // Sanitize and format the JSON
+            let displayText = sanitizeJSON(JSON.stringify(msg.data));
+            try {
+                // Prettify the JSON
+                displayText = JSON.stringify(JSON.parse(displayText), null, 2);  // Prettify the JSON with indentation
+            } catch (e) {
+                displayText = `Error parsing JSON: ${e.message}`;
+            }
 
+            // Add timestamp and formatted JSON message to display
             messageDiv.textContent = `[${new Date().toLocaleTimeString()}] ${displayText}`;
 
             // Add the new message to the container

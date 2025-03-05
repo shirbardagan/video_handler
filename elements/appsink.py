@@ -28,14 +28,20 @@ class DataAppSink(AppSinkWrapper):
 
             succ, info = buffer.map(Gst.MapFlags.READ)
             buffer.unmap(info)
+
+            # Parse the JSON data from the buffer
             json_data = json.loads(info.data.decode('utf-8'))
 
-            json_string = json.dumps(json_data)
-            encoded_data = base64.b64encode(json_string.encode('utf-8')).decode('utf-8')
+            # Prettify the JSON
+            json_string = json.dumps(json_data, indent=4)
 
+            # Construct the message
             msg = {"event": "video_data", "data": json_string}
+
+            # Send the message over WebSocket if the connection is established
             if app.state.CONN:
-                future = asyncio.run_coroutine_threadsafe(app.state.CONN.send_text(json.dumps(msg, ensure_ascii=False)), app.state.event_loop)
+                future = asyncio.run_coroutine_threadsafe(app.state.CONN.send_text(json.dumps(msg, ensure_ascii=False)),
+                                                          app.state.event_loop)
                 try:
                     future.result()
                 except Exception as e:
