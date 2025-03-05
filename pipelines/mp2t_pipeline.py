@@ -20,14 +20,16 @@ class MP2TStreamPipeline(BaseStreamPipeline):
             (self.filesrc, self.tsdemux, self.klvparse, self.datasink) = initialized_pipeline_elements_tuple
 
             elements = [self.filesrc, self.tsdemux, self.klvparse, self.datasink]
-            super().has_elements_initialized(elements)
+            self.has_elements_initialized(elements)
 
             self.tsdemux.connect("pad-added",
                                  functools.partial(self.tsdemux.on_pad_added,
-                                                   elements=self.klvparse.get_element()))
+                                                   self.klvparse.get_element()))
             self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
 
             self.datasink.set_property("emit-signals", True)
+            self.datasink.connect("new-sample", functools.partial(self.datasink.on_data_sample))
+
         else:
             self._instance = MP2TStreamPipeline._shared_instance
 

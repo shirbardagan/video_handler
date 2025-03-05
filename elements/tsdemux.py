@@ -47,13 +47,12 @@ class TSDemuxWrapper(GStreamerElementWrapper):
     #         logger.warning(f"Unexpected pad: {pad_name} {structure_name}")
 
     @staticmethod
-    def on_pad_added(_, pad, elements) -> None:
+    def on_pad_added(klvparse, _, pad) -> None:
         from factory.mp2t_encoded_pipeline import MP2TFactory
         print("On pad_added tsdemux.")
         pad_name = pad.get_name()
         pad_caps = pad.query_caps(None)
         structure_name = pad_caps.to_string()
-        klvparse = elements
         if 'video' in structure_name:
             mp2t_pipeline = MP2TFactory().get_pipeline_type(structure_name.split(",")[0])
             mp2t_pipeline.create_pipeline()
