@@ -40,16 +40,16 @@ class BaseStreamPipeline:
         Returns:
             True to continue receiving messages, False to stop.
         """
-        if msg.type == Gst.MessageType.STATE_CHANGED:
-            print(msg.parse_state_changed())
-        elif msg.type == Gst.MessageType.ERROR:
-            logger.error(msg.parse_error())
-        elif msg.type == Gst.MessageType.INFO:
-            print(msg.parse_info())
-        elif msg.type == Gst.MessageType.WARNING:
-            print(msg.parse_warning())
-        elif msg.type == Gst.MessageType.ELEMENT:
-            structure = msg.get_structure()
+        # if msg.type == Gst.MessageType.STATE_CHANGED:
+        #     print(msg.parse_state_changed())
+        # elif msg.type == Gst.MessageType.ERROR:
+        #     logger.error(msg.parse_error())
+        # elif msg.type == Gst.MessageType.INFO:
+        #     print(msg.parse_info())
+        # elif msg.type == Gst.MessageType.WARNING:
+        #     print(msg.parse_warning())
+        # elif msg.type == Gst.MessageType.ELEMENT:
+        #     structure = msg.get_structure()
         return True
 
     @staticmethod
@@ -140,3 +140,5 @@ class BaseStreamPipeline:
         pipeline_parts.append(links[-1][1].get_element_to_string())
         return " ".join(pipeline_parts)
 
+    def get_pipeline_elements(self):
+        return self._elements

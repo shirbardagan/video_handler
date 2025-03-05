@@ -12,15 +12,14 @@ from pipelines.mp2t_pipeline import MP2TStreamPipeline
 class MP2TH264StreamPipeline(MP2TStreamPipeline):
     def __init__(self):
         super().__init__()
-        initialized_pipeline_elements_tuple = (FileSrcWrapper(),
-                                               TSDemuxWrapper(),
-                                               H264ParseWrapper(),
+        self._elements = []
+        initialized_pipeline_elements_tuple = (H264ParseWrapper(),
                                                RTPH264Pay(),
                                                AppSinkWrapper()
                                                )
 
-        (self.filesrc, self.tsdemux, self.h264parse, self.rtph264pay,
-         self.appsink) = initialized_pipeline_elements_tuple
+        (
+        self.h264parse, self.rtph264pay, self.appsink) = initialized_pipeline_elements_tuple
 
         elements = [self.filesrc, self.tsdemux, self.h264parse, self.rtph264pay, self.appsink]
 
