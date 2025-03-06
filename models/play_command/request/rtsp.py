@@ -1,6 +1,6 @@
-from models.base_stream import BaseStreamModel
+from .base_stream import BaseStreamModel
 
 
 class RTSPStreamModel(BaseStreamModel):
     stream_type: str = "rtsp"
-    latency: int = 0
+    # latency: int = 0

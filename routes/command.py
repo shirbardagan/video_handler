@@ -5,11 +5,8 @@ from fastapi import APIRouter, Request, Body
 from app_instance import app
 from common.base_logger import logger
 from factory.stream_pipeline_factory import StreamPipelineFactory
-from models import *
-import gi
+from models.play_command.request import *
 
-gi.require_version('Gst', '1.0')
-from gi.repository import Gst
 
 router = APIRouter()
 

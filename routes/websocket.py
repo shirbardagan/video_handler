@@ -77,5 +77,8 @@ async def websocket_handler(conn: WebSocket):
     except WebSocketDisconnect:
         logger.info("WebSocket connection closed by the client.")
         webrtc_client.webrtc_pipeline.unref()
+        app.state.CONN = None
     except Exception as e:
         logger.error("In websocket_endpoint: %s", e)
+    finally:
+        logger.info("WebSocket handler cleanup complete.")

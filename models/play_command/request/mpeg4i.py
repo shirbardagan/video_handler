@@ -1,6 +1,6 @@
 from typing_extensions import Optional, Union
 
-from models.base_stream import BaseStreamModel
+from .base_stream import BaseStreamModel
 from pydantic import Field, root_validator
 
 reinterlace_options = [None, False, True, 1, 0, 2, "reinterlace", "crop"]

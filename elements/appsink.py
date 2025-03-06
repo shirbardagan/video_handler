@@ -2,6 +2,8 @@ import asyncio
 import base64
 import json
 
+from starlette.websockets import WebSocketDisconnect
+
 from app_instance import app
 from common.base_logger import logger
 from elements.base_element_wrapper import GStreamerElementWrapper
@@ -38,14 +40,15 @@ class DataAppSink(AppSinkWrapper):
             # Construct the message
             msg = {"event": "video_data", "data": json_string}
 
-            # Send the message over WebSocket if the connection is established
-            if app.state.CONN:
-                future = asyncio.run_coroutine_threadsafe(app.state.CONN.send_text(json.dumps(msg, ensure_ascii=False)),
-                                                          app.state.event_loop)
-                try:
-                    future.result()
-                except Exception as e:
-                    logger.error(f"Error sending WebSocket message: {e}")
+            if app.state.CONN and not app.state.CONN.client_state == WebSocketDisconnect:
+                if app.state.CONN:
+                    try:
+                        future = asyncio.run_coroutine_threadsafe(
+                            app.state.CONN.send_text(json.dumps(msg, ensure_ascii=False)),
+                            app.state.event_loop)
+                        future.result()
+                    except Exception as e:
+                        logger.error(f"Error sending WebSocket message: {e}")
 
         except Exception as e:
             logger.error("In data_sample of data sink: %s", e)
@@ -60,17 +63,18 @@ class VideoAppSink(AppSinkWrapper):
 
     def on_data_sample(self, appsink) -> Gst.FlowReturn:
         try:
-            sample = appsink.pull_sample()
-            buffer = sample.get_buffer()
+            if appsink:
+                sample = appsink.pull_sample()
+                buffer = sample.get_buffer()
 
-            if self.first_time:
-                print("In on_data_sample", len(app.state.OPEN_CONNECTIONS))
-                self.first_time = False
-            for appsrc in app.state.OPEN_CONNECTIONS:
-                if appsrc:
-                    buffer.dts = 0
-                    buffer.pts = appsrc.get_element().get_clock().get_time()
-                    appsrc.get_element().emit("push-sample", sample)
+                if self.first_time:
+                    print("In on_data_sample", len(app.state.OPEN_CONNECTIONS))
+                    self.first_time = False
+                for appsrc in app.state.OPEN_CONNECTIONS:
+                    if appsrc:
+                        buffer.dts = 0
+                        buffer.pts = appsrc.get_element().get_clock().get_time()
+                        appsrc.get_element().emit("push-sample", sample)
         except Exception as e:
             logger.error("In data_sample of video sink: %s", e)
         return Gst.FlowReturn.OK

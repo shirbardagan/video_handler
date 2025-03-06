@@ -1,4 +1,4 @@
-from models.base_stream import BaseStreamModel
+from .base_stream import BaseStreamModel
 
 
 class TestStreamModel(BaseStreamModel):
