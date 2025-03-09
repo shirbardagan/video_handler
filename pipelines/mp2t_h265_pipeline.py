@@ -9,6 +9,7 @@ from elements import (
     VideoAppSink,
     NVH264EncWrapper
 )
+from elements.gldownload import GLDownloadWrapper
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
 
 import gi
@@ -23,6 +24,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         self._elements = []
         initialized_pipeline_elements_tuple = (H265ParseWrapper("h265parse"),
                                                NVH265DecWrapper("nvh265dec"),
+                                               GLDownloadWrapper(),
                                                NVH264EncWrapper("nvh264enc"),
                                                CapsFilterWrapper("capsfilter"),
                                                H264ParseWrapper("h264parse"),
@@ -30,14 +32,25 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
                                                VideoAppSink("videosink")
                                                )
 
-        (self.h265parse, self.nvh265dec, self.nvh264enc,
+        (self.h265parse, self.nvh265dec, self.gldownload, self.nvh264enc,
          self.capsfilter, self.h264parse, self.rtph264pay, self.videosink) = initialized_pipeline_elements_tuple
 
-        elements = [self.h265parse, self.nvh265dec, self.nvh264enc, self.h264parse, self.rtph264pay, self.videosink]
+        elements = [self.h265parse, self.nvh265dec, self.gldownload, self.nvh264enc, self.h264parse, self.rtph264pay, self.videosink]
 
-        super().has_elements_initialized(elements)
+        self.has_elements_initialized(elements)
+        self.nvh265dec.set_property("max-errors", -1)
+        self.nvh264enc.set_property("bitrate", 4096)
+        self.nvh264enc.set_property("preset", "low-latency-hp")
+        self.nvh264enc.set_property("zerolatency", True)
+        self.nvh264enc.set_property("gop-size", 30)
+
+        self.h265parse.set_property("config-interval", -1)
+        self.h264parse.set_property("config-interval", -1)
+        self.rtph264pay.set_property("config-interval", -1)
 
         self.videosink.set_property("emit-signals", True)
+        self.videosink.set_property("sync", False)
+        self.videosink.set_property("async", False)
 
         self.capsfilter.set_property("caps",
             "video/x-h264, stream-format=(string)byte-stream, alignment=(string)au, level=(string)4, profile=(string)main")
@@ -50,7 +63,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
 
     def _add_elements(self):
         elements_to_add = [
-            self.h265parse, self.nvh265dec, self.nvh264enc, self.capsfilter, self.h264parse, self.rtph264pay, self.videosink
+            self.h265parse, self.nvh265dec, self.gldownload, self.nvh264enc, self.capsfilter, self.h264parse, self.rtph264pay, self.videosink
         ]
         self.add_elements(elements_to_add)
 
@@ -60,7 +73,8 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
     def _link_elements(self):
         links = [
             (self.h265parse, self.nvh265dec),
-            (self.nvh265dec, self.nvh264enc),
+            (self.nvh265dec, self.gldownload),
+            (self.gldownload, self.nvh264enc),
             (self.nvh264enc, self.capsfilter),
             (self.capsfilter, self.h264parse),
             (self.h264parse, self.rtph264pay),

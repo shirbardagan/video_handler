@@ -4,7 +4,7 @@ from starlette.websockets import WebSocketDisconnect
 
 from app_instance import app
 from common.base_logger import logger
-from pipelines import RTSPStreamPipeline, MP2TH265StreamPipeline
+from pipelines import RTSPStreamPipeline, MP2TH265StreamPipeline, UDPPipeline
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
 from webrtc_handler.websocket_handler import WebRTCClient
 

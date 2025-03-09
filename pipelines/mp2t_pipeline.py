@@ -1,6 +1,7 @@
 import functools
+from collections import namedtuple
 
-from elements import TSDemuxWrapper, FileSrcWrapper, KLVParseWrapper, DataAppSink
+from elements import TSDemuxWrapper, FileSrcWrapper, KLVParseWrapper, DataAppSink, UDPSrcWrapper
 from pipelines.base_pipeline import BaseStreamPipeline
 from common.base_logger import logger
 
@@ -18,16 +19,18 @@ class MP2TStreamPipeline(BaseStreamPipeline):
             super().__init__()
             MP2TStreamPipeline._shared_instance = self._instance
 
-            initialized_pipeline_elements_tuple = (FileSrcWrapper(),
+            initialized_pipeline_elements_tuple = (UDPSrcWrapper(),
                                                    TSDemuxWrapper(),
                                                    KLVParseWrapper(),
                                                    DataAppSink())
-            (self.filesrc, self.tsdemux, self.klvparse, self.datasink) = initialized_pipeline_elements_tuple
+            (self.udpsrc, self.tsdemux, self.klvparse, self.datasink) = initialized_pipeline_elements_tuple
 
-            elements = [self.filesrc, self.tsdemux, self.klvparse, self.datasink]
+            elements = [self.udpsrc, self.tsdemux, self.klvparse, self.datasink]
             self.has_elements_initialized(elements)
 
-            self.filesrc.set_property("location", "/home/elbit/Desktop/flights/VNIR_ZOOM.ts")
+            AddressTuple = namedtuple("AddressTuple", ["ip", "port", "iface"])
+            addr = AddressTuple(ip="239.3.43.3", port=6146, iface="lo")
+            self.udpsrc.set_properties(addr)
 
             self.datasink.set_property("emit-signals", True)
 
@@ -42,7 +45,7 @@ class MP2TStreamPipeline(BaseStreamPipeline):
 
     def _add_elements(self):
         elements_to_add = [
-            self.filesrc, self.tsdemux, self.klvparse, self.datasink
+            self.udpsrc, self.tsdemux, self.klvparse, self.datasink
         ]
         self.add_elements(elements_to_add)
 
@@ -54,7 +57,8 @@ class MP2TStreamPipeline(BaseStreamPipeline):
 
     def _link_elements(self):
         links = [
-            (self.filesrc, self.tsdemux),
+            (self.udpsrc, self.tsdemux),
             (self.klvparse, self.datasink)
         ]
         self.link_elements(links)
+
