@@ -17,7 +17,6 @@ async def startup_event() -> None:
 
     app.state.OPEN_CONNECTIONS = []
     app.state.OPEN_CONNECTIONS_DATA = []
-    app.state.CURRENT_PIPELINE = None
     app.state.CURR_PIPELINE = None
     app.state.STREAM = None
     app.state.channel = None

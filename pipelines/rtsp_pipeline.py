@@ -6,12 +6,13 @@ from pipelines.base_pipeline import BaseStreamPipeline
 from config.pipelines_config import CapsConfig
 
 import gi
+gi.require_version('Gst', '1.0')
+gi.require_version('GstRtsp', '1.0')
 from gi.repository import Gst, GstRtsp
 
 from pipelines.udp_pipeline import UDPPipeline
 
-gi.require_version('Gst', '1.0')
-gi.require_version('GstRtsp', '1.0')
+
 
 
 class RTSPStreamPipeline(BaseStreamPipeline):

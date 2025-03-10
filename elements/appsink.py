@@ -37,7 +37,6 @@ class DataAppSink(AppSinkWrapper):
             msg = {"event": "video_data", "data": json_string}
 
             json_msg = json.dumps(msg)
-
             if hasattr(app.state, "channel") and app.state.channel is not None:
                 app.state.channel.emit("send-string", json_msg)
 

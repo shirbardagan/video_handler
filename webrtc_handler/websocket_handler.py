@@ -68,7 +68,6 @@ class WebRTCClient:
 
     def on_data_channel_open(self, channel):
         app.state.channel = self.data_channel
-        print("aaaaaaaaaaammmmmmmmmmmmmmmddddddddddd")
 
     def on_negotiation_needed(self, element):
         self.webrtc.disconnect_by_func(self.on_negotiation_needed)
@@ -78,7 +77,6 @@ class WebRTCClient:
 
         if not hasattr(self, "data_channel"):
             self.data_channel = self.webrtc.emit("create-data-channel", "klvdata", None)
-            print("aaaaaaaaaaaaaaa",self.data_channel)
             self.data_channel.connect("on-open", self.on_data_channel_open)
 
 

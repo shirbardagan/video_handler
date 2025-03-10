@@ -6,21 +6,21 @@
     <title>Synced Video Playback</title>
     <style>
         #messageContainer {
-            width: 100%;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
+            white-space: pre-wrap;  /* Ensures newlines and spaces are respected */
+            font-family: 'Courier New', monospace;  /* Monospace font for better alignment */
+            font-size: 14px; /* Optional: adjust font size */
+            background-color: #f4f4f4; /* Optional: background color */
             padding: 10px;
+            border-radius: 5px;
             margin-top: 10px;
-            background-color: #f9f9f9;
+            overflow: auto; /* Ensure long content doesn't overflow */
         }
         .message {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 5px;
-            word-wrap: break-word;
+            margin-bottom: 10px;
+            word-wrap: break-word;  /* Ensure long words break appropriately */
         }
     </style>
+
 </head>
 <body id="body">
     <video id="video1" autoplay playsinline muted controls></video>
@@ -53,11 +53,11 @@
 
         pc.onicecandidate = event => {
             if (event.candidate) {
-                            console.log('Sending ICE candidate to server');
-                 conn.send(JSON.stringify({
-                     event: 'candidate',
-                     data: event.candidate
-                 }));
+                console.log('Sending ICE candidate to server');
+                conn.send(JSON.stringify({
+                    event: 'candidate',
+                    data: event.candidate
+                }));
             } else {
                 console.log('ICE candidate gathering complete');
             }
@@ -78,7 +78,6 @@
             if (!msg) {
                 return console.log('Failed to parse message');
             }
-            if (!msg) return;
 
             switch (msg.event) {
                 case 'offer':
@@ -109,53 +108,62 @@
             }
         };
 
-
-        // Handle incoming DataChannel messages
         dataChannel.onmessage = event => {
-            console.log('on data channel event!!!');
             let msg = JSON.parse(event.data);
             if (msg.event === "video_data") {
                 displayMessage(msg);
             }
         };
 
-        // Handle when a DataChannel is received
         pc.ondatachannel = event => {
-            console.log('on data channel event!!!');
             let channel = event.channel;
             channel.onmessage = dataChannel.onmessage; // Set message handler
         };
 
         function sanitizeJSON(jsonString) {
-            // Replace non-printable characters with an empty string
-            return jsonString.replace(/[\x00-\x1F\x7F-\x9F]/g, "");
+            // Remove non-UTF-8 characters or any other unwanted characters
+            return jsonString.replace(/[\x00-\x1F\x7F-\x9F\uFFFD]/g, "");
         }
 
         function displayMessage(msg) {
             const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = '';  // Clear previous messages
 
-            // Clear previous message
-            messageContainer.innerHTML = '';
-
-            // Create a new message div
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message';
 
-            // Sanitize and format the JSON
-            let displayText = sanitizeJSON(JSON.stringify(msg.data));
+            // Step 1: Log the raw message data
+            console.log("Raw msg.data:", msg.data);
+
+            // Step 2: Remove any leading timestamp (e.g., [5:30:04 PM])
+            let displayText = msg.data.replace(/^\[.*?\]\s*/, ''); // Regex removes leading timestamp
+
+            // Step 3: Clean any unwanted control characters that might break JSON structure
+            displayText = sanitizeJSON(displayText);
+
+            // Step 4: Clean up rvt_local_set field specifically (if needed)
             try {
-                // Prettify the JSON
-                displayText = JSON.stringify(JSON.parse(displayText), null, 2);  // Prettify the JSON with indentation
+                const parsedData = JSON.parse(displayText); // Parse the JSON string
+                if (parsedData.rvt_local_set) {
+                    parsedData.rvt_local_set = sanitizeJSON(parsedData.rvt_local_set); // Clean the rvt_local_set field
+                }
+
+                // Step 5: Prettify JSON with 2 spaces
+                displayText = JSON.stringify(parsedData, null, 2);
             } catch (e) {
+                // If JSON parsing fails, display the error message
+                console.error("JSON parsing error:", e.message);
                 displayText = `Error parsing JSON: ${e.message}`;
             }
 
-            // Add timestamp and formatted JSON message to display
-            messageDiv.textContent = `[${new Date().toLocaleTimeString()}] ${displayText}`;
-
-            // Add the new message to the container
+            // Step 6: Display the prettified or error message with timestamp
+            messageDiv.textContent = `[${new Date().toLocaleTimeString()}]\n` + displayText;
             messageContainer.appendChild(messageDiv);
         }
+
+
+
+
 
         pc.onconnectionstatechange = () => {
             if (pc.connectionState === "failed") {
