@@ -29,18 +29,12 @@ class DataAppSrc(AppSrcWrapper):
         super().__init__("appsrc", name)
 
 
-    def on_need_data(self, _, __):
-        print("in need data")
-        if self not in app.state.OPEN_CONNECTIONS_DATA:
-            app.state.OPEN_CONNECTIONS_DATA.append(self)
-
 
 class VideoAppSrc(AppSrcWrapper):
     def __init__(self, name="appsrc"):
         super().__init__("appsrc", name)
 
     def on_need_data(self, _, __):
-        # print("aaaa")
         if self not in app.state.OPEN_CONNECTIONS:
             app.state.OPEN_CONNECTIONS.append(self)
 

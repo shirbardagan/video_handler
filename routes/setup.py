@@ -16,9 +16,7 @@ async def startup_event() -> None:
     Gst.init(None)
 
     app.state.OPEN_CONNECTIONS = []
-    app.state.OPEN_CONNECTIONS_DATA = []
     app.state.CURR_PIPELINE = None
-    app.state.STREAM = None
     app.state.channel = None
     app.state.event_loop = asyncio.get_running_loop()
 
