@@ -31,24 +31,15 @@ class DataAppSink(AppSinkWrapper):
             succ, info = buffer.map(Gst.MapFlags.READ)
             buffer.unmap(info)
 
-            # Parse the JSON data from the buffer
             json_data = json.loads(info.data.decode('utf-8'))
-
-            # Prettify the JSON
             json_string = json.dumps(json_data, indent=4)
 
-            # Construct the message
             msg = {"event": "video_data", "data": json_string}
 
-            if app.state.CONN and not app.state.CONN.client_state == WebSocketDisconnect:
-                if app.state.CONN:
-                    try:
-                        future = asyncio.run_coroutine_threadsafe(
-                            app.state.CONN.send_text(json.dumps(msg, ensure_ascii=False)),
-                            app.state.event_loop)
-                        future.result()
-                    except Exception as e:
-                        logger.error(f"Error sending WebSocket message: {e}")
+            json_msg = json.dumps(msg)
+
+            if hasattr(app.state, "channel") and app.state.channel is not None:
+                app.state.channel.emit("send-string", json_msg)
 
         except Exception as e:
             logger.error("In data_sample of data sink: %s", e)

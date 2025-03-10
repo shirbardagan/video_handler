@@ -5,6 +5,7 @@ import json
 from app_instance import app
 from common.base_logger import logger
 import gi
+
 gi.require_version('GstSdp', '1.0')
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GObject, GstSdp
@@ -15,13 +16,13 @@ gi.require_version('GstWebRTC', '1.0')
 gi.require_version('GstSdp', '1.0')
 
 
-
 class WebRTCClient:
     def __init__(self, conn):
         self.conn = conn
+        # self.data_channel = None
 
         self.webrtc_pipeline = WebRTCPipeline()
-        self.pipeline =  self.webrtc_pipeline.create_pipeline()
+        self.pipeline = self.webrtc_pipeline.create_pipeline()
         self.webrtc = self.pipeline.get_by_name("webrtcbin")
 
         if self.webrtc is None:
@@ -44,7 +45,6 @@ class WebRTCClient:
             logger.error("While starting pipeline: %s", e)
             return False
 
-
     def send_sdp_offer(self, offer):
         text = offer.sdp.as_text()
         logger.info(f"sending SDP offer")
@@ -66,11 +66,21 @@ class WebRTCClient:
         promise.interrupt()
         self.send_sdp_offer(offer)
 
+    def on_data_channel_open(self, channel):
+        app.state.channel = self.data_channel
+        print("aaaaaaaaaaammmmmmmmmmmmmmmddddddddddd")
+
     def on_negotiation_needed(self, element):
         self.webrtc.disconnect_by_func(self.on_negotiation_needed)
         promise = Gst.Promise.new_with_change_func(self.on_offer_created, None, None)
         logger.info("Creating offer")
         element.emit('create-offer', None, promise)
+
+        if not hasattr(self, "data_channel"):
+            self.data_channel = self.webrtc.emit("create-data-channel", "klvdata", None)
+            print("aaaaaaaaaaaaaaa",self.data_channel)
+            self.data_channel.connect("on-open", self.on_data_channel_open)
+
 
     def send_ice_candidate_message(self, _, mlineindex, candidate):
         icemsg = json.dumps({'event': 'candidate', 'data':
