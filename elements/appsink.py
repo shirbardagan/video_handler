@@ -37,8 +37,9 @@ class DataAppSink(AppSinkWrapper):
             msg = {"event": "video_data", "data": json_string}
 
             json_msg = json.dumps(msg)
-            if hasattr(app.state, "channel") and app.state.channel is not None:
-                app.state.channel.emit("send-string", json_msg)
+            if hasattr(app.state, "channels") and app.state.channels is not None:
+                for channel in app.state.channels:
+                    channel.emit("send-string", json_msg)
 
         except Exception as e:
             logger.error("In data_sample of data sink: %s", e)

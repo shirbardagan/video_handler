@@ -78,6 +78,7 @@ async def websocket_handler(conn: WebSocket):
         logger.info("WebSocket connection closed by the client.")
         webrtc_client.webrtc_pipeline.unref()
         app.state.CONN = None
+        app.state.channels.remove(webrtc_client.data_channel)
     except Exception as e:
         logger.error("In websocket_endpoint: %s", e)
     finally:

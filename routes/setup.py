@@ -17,7 +17,7 @@ async def startup_event() -> None:
 
     app.state.OPEN_CONNECTIONS = []
     app.state.CURR_PIPELINE = None
-    app.state.channel = None
+    app.state.channels = []
     app.state.event_loop = asyncio.get_running_loop()
 
     thread_pipeline = Thread(target=GObject.MainLoop().run)

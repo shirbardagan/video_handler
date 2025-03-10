@@ -19,7 +19,6 @@ gi.require_version('GstSdp', '1.0')
 class WebRTCClient:
     def __init__(self, conn):
         self.conn = conn
-        # self.data_channel = None
 
         self.webrtc_pipeline = WebRTCPipeline()
         self.pipeline = self.webrtc_pipeline.create_pipeline()
@@ -67,7 +66,7 @@ class WebRTCClient:
         self.send_sdp_offer(offer)
 
     def on_data_channel_open(self, channel):
-        app.state.channel = self.data_channel
+        app.state.channels.append(self.data_channel)
 
     def on_negotiation_needed(self, element):
         self.webrtc.disconnect_by_func(self.on_negotiation_needed)
