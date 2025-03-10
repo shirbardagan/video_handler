@@ -99,7 +99,7 @@
                     break;
 
                 case 'video_data':
-                    displayMessage(msg); // ✅ Call function to show messages
+                    displayMessage(msg);
                     break;
 
                 default:
@@ -117,53 +117,38 @@
 
         pc.ondatachannel = event => {
             let channel = event.channel;
-            channel.onmessage = dataChannel.onmessage; // Set message handler
+            channel.onmessage = dataChannel.onmessage;
         };
 
         function sanitizeJSON(jsonString) {
-            // Remove non-UTF-8 characters or any other unwanted characters
             return jsonString.replace(/[\x00-\x1F\x7F-\x9F\uFFFD]/g, "");
         }
 
         function displayMessage(msg) {
             const messageContainer = document.getElementById('messageContainer');
-            messageContainer.innerHTML = '';  // Clear previous messages
+            messageContainer.innerHTML = '';
 
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message';
 
-            // Step 1: Log the raw message data
-            console.log("Raw msg.data:", msg.data);
-
-            // Step 2: Remove any leading timestamp (e.g., [5:30:04 PM])
-            let displayText = msg.data.replace(/^\[.*?\]\s*/, ''); // Regex removes leading timestamp
-
-            // Step 3: Clean any unwanted control characters that might break JSON structure
+            let displayText = msg.data.replace(/^\[.*?\]\s*/, '');
             displayText = sanitizeJSON(displayText);
 
-            // Step 4: Clean up rvt_local_set field specifically (if needed)
             try {
-                const parsedData = JSON.parse(displayText); // Parse the JSON string
+                const parsedData = JSON.parse(displayText);
                 if (parsedData.rvt_local_set) {
-                    parsedData.rvt_local_set = sanitizeJSON(parsedData.rvt_local_set); // Clean the rvt_local_set field
+                    parsedData.rvt_local_set = sanitizeJSON(parsedData.rvt_local_set);
                 }
 
-                // Step 5: Prettify JSON with 2 spaces
                 displayText = JSON.stringify(parsedData, null, 2);
             } catch (e) {
-                // If JSON parsing fails, display the error message
                 console.error("JSON parsing error:", e.message);
                 displayText = `Error parsing JSON: ${e.message}`;
             }
 
-            // Step 6: Display the prettified or error message with timestamp
             messageDiv.textContent = `[${new Date().toLocaleTimeString()}]\n` + displayText;
             messageContainer.appendChild(messageDiv);
         }
-
-
-
-
 
         pc.onconnectionstatechange = () => {
             if (pc.connectionState === "failed") {
