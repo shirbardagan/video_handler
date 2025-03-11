@@ -36,7 +36,7 @@ class WebRTCClient:
             self.webrtc_pipeline = WebRTCPipeline()
             self.pipeline = self.webrtc_pipeline.create_pipeline()
             self.webrtc = self.pipeline.get_by_name("webrtcbin")
-
+            self.videosrc = self.pipeline.get_by_name("videosrc")
             if self.webrtc is None:
                 logger.error("webrtcbin element cannot be found in the pipeline.")
         except Exception as e:
