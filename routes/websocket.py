@@ -1,5 +1,3 @@
-import os
-
 from fastapi import APIRouter, WebSocket
 
 from starlette.websockets import WebSocketDisconnect
@@ -11,6 +9,7 @@ from webrtc_handler.websocket_handler import WebRTCClient
 from config.system_config import SystemSettingsConfig
 
 import gi
+
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
@@ -27,18 +26,18 @@ system_conf = SystemSettingsConfig()
 @router.websocket("/ws")
 async def websocket_handler(conn: WebSocket):
     await conn.accept()
-    app.state.CONN = conn
-    if int(system_conf.vh_max_users) > len(app.state.OPEN_CONNECTIONS) or int(system_conf.vh_max_users)==system_conf.default_value:
+    app.state.conns.append(conn)
+    if int(system_conf.vh_max_users) > len(app.state.webrtc_conn_videosrc) or int(
+            system_conf.vh_max_users) == system_conf.default_value:
         webrtc_client = WebRTCClient(conn)
         webrtc_client.start()
         try:
-            if not hasattr(app.state, "CURR_PIPELINE") or app.state.CURR_PIPELINE is None:
+            if not hasattr(app.state, "curr_pipeline") or app.state.curr_pipeline is None:
                 mpeg_pipe = MP2TStreamPipeline()
                 mpeg_pipeline = mpeg_pipe.create_pipeline()
 
-
                 ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
-                app.state.CURR_PIPELINE = mpeg_pipeline
+                app.state.curr_pipeline = mpeg_pipeline
                 if ret == Gst.StateChangeReturn.FAILURE:
                     logger.error("Unable to set the MPEGPipeline to the playing state")
                 else:
@@ -64,28 +63,28 @@ async def websocket_handler(conn: WebSocket):
                     promise.interrupt()
                     promise.wait()
 
-                    webrtc_client.start()
-
                 elif event == "candidate":
                     print("In candidate")
                     candidate = data["data"]
                     candidate_val = candidate['candidate']
                     webrtc_client.webrtc.emit('add-ice-candidate', candidate["sdpMLineIndex"], candidate_val)
-                    webrtc_client.start()
-
-                elif event == "play":
-                    print("In play")
-                    webrtc_client.start()
-
         except WebSocketDisconnect:
             logger.info("WebSocket connection closed by the client.")
+            if hasattr(webrtc_client, "videosrc") and webrtc_client.videosrc in app.state.webrtc_conn_videosrc:
+                app.state.webrtc_conn_videosrc.remove(webrtc_client.videosrc)
             webrtc_client.webrtc_pipeline.unref()
-            app.state.CONN = None
-            # app.state.OPEN_CONNECTIONS.remove(webrtc_client.videosrc)
-            app.state.channels.remove(webrtc_client.data_channel)
+            webrtc_client.webrtc_pipeline = None
+            if hasattr(webrtc_client, "conn") and webrtc_client.conn in app.state.conns:
+                app.state.conns.remove(webrtc_client.conn)
+            if hasattr(webrtc_client, "data_channel") and webrtc_client.data_channel in app.state.channels:
+                app.state.channels.remove(webrtc_client.data_channel)
         except Exception as e:
             logger.error("In websocket_endpoint: %s", e)
         finally:
             logger.info("WebSocket handler cleanup complete.")
     else:
         logger.warning("Reached to maximum %s connections. Not creating WebRTC connection.", system_conf.vh_max_users)
+        await conn.send_json(
+            {"warning": f"Maximum {system_conf.vh_max_users} connections reached. Not opening connection."})
+        await conn.close()
+        return

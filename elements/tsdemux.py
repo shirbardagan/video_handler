@@ -33,7 +33,7 @@ class TSDemuxWrapper(GStreamerElementWrapper):
     #                 logger.info(f"Linked pad {pad_name} to parser sink.")
     #             else:
     #                 logger.error(f"While linking pad {pad_name} to parser sink.")
-    #         app.state.CURR_PIPELINE.sync_children_states()
+    #         app.state.curr_pipeline.sync_children_states()
     #
     #     elif 'meta' in structure_name:
     #         sink_pad = klvparse.get_static_pad('sink')
@@ -64,7 +64,7 @@ class TSDemuxWrapper(GStreamerElementWrapper):
                     logger.info(f"Linked pad {pad_name} to parser sink.")
                 else:
                     logger.error(f"While linking pad {pad_name} to parser sink.")
-            app.state.CURR_PIPELINE.sync_children_states()
+            app.state.curr_pipeline.sync_children_states()
 
         elif 'meta' in structure_name:
             sink_pad = klvparse.get_static_pad('sink')

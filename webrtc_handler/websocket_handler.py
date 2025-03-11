@@ -37,6 +37,7 @@ class WebRTCClient:
             self.pipeline = self.webrtc_pipeline.create_pipeline()
             self.webrtc = self.pipeline.get_by_name("webrtcbin")
             self.videosrc = self.pipeline.get_by_name("videosrc")
+
             if self.webrtc is None:
                 logger.error("webrtcbin element cannot be found in the pipeline.")
         except Exception as e:
@@ -104,6 +105,7 @@ class WebRTCClient:
 
     def on_data_channel_open(self, _) -> None:
         """Callback function for when the data channel is successfully opened."""
+        logger.info("Data channel opened.")
         app.state.channels.append(self.data_channel)
 
     def on_negotiation_needed(self, element: Gst.Element) -> None:

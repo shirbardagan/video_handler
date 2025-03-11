@@ -15,9 +15,10 @@ async def startup_event() -> None:
     print("On setup")
     Gst.init(None)
 
-    app.state.OPEN_CONNECTIONS = []
-    app.state.CURR_PIPELINE = None
+    app.state.webrtc_conn_videosrc = []
+    app.state.curr_pipeline = None
     app.state.channels = []
+    app.state.conns = []
     app.state.event_loop = asyncio.get_running_loop()
 
     thread_pipeline = Thread(target=GObject.MainLoop().run)

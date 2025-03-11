@@ -73,38 +73,49 @@
 
         conn.onmessage = async evt => {
             let msg = JSON.parse(evt.data);
-            console.log('Received message:', msg);
 
             if (!msg) {
                 return console.log('Failed to parse message');
             }
+            if (msg.warning) {
+                console.log("Warning:", msg.warning);
+            }
 
-            switch (msg.event) {
-                case 'offer':
-                    console.log('Received offer from server');
-                    await pc.setRemoteDescription(new RTCSessionDescription(msg.data));
-                    const answer = await pc.createAnswer();
-                    await pc.setLocalDescription(answer);
-                    conn.send(JSON.stringify({ event: 'answer', data: answer }));
-                    console.log('Sent SDP answer');
-                    break;
+            if (msg.info) {
+                console.log("Info:", msg.info);
+            }
 
-                case 'candidate':
-                    console.log('Received ICE candidate from server', msg.data);
-                    try {
-                        await pc.addIceCandidate(new RTCIceCandidate(msg.data));
-                    } catch (error) {
-                        console.error('Error adding ICE candidate:', error);
-                    }
-                    break;
+            if (msg.error) {
+                console.log("Error:", msg.error);
+            }
+            else if (msg.event) {
+                switch (msg.event) {
+                    case 'offer':
+                        console.log('Received offer from server');
+                        await pc.setRemoteDescription(new RTCSessionDescription(msg.data));
+                        const answer = await pc.createAnswer();
+                        await pc.setLocalDescription(answer);
+                        conn.send(JSON.stringify({ event: 'answer', data: answer }));
+                        console.log('Sent SDP answer');
+                        break;
 
-                case 'video_data':
-                    displayMessage(msg);
-                    break;
+                    case 'candidate':
+                        console.log('Received ICE candidate from server', msg.data);
+                        try {
+                            await pc.addIceCandidate(new RTCIceCandidate(msg.data));
+                        } catch (error) {
+                            console.error('Error adding ICE candidate:', error);
+                        }
+                        break;
 
-                default:
-                    console.log('Unknown event:', msg.event);
-                    break;
+                    case 'video_data':
+                        displayMessage(msg);
+                        break;
+
+                    default:
+                        console.log('Unknown event:', msg.event);
+                        break;
+                }
             }
         };
 

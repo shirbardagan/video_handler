@@ -108,14 +108,10 @@ class BaseStreamPipeline:
         Logs an error if resource cleanup fails.
         """
         try:
+            self._instance.set_state(Gst.State.NULL)
             for element in self._elements:
-                # TODO: check better alternative for removing appsrc from app.state.OPEN_CONNECTIONS
-                if isinstance(element, VideoAppSrc):
-                    if element in app.state.OPEN_CONNECTIONS:
-                        app.state.OPEN_CONNECTIONS.remove(element)
                 element.get_element().set_state(Gst.State.NULL)
                 element.get_element().unref()
-            self._instance.set_state(Gst.State.NULL)
             self._instance.unref()
             return True
         except Exception as e:

@@ -59,13 +59,13 @@ class VideoAppSink(AppSinkWrapper):
                 buffer = sample.get_buffer()
 
                 if self.first_time:
-                    print("In on_data_sample", len(app.state.OPEN_CONNECTIONS))
+                    print("In on_data_sample", len(app.state.webrtc_conn_videosrc))
                     self.first_time = False
-                for appsrc in app.state.OPEN_CONNECTIONS:
+                for appsrc in app.state.webrtc_conn_videosrc:
                     if appsrc:
                         buffer.dts = 0
-                        buffer.pts = appsrc.get_element().get_clock().get_time()
-                        appsrc.get_element().emit("push-sample", sample)
+                        buffer.pts = appsrc.get_clock().get_time()
+                        appsrc.emit("push-sample", sample)
         except Exception as e:
             logger.error("In data_sample of video sink: %s", e)
         return Gst.FlowReturn.OK

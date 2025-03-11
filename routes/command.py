@@ -29,7 +29,7 @@ async def enable_video(request: Request, data: StreamData = Body(...)):
         mpeg_pipeline = pipeline.create_pipeline()
 
         ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
-        app.state.CURR_PIPELINE = mpeg_pipeline
+        app.state.curr_pipeline = mpeg_pipeline
         if ret == Gst.StateChangeReturn.FAILURE:
             logger.error("Unable to set the MPEGPipeline to the playing state")
         else:

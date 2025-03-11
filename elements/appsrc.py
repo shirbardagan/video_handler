@@ -35,8 +35,8 @@ class VideoAppSrc(AppSrcWrapper):
         super().__init__("appsrc", name)
 
     def on_need_data(self, _, __):
-        if self not in app.state.OPEN_CONNECTIONS:
-            app.state.OPEN_CONNECTIONS.append(self)
+        if self.get_element() not in app.state.webrtc_conn_videosrc:
+            app.state.webrtc_conn_videosrc.append(self.get_element())
 
     def link(self, other_element) -> None:
         try:
