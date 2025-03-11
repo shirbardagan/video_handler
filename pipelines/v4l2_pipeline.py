@@ -4,12 +4,9 @@ from common.base_logger import logger
 from elements import VideoConvertWrapper, CapsFilterWrapper, H264ParseWrapper, RTPH264Pay, VideoAppSink, V4L2SrcWrapper
 from elements.nvh264enc import NVH264EncWrapper
 from pipelines.base_pipeline import BaseStreamPipeline
+from config.pipelines_config import CapsConfig
 
-import gi
-from gi.repository import Gst
-
-gi.require_version('Gst', '1.0')
-
+caps_conf = CapsConfig()
 
 class V4L2StreamPipeline(BaseStreamPipeline):
     def __init__(self):
@@ -30,13 +27,12 @@ class V4L2StreamPipeline(BaseStreamPipeline):
                     self.rtph264pay, self.videosink]
 
         super().has_elements_initialized(elements)
-        self.v4l2src.set_property("device", "/dev/video1")
+        self.v4l2src.set_property("device", "/dev/video0")
         self.videosink.set_property("emit-signals", True)
 
         self.rtph264pay.set_property("config-interval", -1)
 
-        self.capsfilter.set_property("caps", Gst.Caps.from_string(
-            "video/x-h264, stream-format=(string)byte-stream, alignment=(string)au, level=(string)4, profile=(string)main"))
+        self.capsfilter.set_property("caps", caps_conf.h264)
 
     def create_pipeline(self):
         try:

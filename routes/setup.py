@@ -5,6 +5,7 @@ from threading import Thread
 from gi.repository import GObject, Gst
 
 from app_instance import app
+from common.base_logger import logger
 from pipelines.webrtc_pipeline import WebRTCPipeline
 
 router = APIRouter()
@@ -12,7 +13,7 @@ router = APIRouter()
 
 @router.on_event("startup")
 async def startup_event() -> None:
-    print("On setup")
+    logger.info("On setup.")
     Gst.init(None)
 
     app.state.webrtc_conn_videosrc = []
