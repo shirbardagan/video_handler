@@ -11,12 +11,14 @@ from elements import (
 )
 from elements.gldownload import GLDownloadWrapper
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
+from config.pipelines_config import CapsConfig
 
 import gi
 from gi.repository import Gst
 
 gi.require_version('Gst', '1.0')
 
+caps_conf = CapsConfig()
 
 class MP2TH265StreamPipeline(MP2TStreamPipeline):
     def __init__(self):
@@ -52,8 +54,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         self.videosink.set_property("sync", False)
         self.videosink.set_property("async", False)
 
-        self.capsfilter.set_property("caps",
-            "video/x-h264, stream-format=(string)byte-stream, alignment=(string)au, level=(string)4, profile=(string)main")
+        self.capsfilter.set_property("caps", caps_conf.h264)
 
     def create_pipeline(self) -> Gst.Pipeline:
         self._add_elements()

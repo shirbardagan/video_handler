@@ -6,13 +6,14 @@ from pipelines.base_pipeline import BaseStreamPipeline
 from config.pipelines_config import CapsConfig
 
 import gi
+
 gi.require_version('Gst', '1.0')
 gi.require_version('GstRtsp', '1.0')
 from gi.repository import Gst, GstRtsp
 
-from pipelines.udp_pipeline import UDPPipeline
+from config.pipelines_config import CapsConfig
 
-
+caps_conf = CapsConfig()
 
 
 class RTSPStreamPipeline(BaseStreamPipeline):
@@ -37,10 +38,8 @@ class RTSPStreamPipeline(BaseStreamPipeline):
         self.udpsrc.set_property("uri", "udp://239.192.201.200:6011")
         self.udpsrc.set_property("multicast-iface", "lo")
         self.rtph264pay.set_property("config-interval", -1)
-        self.capsfilter0.set_property("caps",
-            "application/x-rtp,media=video,clock-rate=90000,encoding-name=H264,payload=96")
-        self.capsfilter1.set_property("caps",
-            "video/x-h264, stream-format=(string)byte-stream, alignment=(string)au, level=(string)4, profile=(string)main")
+        self.capsfilter0.set_property("caps", caps_conf.rtp)
+        self.capsfilter1.set_property("caps", caps_conf.h264)
         self.videosink.set_property("emit-signals", True)
         self.videosink.set_property("sync", False)
 
@@ -61,7 +60,6 @@ class RTSPStreamPipeline(BaseStreamPipeline):
         self.videosink.connect("new-sample", functools.partial(self.videosink.on_data_sample))
 
     def _link_elements(self):
-
         links = [
             (self.udpsrc, self.capsfilter0),
             (self.capsfilter0, self.rtph264depay),
@@ -72,5 +70,4 @@ class RTSPStreamPipeline(BaseStreamPipeline):
         ]
         self.link_elements(links)
         pipeline_to_string = self.get_pipeline_string(links)
-        logger.info("Pipeline: %s", pipeline_to_string)
-
+        logger.info("Pipeline string: %s", pipeline_to_string)

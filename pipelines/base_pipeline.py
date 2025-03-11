@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 from typing_extensions import List, Tuple
 
@@ -14,13 +14,13 @@ gi.require_version("GstApp", "1.0")
 from gi.repository import Gst, GLib, GstApp
 
 
-class BaseStreamPipeline:
+class BaseStreamPipeline(ABC):
     def __init__(self):
         """Initializes the GStreamer pipeline and sets up the message bus."""
         self._instance = Gst.Pipeline.new("pipeline")
         self._elements = []
         self._bus = self._instance.get_bus()
-        self._bus.add_watch(0, self.on_bus_message)
+        self._bus.add_watch(GLib.PRIORITY_DEFAULT, self.on_bus_message)
 
     @abstractmethod
     def create_pipeline(self) -> Gst.Pipeline:
@@ -31,25 +31,18 @@ class BaseStreamPipeline:
 
     @staticmethod
     def on_bus_message(bus: Gst.Bus, msg: Gst.Message) -> bool:
-        """
-        Callback function for handling GStreamer bus messages.
-
-        Args:
-            bus: The GStreamer bus instance.
-            msg: The message received from the bus.
-        Returns:
-            True to continue receiving messages, False to stop.
-        """
-        # if msg.type == Gst.MessageType.STATE_CHANGED:
-        #     print(msg.parse_state_changed())
-        # elif msg.type == Gst.MessageType.ERROR:
-        #     logger.error(msg.parse_error())
-        # elif msg.type == Gst.MessageType.INFO:
-        #     print(msg.parse_info())
+        # if msg.type == Gst.MessageType.ERROR:
+        #     err, debug = msg.parse_error()
+        #     logger.error(f"Error from {msg.src.get_name()}: {err.message} ({debug})")
         # elif msg.type == Gst.MessageType.WARNING:
-        #     print(msg.parse_warning())
-        # elif msg.type == Gst.MessageType.ELEMENT:
-        #     structure = msg.get_structure()
+        #     warn, debug = msg.parse_warning()
+        #     logger.warning(f"Warning from {msg.src.get_name()}: {warn.message} ({debug})")
+        # elif msg.type == Gst.MessageType.INFO:
+        #     info, debug = msg.parse_info()
+        #     logger.info(f"Info from {msg.src.get_name()}: {info.message} ({debug})")
+        # elif msg.type == Gst.MessageType.STATE_CHANGED:
+        #     old_state, new_state, pending = msg.parse_state_changed()
+        #     logger.debug(f"{msg.src.get_name()} changed state from {old_state} to {new_state}")
         return True
 
     @staticmethod
@@ -61,7 +54,7 @@ class BaseStreamPipeline:
             elements: List of GStreamer elements.
         Logs an error if any element is not initialized.
         """
-        if not all(elements):
+        if any(e is None for e in elements):
             logger.error("Not all elements could be created.")
             return False
         return True
