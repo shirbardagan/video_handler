@@ -98,7 +98,6 @@ class BaseStreamPipeline:
             except Exception as e:
                 logger.error("While adding %s element to the pipeline: %s", element.get_name(), e)
 
-
     def unref(self) -> bool:
         """
         Releases pipeline resources and sets all elements to NULL state.
@@ -136,5 +135,6 @@ class BaseStreamPipeline:
         pipeline_parts.append(links[-1][1].get_element_to_string())
         return " ".join(pipeline_parts)
 
-    def get_pipeline_elements(self):
+    def get_pipeline_elements(self) -> List[Gst.Element]:
+        """Returns a list of the elements of the pipeline."""
         return self._elements

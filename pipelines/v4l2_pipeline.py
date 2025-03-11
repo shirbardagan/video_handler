@@ -6,7 +6,13 @@ from elements.nvh264enc import NVH264EncWrapper
 from pipelines.base_pipeline import BaseStreamPipeline
 from config.pipelines_config import CapsConfig
 
+import gi
+from gi.repository import Gst
+
+gi.require_version('Gst', '1.0')
+
 caps_conf = CapsConfig()
+
 
 class V4L2StreamPipeline(BaseStreamPipeline):
     def __init__(self):
@@ -26,7 +32,7 @@ class V4L2StreamPipeline(BaseStreamPipeline):
         elements = [self.v4l2src, self.videoconvert, self.nvh264enc, self.capsfilter, self.h264parse,
                     self.rtph264pay, self.videosink]
 
-        super().has_elements_initialized(elements)
+        self.has_elements_initialized(elements)
         self.v4l2src.set_property("device", "/dev/video0")
         self.videosink.set_property("emit-signals", True)
 
@@ -34,31 +40,28 @@ class V4L2StreamPipeline(BaseStreamPipeline):
 
         self.capsfilter.set_property("caps", caps_conf.h264)
 
-    def create_pipeline(self):
-        try:
-            self._instance.add(self.v4l2src.get_element())
-            self._instance.add(self.videoconvert.get_element())
-            self._instance.add(self.nvh264enc.get_element())
-            self._instance.add(self.capsfilter.get_element())
-            self._instance.add(self.h264parse.get_element())
-            self._instance.add(self.rtph264pay.get_element())
-            self._instance.add(self.videosink.get_element())
-        except Exception as e:
-            logger.error("While adding elements to the pipeline: %s", e)
-
-        self.v4l2src.link(self.videoconvert)
-        self.videosink.connect("new-sample", functools.partial(self.videosink.on_data_sample))
-
-        self.videoconvert.link(self.nvh264enc)
-        self.nvh264enc.link(self.capsfilter)
-        self.capsfilter.link(self.h264parse)
-        self.h264parse.link(self.rtph264pay)
-        self.rtph264pay.link(self.videosink)
-
+    def create_pipeline(self) -> Gst.Pipeline:
+        self._add_elements()
+        self._connect_signals()
+        self._link_elements()
         return self._instance
 
-    def start_pipeline(self) -> None:
-        pass
+    def _add_elements(self):
+        elements_to_add = [
+            self.v4l2src, self.videoconvert, self.nvh264enc, self.capsfilter, self.h264parse, self.rtph264pay, self.videosink
+        ]
+        self.add_elements(elements_to_add)
 
-    def stop_pipeline(self) -> None:
-        pass
+    def _connect_signals(self):
+        self.videosink.connect("new-sample", functools.partial(self.videosink.on_data_sample))
+
+    def _link_elements(self):
+        links = [
+            (self.v4l2src, self.videoconvert),
+            (self.videoconvert, self.nvh264enc),
+            (self.nvh264enc, self.capsfilter),
+            (self.capsfilter, self.h264parse),
+            (self.h264parse, self.rtph264pay),
+            (self.rtph264pay, self.videosink),
+        ]
+        self.link_elements(links)

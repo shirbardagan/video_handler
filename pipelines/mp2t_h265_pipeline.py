@@ -22,12 +22,12 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
     def __init__(self):
         super().__init__()
         self._elements = []
-        initialized_pipeline_elements_tuple = (H265ParseWrapper("h265parse"),
-                                               NVH265DecWrapper("nvh265dec"),
-                                               GLDownloadWrapper(),
-                                               NVH264EncWrapper("nvh264enc"),
-                                               CapsFilterWrapper("capsfilter"),
-                                               H264ParseWrapper("h264parse"),
+        initialized_pipeline_elements_tuple = (H265ParseWrapper("h265parser"),
+                                               NVH265DecWrapper("h265decoder"),
+                                               GLDownloadWrapper("gldownload"),
+                                               NVH264EncWrapper("h264encoder"),
+                                               CapsFilterWrapper("h264capsfilter"),
+                                               H264ParseWrapper("h264parser"),
                                                RTPH264Pay("rtph264pay"),
                                                VideoAppSink("videosink")
                                                )

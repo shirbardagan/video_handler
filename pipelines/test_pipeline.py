@@ -1,6 +1,5 @@
 import functools
 
-from common.base_logger import logger
 from elements import X264enc, H264ParseWrapper, RTPH264Pay
 from elements.appsink import VideoAppSink
 from elements.videotestsrc import VideoTestSrcWrapper

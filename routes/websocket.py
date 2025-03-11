@@ -5,6 +5,8 @@ from starlette.websockets import WebSocketDisconnect
 from app_instance import app
 from common.base_logger import logger
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
+from pipelines.mpeg4i_pipeline import MPEG4IStreamPipeline
+from pipelines.test_pipeline import TESTStreamPipeline
 from pipelines.v4l2_pipeline import V4L2StreamPipeline
 from webrtc_handler.websocket_handler import WebRTCClient
 from config.system_config import SystemSettingsConfig
@@ -54,7 +56,7 @@ async def websocket_handler(conn: WebSocket):
         webrtc_client.start()
         try:
             if not hasattr(app.state, "curr_pipeline") or app.state.curr_pipeline is None:
-                mpeg_pipe = V4L2StreamPipeline()
+                mpeg_pipe = MP2TStreamPipeline()
                 mpeg_pipeline = mpeg_pipe.create_pipeline()
 
                 ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
