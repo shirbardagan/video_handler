@@ -58,9 +58,6 @@ class VideoAppSink(AppSinkWrapper):
                 sample = appsink.pull_sample()
                 buffer = sample.get_buffer()
 
-                if self.first_time:
-                    print("In on_data_sample", len(app.state.webrtc_conn_videosrc))
-                    self.first_time = False
                 for appsrc in app.state.webrtc_conn_videosrc:
                     if appsrc:
                         buffer.dts = 0

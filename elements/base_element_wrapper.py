@@ -38,10 +38,10 @@ class GStreamerElementWrapper:
             element_name (str): The name to assign to the element.
         """
         self._element = Gst.ElementFactory.make(element_type, element_name)
+        if not self._element:
+            logger.error(f"Failed to create GStreamer element: %s with name: %s", element_type, element_name)
         self._element_to_string = element_name
         self._name = element_name
-        self.initialized = True
-
         self._instances[self] = self._element
 
     def set_property(self, property_name: str, value) -> None:
@@ -52,8 +52,11 @@ class GStreamerElementWrapper:
             property_name (str): The name of the property to set.
             value: The value to assign to the property.
         """
-        self._element.set_property(property_name, value)
-        self._element_to_string += f" {property_name}={value} "
+        try:
+            self._element.set_property(property_name, value)
+            self._element_to_string += f" {property_name}={value} "
+        except Exception as e:
+            logger.error(f"Failed to set property %s=%s: %s", property_name, value, e)
 
     def get_property(self, property_name: str):
         """
@@ -64,7 +67,11 @@ class GStreamerElementWrapper:
         Returns:
             The value of the requested property.
         """
-        return self._element.get_property(property_name)
+        try:
+            return self._element.get_property(property_name)
+        except Exception as e:
+            logger.error(f"Failed to get property %s: %s", property_name, e)
+            return None
 
     def link(self, other_element) -> bool:
         """
@@ -79,14 +86,14 @@ class GStreamerElementWrapper:
         sink_pad = other_element.get_element().get_static_pad('sink')
 
         if not src_pad or not sink_pad:
-            logger.error(f"Cannot find static pads: {self._name} or {other_element.get_name()}")
+            logger.error(f"Cannot find static pads: %s or %s", self._name, other_element.get_name())
             return False
 
         if src_pad.link(sink_pad) != Gst.PadLinkReturn.OK:
-            logger.error(f"Failed to link {self._name} to {other_element.get_name()}")
+            logger.error(f"Failed to link %s to %s", self._name, other_element.get_name())
             return False
 
-        logger.info(f"Successfully linked {self._name} to {other_element.get_name()}")
+        logger.info(f"Successfully linked %s to %s", self._name, other_element.get_name())
         return True
 
     def connect(self, signal_name: str, callback, *user_data) -> None:
@@ -98,7 +105,10 @@ class GStreamerElementWrapper:
             callback (callable): The function to call when the signal is emitted.
             *user_data: Additional data to pass to the callback function.
         """
-        self.get_element().connect(signal_name, callback, *user_data)
+        try:
+            self._element.connect(signal_name, callback, *user_data)
+        except Exception as e:
+            logger.error(f"Failed to connect signal %s: %s", signal_name, e)
 
     def get_element(self) -> Gst.Element:
         """Returns the underlying GStreamer element."""

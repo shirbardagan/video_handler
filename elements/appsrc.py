@@ -9,25 +9,14 @@ from gi.repository import Gst
 
 
 class AppSrcWrapper(GStreamerElementWrapper):
-    allow_multiple_instances = True
 
     def __init__(self, type="appsrc", name="appsrc"):
         super().__init__(type, name)
-        self.blocked = False
-
-
-
-    def on_enough_data(self, _):
-        app.state.PUSH_SAMPLE = False
-        element = self.get_element()
-        current_level = element.get_current_level_bytes()
-        max_level = element.get_max_bytes()
 
 
 class DataAppSrc(AppSrcWrapper):
     def __init__(self, name="appsrc"):
         super().__init__("appsrc", name)
-
 
 
 class VideoAppSrc(AppSrcWrapper):

@@ -23,6 +23,6 @@ class QTDemuxWrapper(GStreamerElementWrapper):
             if not sink_pad.is_linked():
                 result = pad.link(sink_pad)
                 if result == Gst.PadLinkReturn.OK:
-                    logger.info(f"Linked pad {pad_name} to h265parse sink.")
+                    logger.info(f"Linked pad %s to h265parse sink.", pad_name)
                 else:
-                    logger.error(f"While linking pad {pad_name} to h264parse sink.")
+                    logger.error(f"While linking pad %s to h264parse sink.",pad_name)

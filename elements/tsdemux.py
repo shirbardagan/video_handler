@@ -14,45 +14,13 @@ class TSDemuxWrapper(GStreamerElementWrapper):
     def __init__(self, name="tsdemux"):
         super().__init__("tsdemux", name)
 
-    # @staticmethod
-    # def on_pad_added(_, pad, elements) -> None:
-    #     from factory.mp2t_encoded_pipeline import MP2TFactory
-    #     print("On pad_added tsdemux.")
-    #     pad_name = pad.get_name()
-    #     pad_caps = pad.query_caps(None)
-    #     structure_name = pad_caps.to_string()
-    #     parser = elements[0]
-    #     klvparse = elements[1]
-    #     if 'video' in structure_name:
-    #         # mp2t_pipeline = MP2TFactory().get_pipeline_type(structure_name.split(",")[0])
-    #         # h264parse = mp2t_pipeline.h264parse
-    #         sink_pad = parser.get_static_pad('sink')
-    #         if not sink_pad.is_linked():
-    #             result = pad.link(sink_pad)
-    #             if result == Gst.PadLinkReturn.OK:
-    #                 logger.info(f"Linked pad {pad_name} to parser sink.")
-    #             else:
-    #                 logger.error(f"While linking pad {pad_name} to parser sink.")
-    #         app.state.curr_pipeline.sync_children_states()
-    #
-    #     elif 'meta' in structure_name:
-    #         sink_pad = klvparse.get_static_pad('sink')
-    #         if not sink_pad.is_linked() and not pad_caps.is_empty():
-    #             result = pad.link(sink_pad)
-    #             if result == Gst.PadLinkReturn.OK:
-    #                 logger.info(f"Linked pad {pad_name} to h265parse sink.")
-    #             else:
-    #                 logger.error(f"Failed to link pad {pad_name} to h265parse sink.")
-    #     else:
-    #         logger.warning(f"Unexpected pad: {pad_name} {structure_name}")
-
     @staticmethod
-    def on_pad_added(klvparse, _, pad) -> None:
+    def on_pad_added(dataparser, _, pad) -> None:
         from factory.mp2t_encoded_pipeline import MP2TFactory
-        print("On pad_added tsdemux.")
         pad_name = pad.get_name()
         pad_caps = pad.query_caps(None)
         structure_name = pad_caps.to_string()
+        logger.debug("Demuxing caps: %s.", structure_name)
         if 'video' in structure_name:
             mp2t_pipeline = MP2TFactory().get_pipeline_type(structure_name.split(",")[0])
             mp2t_pipeline.create_pipeline()
@@ -61,18 +29,18 @@ class TSDemuxWrapper(GStreamerElementWrapper):
             if not sink_pad.is_linked():
                 result = pad.link(sink_pad)
                 if result == Gst.PadLinkReturn.OK:
-                    logger.info(f"Linked pad {pad_name} to parser sink.")
+                    logger.info(f"Linked pad %s to %s sink.", pad_name, parser.get_name())
                 else:
-                    logger.error(f"While linking pad {pad_name} to parser sink.")
+                    logger.error(f"While linking pad %s to %s sink.", pad_name, parser.get_name())
             app.state.curr_pipeline.sync_children_states()
 
         elif 'meta' in structure_name:
-            sink_pad = klvparse.get_static_pad('sink')
+            sink_pad = dataparser.get_static_pad('sink')
             if not sink_pad.is_linked() and not pad_caps.is_empty():
                 result = pad.link(sink_pad)
                 if result == Gst.PadLinkReturn.OK:
-                    logger.info(f"Linked pad {pad_name} to h265parse sink.")
+                    logger.debug(f"Linked pad %s to klvparse sink.", pad_name)
                 else:
-                    logger.error(f"Failed to link pad {pad_name} to h265parse sink.")
+                    logger.error(f"Failed to link pad %s to klvparse sink.", pad_name)
         else:
-            logger.warning(f"Unexpected pad: {pad_name} {structure_name}")
+            logger.warning(f"Unexpected pad: %s - %s", pad_name, structure_name)

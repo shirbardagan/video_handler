@@ -57,7 +57,7 @@ async def websocket_handler(conn: WebSocket):
         webrtc_client.start()
         try:
             if not hasattr(app.state, "curr_pipeline") or app.state.curr_pipeline is None:
-                mpeg_pipe = RTSPStreamPipeline()
+                mpeg_pipe = MP2TStreamPipeline()
                 mpeg_pipeline = mpeg_pipe.create_pipeline()
 
                 ret = mpeg_pipeline.set_state(Gst.State.PLAYING)

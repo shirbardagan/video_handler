@@ -137,7 +137,7 @@ class WebRTCClient:
                     'candidate': candidate,
                     'sdpMLineIndex': mlineindex}
                                  })
-            print(f"Sending ICE candidate: {icemsg}")
+            logger.debug("Sending ICE candidate: %s", icemsg)
             asyncio.run_coroutine_threadsafe(self.conn.send_text(icemsg), app.state.event_loop)
         except Exception as e:
             logger.error("While sending ICE candidate: %s", e)
