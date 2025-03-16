@@ -1,12 +1,15 @@
 from abc import abstractmethod, ABC
 
+from aiortc.rtcdtlstransport import srtp_profile
 from typing_extensions import List, Tuple
 
 from app_instance import app
 from common.base_logger import logger
 import gi
 
+from elements import NVH265DecWrapper, NVH264EncWrapper, X264enc
 from elements.appsrc import VideoAppSrc
+from elements.avdec_h265 import AVDecH265Wrapper
 from elements.base_element_wrapper import GStreamerElementWrapper
 
 gi.require_version('Gst', '1.0')
@@ -58,6 +61,35 @@ class BaseStreamPipeline(ABC):
             logger.error("Not all elements could be created.")
             return False
         return True
+
+    @staticmethod
+    def select_h265_decoder(use_gpu):
+        try:
+            if use_gpu:
+                try:
+                    return NVH265DecWrapper("nvh265decoder")
+                except Exception as e:
+                    logger.error("Failed initializing gpu h265 decoder", e)
+                    return AVDecH265Wrapper("avh265decoder")
+            else:
+                return AVDecH265Wrapper("avh265decoder")
+        except Exception as e:
+            logger.error("While trying to determine gpu/cpu decoder: %s", e)
+
+    @staticmethod
+    def select_h264_encoder(use_gpu):
+        try:
+            if use_gpu:
+                try:
+                    return NVH264EncWrapper("nvh264encoder")
+                except Exception as e:
+                    logger.error("Failed initializing gpu h264 encoder", e)
+                    return X264enc("x264encoder")
+            else:
+                return X264enc("x264encoder")
+        except Exception as e:
+            logger.error("While trying to determine gpu/cpu encoder: %s", e)
+
 
     @staticmethod
     def link_elements(links: List[Tuple[GStreamerElementWrapper, GStreamerElementWrapper]]) -> bool:

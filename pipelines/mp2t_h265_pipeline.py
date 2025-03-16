@@ -1,5 +1,6 @@
 import functools
 
+from config.system_config import SystemSettingsConfig
 from elements import (
     H265ParseWrapper,
     NVH265DecWrapper,
@@ -16,35 +17,44 @@ from config.pipelines_config import CapsConfig
 import gi
 from gi.repository import Gst
 
+
 gi.require_version('Gst', '1.0')
 
 caps_conf = CapsConfig()
+system_conf = SystemSettingsConfig()
+
 
 class MP2TH265StreamPipeline(MP2TStreamPipeline):
     def __init__(self):
         super().__init__()
         self._elements = []
         initialized_pipeline_elements_tuple = (H265ParseWrapper("h265parser"),
-                                               NVH265DecWrapper("h265decoder"),
+                                               self.select_h265_decoder(system_conf.use_gpu),
                                                GLDownloadWrapper("gldownload"),
-                                               NVH264EncWrapper("h264encoder"),
+                                               self.select_h264_encoder(system_conf.use_gpu),
                                                CapsFilterWrapper("h264capsfilter"),
                                                H264ParseWrapper("h264parser"),
                                                RTPH264Pay("rtph264pay"),
                                                VideoAppSink("videosink")
                                                )
 
-        (self.h265parse, self.nvh265dec, self.gldownload, self.nvh264enc,
+        (self.h265parse, self.h265decoder, self.gldownload, self.h264encoder,
          self.capsfilter, self.h264parse, self.rtph264pay, self.videosink) = initialized_pipeline_elements_tuple
 
-        elements = [self.h265parse, self.nvh265dec, self.gldownload, self.nvh264enc, self.h264parse, self.rtph264pay, self.videosink]
+        elements = [self.h265parse, self.h265decoder, self.gldownload, self.h264encoder, self.h264parse, self.rtph264pay,
+                    self.videosink]
 
         self.has_elements_initialized(elements)
-        self.nvh265dec.set_property("max-errors", -1)
-        self.nvh264enc.set_property("bitrate", 4096)
-        self.nvh264enc.set_property("preset", "low-latency-hp")
-        self.nvh264enc.set_property("zerolatency", True)
-        self.nvh264enc.set_property("gop-size", 30)
+        self.h265decoder.set_property("max-errors", -1)
+
+        if isinstance(self.h264encoder, NVH264EncWrapper):
+            self.h264encoder.set_property("bitrate", 4096)
+            self.h264encoder.set_property("preset", "low-latency-hp")
+            self.h264encoder.set_property("zerolatency", True)
+            self.h264encoder.set_property("gop-size", 30)
+        else:
+            # TODO: implementation for av_h264enc
+            pass
 
         self.h265parse.set_property("config-interval", -1)
         self.h264parse.set_property("config-interval", -1)
@@ -64,7 +74,8 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
 
     def _add_elements(self):
         elements_to_add = [
-            self.h265parse, self.nvh265dec, self.gldownload, self.nvh264enc, self.capsfilter, self.h264parse, self.rtph264pay, self.videosink
+            self.h265parse, self.h265decoder, self.gldownload, self.h264encoder, self.capsfilter, self.h264parse,
+            self.rtph264pay, self.videosink
         ]
         self.add_elements(elements_to_add)
 
@@ -73,10 +84,10 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
 
     def _link_elements(self):
         links = [
-            (self.h265parse, self.nvh265dec),
-            (self.nvh265dec, self.gldownload),
-            (self.gldownload, self.nvh264enc),
-            (self.nvh264enc, self.capsfilter),
+            (self.h265parse, self.h265decoder),
+            (self.h265decoder, self.gldownload),
+            (self.gldownload, self.h264encoder),
+            (self.h264encoder, self.capsfilter),
             (self.capsfilter, self.h264parse),
             (self.h264parse, self.rtph264pay),
             (self.rtph264pay, self.videosink),
@@ -85,3 +96,6 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
 
     def get_parser(self):
         return self.h265parse
+
+    # def _select_h265_decoder(self, use_gpu):
+    #     pass

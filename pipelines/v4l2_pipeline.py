@@ -1,6 +1,7 @@
 import functools
 
 from common.base_logger import logger
+from config.system_config import SystemSettingsConfig
 from elements import VideoConvertWrapper, CapsFilterWrapper, H264ParseWrapper, RTPH264Pay, VideoAppSink, V4L2SrcWrapper
 from elements.nvh264enc import NVH264EncWrapper
 from pipelines.base_pipeline import BaseStreamPipeline
@@ -9,27 +10,28 @@ from config.pipelines_config import CapsConfig
 import gi
 from gi.repository import Gst
 
+
 gi.require_version('Gst', '1.0')
 
 caps_conf = CapsConfig()
-
+system_conf = SystemSettingsConfig()
 
 class V4L2StreamPipeline(BaseStreamPipeline):
     def __init__(self):
         super().__init__()
         initialized_pipeline_elements_tuple = (V4L2SrcWrapper("v4l2src"),
                                                VideoConvertWrapper(),
-                                               NVH264EncWrapper(),
+                                               self.select_h264_encoder(system_conf.use_gpu),
                                                CapsFilterWrapper("capsfilter"),
                                                H264ParseWrapper(),
                                                RTPH264Pay(),
                                                VideoAppSink()
                                                )
 
-        (self.v4l2src, self.videoconvert, self.nvh264enc, self.capsfilter, self.h264parse,
+        (self.v4l2src, self.videoconvert, self.h264encoder, self.capsfilter, self.h264parse,
          self.rtph264pay, self.videosink) = initialized_pipeline_elements_tuple
 
-        elements = [self.v4l2src, self.videoconvert, self.nvh264enc, self.capsfilter, self.h264parse,
+        elements = [self.v4l2src, self.videoconvert, self.h264encoder, self.capsfilter, self.h264parse,
                     self.rtph264pay, self.videosink]
 
         self.has_elements_initialized(elements)
@@ -48,7 +50,7 @@ class V4L2StreamPipeline(BaseStreamPipeline):
 
     def _add_elements(self):
         elements_to_add = [
-            self.v4l2src, self.videoconvert, self.nvh264enc, self.capsfilter, self.h264parse, self.rtph264pay, self.videosink
+            self.v4l2src, self.videoconvert, self.h264encoder, self.capsfilter, self.h264parse, self.rtph264pay, self.videosink
         ]
         self.add_elements(elements_to_add)
 
@@ -58,8 +60,8 @@ class V4L2StreamPipeline(BaseStreamPipeline):
     def _link_elements(self):
         links = [
             (self.v4l2src, self.videoconvert),
-            (self.videoconvert, self.nvh264enc),
-            (self.nvh264enc, self.capsfilter),
+            (self.videoconvert, self.h264encoder),
+            (self.h264encoder, self.capsfilter),
             (self.capsfilter, self.h264parse),
             (self.h264parse, self.rtph264pay),
             (self.rtph264pay, self.videosink),
