@@ -51,8 +51,8 @@ def handle_websocket_disconnect(webrtc_client: WebRTCClient):
 async def websocket_handler(conn: WebSocket):
     await conn.accept()
     app.state.conns.append(conn)
-    if int(system_conf.vh_max_users) > len(app.state.webrtc_conn_videosrc) or int(
-            system_conf.vh_max_users) == system_conf.default_value:
+    if int(system_conf.max_users) > len(app.state.webrtc_conn_videosrc) or int(
+            system_conf.max_users) == system_conf.default_value:
         webrtc_client = WebRTCClient(conn)
         webrtc_client.start()
         try:
@@ -83,9 +83,9 @@ async def websocket_handler(conn: WebSocket):
         finally:
             logger.info("WebSocket handler cleanup complete.")
     else:
-        logger.warning("Reached to maximum %s connections. Not creating WebRTC connection.", system_conf.vh_max_users)
+        logger.warning("Reached to maximum %s connections. Not creating WebRTC connection.", system_conf.max_users)
         await conn.send_json(
-            {"warning": f"Maximum {system_conf.vh_max_users} connections reached. Not opening connection."})
+            {"warning": f"Maximum {system_conf.max_users} connections reached. Not opening connection."})
         await conn.close()
         return
 

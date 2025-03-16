@@ -43,7 +43,9 @@ class UDPPipeline(MP2TStreamPipeline):
 
 
         AddressTuple = namedtuple("AddressTuple", ["ip", "port", "iface"])
-        addr = AddressTuple(ip="239.3.43.3", port=6146, iface="lo")
+        # addr = AddressTuple(ip="239.3.43.3", port=6146, iface="lo")
+        addr = AddressTuple(ip="239.10.1.102", port=6022, iface="lo")
+
         self.udpsrc.set_properties(addr)
 
         self.videosink.set_property("emit-signals", True)
