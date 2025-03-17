@@ -28,9 +28,10 @@ class TESTStreamPipeline(BaseStreamPipeline):
 
         self.has_elements_initialized(elements)
         self.videosink.set_property("emit-signals", True)
-        self.videosink.set_property("sync", False)
+        # self.videosink.set_property("sync", False)
         self.rtph264pay.set_property("config-interval", -1)
 
+        self.videotestsrc.set_property("pattern", 18)
     def create_pipeline(self) -> Gst.Pipeline:
         self._add_elements()
         self._connect_signals()
