@@ -62,4 +62,5 @@ class MP2TStreamPipeline(BaseStreamPipeline):
             (self.klvparse, self.datasink)
         ]
         self.link_elements(links)
-
+        pipeline_to_string = self.get_pipeline_string(links)
+        logger.info("Pipeline string: %s", pipeline_to_string)

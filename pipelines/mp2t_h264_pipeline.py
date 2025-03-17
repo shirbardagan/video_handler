@@ -53,6 +53,8 @@ class MP2TH264StreamPipeline(MP2TStreamPipeline):
             (self.rtph264pay, self.videosink),
         ]
         self.link_elements(links)
+        pipeline_to_string = self.get_pipeline_string(links)
+        logger.info("Pipeline string: %s", pipeline_to_string)
 
     def get_parser(self):
         return self.h264parse
