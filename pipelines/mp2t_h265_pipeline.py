@@ -48,14 +48,15 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         self.has_elements_initialized(elements)
         self.h265decoder.set_property("max-errors", -1)
 
+        self.h264encoder.set_property("bitrate", 4096)
         if isinstance(self.h264encoder, NVH264EncWrapper):
-            self.h264encoder.set_property("bitrate", 4096)
             self.h264encoder.set_property("preset", "low-latency-hp")
             self.h264encoder.set_property("zerolatency", True)
             self.h264encoder.set_property("gop-size", 30)
         else:
-            # TODO: implementation for av_h264enc
-            pass
+            self.h264encoder.set_property("key-int-max", 30)
+            self.h264encoder.set_property("tune", "zerolatency")
+            self.h264encoder.set_property("speed-preset", "ultrafast")
 
         self.h265parse.set_property("config-interval", -1)
         self.h264parse.set_property("config-interval", -1)
