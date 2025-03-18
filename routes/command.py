@@ -18,17 +18,6 @@ router = APIRouter()
 video_stream_factory = StreamPipelineFactory()
 
 
-def start_pipeline(mpeg_pipeline):
-    ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
-    app.state.curr_pipeline = mpeg_pipeline
-    if ret == Gst.StateChangeReturn.FAILURE:
-        logger.error("Unable to set the MPEGPipeline to the playing state")
-        return False
-    else:
-        logger.info("MPEGPipeline is now playing!!")
-        return True
-
-
 @router.post("/video/command/enable")
 async def enable_video(data: BaseStreamModel = Body(...)):
     if data.command == "play":
@@ -46,7 +35,10 @@ async def enable_video(data: BaseStreamModel = Body(...)):
         app.state.curr_object = pipeline
 
         mpeg_pipeline = pipeline.create_pipeline()
-        pipeline_status = start_pipeline(mpeg_pipeline)
+        app.state.curr_pipeline = mpeg_pipeline
+
+        pipeline_status = pipeline.start_pipeline()
+
         if pipeline_status:
             response_data = {"status": 200, "ws_port": data.multicast_in.port, "host_ip": data.multicast_in.ip,
                              "endpoint": f"{data.multicast_in.ip}:{str(data.multicast_in.port)}",

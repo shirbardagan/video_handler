@@ -110,6 +110,16 @@ class BaseStreamPipeline(ABC):
                 return False
         return True
 
+    def start_pipeline(self):
+        ret = self._instance.set_state(Gst.State.PLAYING)
+
+        if ret == Gst.StateChangeReturn.FAILURE:
+            logger.error("Unable to set the MPEGPipeline to the playing state")
+            return False
+        else:
+            logger.info("MPEGPipeline is now playing!!")
+            return True
+
     def add_elements(self, elements: List[GStreamerElementWrapper]) -> None:
         """
         Adds elements to the GStreamer pipeline.
