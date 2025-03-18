@@ -2,11 +2,11 @@ fastapi
 pydantic
 pydantic-settings
 uvicorn
-PyGObject
-pygobject
+pygobject==3.50.0
 pycairo
 websockets
 aiortc
 asyncio
 typing
 typing-extensions
+colorlog

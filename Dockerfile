@@ -1,5 +1,8 @@
 FROM python:3.12
 
+ENV SYSTEM_MAX_USERS=3
+ENV SYSTEM_USE_GPU=True
+
 WORKDIR /opt
 
 RUN apt-get update && apt-get install -y \

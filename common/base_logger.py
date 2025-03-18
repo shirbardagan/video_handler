@@ -23,7 +23,3 @@ def configure_logging(level=logging.DEBUG):
 
 configure_logging()
 logger = logging.getLogger(__name__)
-
-logger.info("This is an info message")
-logger.warning("This is a warning message")
-logger.error("This is an error message")
