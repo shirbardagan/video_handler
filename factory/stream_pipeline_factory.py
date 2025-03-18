@@ -10,7 +10,7 @@ from pipelines.v4l2_pipeline import V4L2StreamPipeline
 
 class StreamPipelineFactory:
     _pipeline_mapping = {
-        # "udp": UDPPipeline,
+        "rtsp": RTSPStreamPipeline,
         "test": TESTStreamPipeline,
         "rtp": RTPStreamPipeline,
         "v4l2": V4L2StreamPipeline,

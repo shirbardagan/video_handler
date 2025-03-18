@@ -9,13 +9,14 @@ from models.play_command.request import *
 
 import gi
 
+
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
 router = APIRouter()
 
 StreamData = Union[
-    RTSPStreamModel, UDPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
+    RTPStreamModel, RTSPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
 video_stream_factory = StreamPipelineFactory()
 
 

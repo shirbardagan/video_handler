@@ -23,7 +23,7 @@ class RTPConfig(BaseModel):
 
 
 class StreamType(str, Enum):
-    UDP = "udp"
+    RTP = "rtp"
     TEST = "test"
     RTSP = "rtsp"
     V4L2 = "v4l2"

@@ -1,8 +1,9 @@
 from .mp2t import MP2TStreamModel
 from .mpeg4i import MPEG4IStreamConfig
+from .rtp import RTPStreamModel
 from .rtsp import RTSPStreamModel
 from .test import TestStreamModel
-from .udp import UDPStreamModel
+from .rtsp import RTSPStreamModel
 from .v4l2 import V4L2StreamModel
 
 __all__ = [
@@ -10,6 +11,6 @@ __all__ = [
     "MPEG4IStreamConfig",
     "RTSPStreamModel",
     "TestStreamModel",
-    "UDPStreamModel",
+    "RTPStreamModel",
     "V4L2StreamModel",
 ]
