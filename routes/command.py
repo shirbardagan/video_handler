@@ -20,10 +20,10 @@ video_stream_factory = StreamPipelineFactory()
 
 
 @router.post("/video/command/enable")
-async def enable_video(request: Request, data: StreamData = Body(...)):
+async def enable_video(data: StreamData = Body(...)):
     if data.command == "play":
         print(data)
-        request.app.state.PIPELINE_DATA = data
+        app.state.request_data = data
         pipeline = video_stream_factory.get_pipeline_type(data.stream_type)
         print(type(pipeline))
         mpeg_pipeline = pipeline.create_pipeline()

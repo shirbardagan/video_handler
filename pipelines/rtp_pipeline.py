@@ -1,8 +1,7 @@
 import functools
 
 from common.base_logger import logger
-from elements import VideoAppSink, UDPSrcWrapper, RTPH264DePayWrapper, H264ParseWrapper, CapsFilterWrapper, RTPH264Pay, \
-    RTSPSrcWrapper
+from elements import VideoAppSink, UDPSrcWrapper, RTPH264DePayWrapper, H264ParseWrapper, CapsFilterWrapper, RTPH264Pay
 from pipelines.base_pipeline import BaseStreamPipeline
 from config.pipelines_config import CapsConfig
 
@@ -17,10 +16,10 @@ from config.pipelines_config import CapsConfig
 caps_conf = CapsConfig()
 
 
-class RTSPStreamPipeline(BaseStreamPipeline):
+class RTPStreamPipeline(BaseStreamPipeline):
     def __init__(self):
         super().__init__()
-        initialized_pipeline_elements_tuple = (RTSPSrcWrapper("rtspsrc"),
+        initialized_pipeline_elements_tuple = (UDPSrcWrapper(),
                                                CapsFilterWrapper("capsfilter0"),
                                                RTPH264DePayWrapper(),
                                                H264ParseWrapper(),
@@ -29,22 +28,18 @@ class RTSPStreamPipeline(BaseStreamPipeline):
                                                VideoAppSink()
                                                )
 
-        (self.rtspsrc, self.capsfilter0, self.rtph264depay, self.h264parse, self.capsfilter1, self.rtph264pay,
+        (self.udpsrc, self.capsfilter0, self.rtph264depay, self.h264parse, self.capsfilter1, self.rtph264pay,
          self.videosink) = initialized_pipeline_elements_tuple
 
-        elements = [self.rtspsrc, self.rtph264depay, self.h264parse, self.capsfilter1, self.rtph264pay,
+        elements = [self.udpsrc, self.rtph264depay, self.h264parse, self.capsfilter1, self.rtph264pay,
                     self.videosink]
 
         self.has_elements_initialized(elements)
-
-        self.rtspsrc.set_property("location", "")
-
-
+        self.udpsrc.set_property("uri", "udp://239.192.201.200:6011")
+        self.udpsrc.set_property("multicast-iface", "lo")
+        self.rtph264pay.set_property("config-interval", -1)
         self.capsfilter0.set_property("caps", caps_conf.rtp)
         self.capsfilter1.set_property("caps", caps_conf.h264)
-
-        self.rtph264pay.set_property("config-interval", -1)
-
         self.videosink.set_property("emit-signals", True)
         self.videosink.set_property("sync", False)
 

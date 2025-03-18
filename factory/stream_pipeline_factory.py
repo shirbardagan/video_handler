@@ -4,15 +4,15 @@ from pipelines.mp2t_pipeline import MP2TStreamPipeline
 from pipelines.mpeg4i_pipeline import MPEG4IStreamPipeline
 from pipelines.test_pipeline import TESTStreamPipeline
 from pipelines.rtsp_pipeline import RTSPStreamPipeline
-from pipelines.udp_pipeline import UDPPipeline
+from pipelines.rtp_pipeline import RTPStreamPipeline
 from pipelines.v4l2_pipeline import V4L2StreamPipeline
 
 
 class StreamPipelineFactory:
     _pipeline_mapping = {
-        "udp": UDPPipeline,
+        # "udp": UDPPipeline,
         "test": TESTStreamPipeline,
-        "rtsp": RTSPStreamPipeline,
+        "rtp": RTPStreamPipeline,
         "v4l2": V4L2StreamPipeline,
         "mpeg4i": MPEG4IStreamPipeline,
         "mp2t": MP2TStreamPipeline,
