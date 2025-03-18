@@ -56,7 +56,7 @@ class RTSPStreamPipeline(BaseStreamPipeline):
 
     def _add_elements(self):
         elements_to_add = [
-            self.udpsrc, self.capsfilter0, self.rtph264depay, self.h264parse, self.capsfilter1, self.rtph264pay,
+            self.rtspsrc, self.capsfilter0, self.rtph264depay, self.h264parse, self.capsfilter1, self.rtph264pay,
             self.videosink
         ]
         self.add_elements(elements_to_add)
@@ -66,7 +66,7 @@ class RTSPStreamPipeline(BaseStreamPipeline):
 
     def _link_elements(self):
         links = [
-            (self.udpsrc, self.capsfilter0),
+            (self.rtspsrc, self.capsfilter0),
             (self.capsfilter0, self.rtph264depay),
             (self.rtph264depay, self.h264parse),
             (self.h264parse, self.capsfilter1),

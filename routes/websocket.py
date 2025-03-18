@@ -56,16 +56,16 @@ async def websocket_handler(conn: WebSocket):
         webrtc_client = WebRTCClient(conn)
         webrtc_client.start()
         try:
-            if not hasattr(app.state, "curr_pipeline") or app.state.curr_pipeline is None:
-                mpeg_pipe = RTPStreamPipeline()
-                mpeg_pipeline = mpeg_pipe.create_pipeline()
-
-                ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
-                app.state.curr_pipeline = mpeg_pipeline
-                if ret == Gst.StateChangeReturn.FAILURE:
-                    logger.error("Unable to set the MPEGPipeline to the playing state")
-                else:
-                    logger.info("MPEGPipeline is now playing!!")
+            # if not hasattr(app.state, "curr_pipeline") or app.state.curr_pipeline is None:
+            #     mpeg_pipe = RTPStreamPipeline()
+            #     mpeg_pipeline = mpeg_pipe.create_pipeline()
+            #
+            #     ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
+            #     app.state.curr_pipeline = mpeg_pipeline
+            #     if ret == Gst.StateChangeReturn.FAILURE:
+            #         logger.error("Unable to set the MPEGPipeline to the playing state")
+            #     else:
+            #         logger.info("MPEGPipeline is now playing!!")
 
             while True:
                 data = await conn.receive_json()

@@ -1,6 +1,6 @@
 from typing_extensions import Union
 
-from fastapi import APIRouter, Request, Body
+from fastapi import APIRouter, Body
 
 from app_instance import app
 from common.base_logger import logger
