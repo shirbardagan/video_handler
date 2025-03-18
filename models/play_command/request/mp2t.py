@@ -1,6 +1,6 @@
 from typing_extensions import Optional
 
-from pydantic import Field, BaseModel
+from pydantic import Field, BaseModel, model_validator
 from .base_stream import BaseStreamModel
 
 

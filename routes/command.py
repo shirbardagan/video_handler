@@ -9,6 +9,7 @@ from models.play_command.request import *
 
 import gi
 
+from models.play_command.request.base_stream import BaseStreamModel
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
@@ -21,11 +22,19 @@ video_stream_factory = StreamPipelineFactory()
 
 
 @router.post("/video/command/enable")
-async def enable_video(data: StreamData = Body(...)):
+async def enable_video(data: BaseStreamModel = Body(...)):
     if data.command == "play":
+        if hasattr(app.state, "curr_pipeline"):
+            if app.state.curr_pipeline is not None:
+                app.state.curr_pipeline.set_state(Gst.State.NULL)
         print(data)
         app.state.request_data = data
         pipeline = video_stream_factory.get_pipeline_type(data.stream_type)
+        if hasattr(app.state, "curr_object"):
+            if app.state.curr_object is not None:
+                app.state.curr_object.unref()
+        app.state.curr_object = pipeline
+
         print(type(pipeline))
         mpeg_pipeline = pipeline.create_pipeline()
 

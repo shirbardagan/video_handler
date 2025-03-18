@@ -39,17 +39,18 @@ class StreamSettings(BaseModel):
     class Config:
         extra = "ignore"
 
+
 class BaseStreamModel(BaseModel):
     command: str
     stream_type: str
-    settings: Optional[StreamSettings] = None
-    multicast_in: Optional[MulticastIn] = None
+    settings: StreamSettings = None
+    multicast_in: MulticastIn = None
 
     class Config:
         extra = "ignore"
 
-    @classmethod
     @model_validator(mode="before")
+    @classmethod
     def validate_settings(cls, values):
         stream_type = values.get("stream_type")
         settings = values.get("settings")
@@ -59,3 +60,10 @@ class BaseStreamModel(BaseModel):
                 raise ValueError("When stream_type is 'rtsp', settings must have 'rtsp_settings' with rtsp path.")
         return values
 
+    @model_validator(mode="before")
+    @classmethod
+    def validate_klv(cls, values):
+        """Ensure klv is present in the MP2TStreamModel request"""
+        if "klv" not in values or values["klv"] is None:
+            raise ValueError("The 'klv' field is required for MP2TStreamModel.")
+        return values

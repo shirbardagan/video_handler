@@ -1,3 +1,4 @@
+import threading
 from abc import abstractmethod, ABC
 
 from aiortc.rtcdtlstransport import srtp_profile
@@ -18,6 +19,8 @@ from gi.repository import Gst, GLib, GstApp
 
 
 class BaseStreamPipeline(ABC):
+    _lock = threading.Lock()
+
     def __init__(self):
         """Initializes the GStreamer pipeline and sets up the message bus."""
         self._instance = Gst.Pipeline.new("pipeline")
@@ -90,7 +93,6 @@ class BaseStreamPipeline(ABC):
         except Exception as e:
             logger.error("While trying to determine gpu/cpu encoder: %s", e)
 
-
     @staticmethod
     def link_elements(links: List[Tuple[GStreamerElementWrapper, GStreamerElementWrapper]]) -> bool:
         """
@@ -131,16 +133,20 @@ class BaseStreamPipeline(ABC):
         it is removed from the open connections list before being released.
         Logs an error if resource cleanup fails.
         """
-        try:
-            self._instance.set_state(Gst.State.NULL)
-            for element in self._elements:
-                element.get_element().set_state(Gst.State.NULL)
-                element.get_element().unref()
-            self._instance.unref()
-            return True
-        except Exception as e:
-            logger.error("While releasing pipeline resources: %s", e)
-            return False
+        with self._lock:
+            try:
+                self._instance.set_state(Gst.State.NULL)
+                # self._instance.unref()
+                for element in self._elements:
+                    element.get_element().set_state(Gst.State.NULL)
+                for element in self._elements:
+                    if element.get_element().get_state(0)[1] == Gst.State.NULL:
+                        print(element.get_element().get_state(0)[1])
+                        element.get_element().unref()
+                return True
+            except Exception as e:
+                logger.error("While releasing pipeline resources: %s", e)
+                return False
 
     @staticmethod
     def get_pipeline_string(links: List[Tuple[GStreamerElementWrapper, GStreamerElementWrapper]]) -> str:

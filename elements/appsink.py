@@ -60,8 +60,9 @@ class VideoAppSink(AppSinkWrapper):
 
                 for appsrc in app.state.webrtc_conn_videosrc:
                     if appsrc:
-                        buffer.dts = 0
-                        buffer.pts = appsrc.get_clock().get_time()
+                        if buffer:
+                            buffer.dts = 0
+                            buffer.pts = 0
                         appsrc.emit("push-sample", sample)
         except Exception as e:
             logger.error("In data_sample of video sink: %s", e)

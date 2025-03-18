@@ -2,6 +2,7 @@ import functools
 from collections import namedtuple
 
 from elements import TSDemuxWrapper, FileSrcWrapper, KLVParseWrapper, DataAppSink, UDPSrcWrapper
+
 from pipelines.base_pipeline import BaseStreamPipeline
 from common.base_logger import logger
 
@@ -15,7 +16,7 @@ class MP2TStreamPipeline(BaseStreamPipeline):
     _shared_instance = None
 
     def __init__(self):
-        if MP2TStreamPipeline._shared_instance is None:
+        if type(self) is MP2TStreamPipeline:
             super().__init__()
             MP2TStreamPipeline._shared_instance = self._instance
 
