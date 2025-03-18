@@ -16,9 +16,11 @@ async def startup_event() -> None:
     logger.info("On setup.")
     Gst.init(None)
 
-    app.state.webrtc_conn_videosrc = []
+    app.state.request_data = None
     app.state.curr_pipeline = None
     app.state.curr_object = None
+
+    app.state.webrtc_conn_videosrc = []
     app.state.channels = []
     app.state.conns = []
     app.state.event_loop = asyncio.get_running_loop()

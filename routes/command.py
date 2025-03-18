@@ -1,6 +1,5 @@
-from typing_extensions import Union
-
 from fastapi import APIRouter, Body
+from starlette.responses import JSONResponse
 
 from app_instance import app
 from common.base_logger import logger
@@ -9,41 +8,50 @@ from models.play_command.request import *
 
 import gi
 
-from models.play_command.request.base_stream import BaseStreamModel
+from models.play_command.response import PlayResponseModel
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
 router = APIRouter()
 
-StreamData = Union[
-    RTPStreamModel, RTSPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
 video_stream_factory = StreamPipelineFactory()
+
+
+def start_pipeline(mpeg_pipeline):
+    ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
+    app.state.curr_pipeline = mpeg_pipeline
+    if ret == Gst.StateChangeReturn.FAILURE:
+        logger.error("Unable to set the MPEGPipeline to the playing state")
+        return False
+    else:
+        logger.info("MPEGPipeline is now playing!!")
+        return True
 
 
 @router.post("/video/command/enable")
 async def enable_video(data: BaseStreamModel = Body(...)):
     if data.command == "play":
+        app.state.request_data = data
+
         if hasattr(app.state, "curr_pipeline"):
             if app.state.curr_pipeline is not None:
                 app.state.curr_pipeline.set_state(Gst.State.NULL)
-        print(data)
-        app.state.request_data = data
-        pipeline = video_stream_factory.get_pipeline_type(data.stream_type)
+
         if hasattr(app.state, "curr_object"):
             if app.state.curr_object is not None:
                 app.state.curr_object.unref()
+
+        pipeline = video_stream_factory.get_pipeline_type(data.stream_type)
         app.state.curr_object = pipeline
 
-        print(type(pipeline))
         mpeg_pipeline = pipeline.create_pipeline()
-
-        ret = mpeg_pipeline.set_state(Gst.State.PLAYING)
-        app.state.curr_pipeline = mpeg_pipeline
-        if ret == Gst.StateChangeReturn.FAILURE:
-            logger.error("Unable to set the MPEGPipeline to the playing state")
-        else:
-            logger.info("MPEGPipeline is now playing!!")
-
+        pipeline_status = start_pipeline(mpeg_pipeline)
+        if pipeline_status:
+            response_data = {"status": 200, "ws_port": data.multicast_in.port, "host_ip": data.multicast_in.ip,
+                             "endpoint": f"{data.multicast_in.ip}:{str(data.multicast_in.port)}",
+                             "active_ws_port": data.multicast_in.port, "klv": None}
+            response_data = PlayResponseModel(**response_data)
+            return response_data
     elif data.command == "bit":
         pass

@@ -140,8 +140,7 @@ class BaseStreamPipeline(ABC):
                 for element in self._elements:
                     element.get_element().set_state(Gst.State.NULL)
                 for element in self._elements:
-                    if element.get_element().get_state(0)[1] == Gst.State.NULL:
-                        print(element.get_element().get_state(0)[1])
+                    if element.get_element().get_state(Gst.CLOCK_TIME_NONE)[1] == Gst.State.NULL:
                         element.get_element().unref()
                 return True
             except Exception as e:

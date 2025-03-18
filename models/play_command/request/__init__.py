@@ -5,6 +5,7 @@ from .rtsp import RTSPStreamModel
 from .test import TestStreamModel
 from .rtsp import RTSPStreamModel
 from .v4l2 import V4L2StreamModel
+from .base_stream import BaseStreamModel
 
 __all__ = [
     "MP2TStreamModel",
@@ -13,4 +14,5 @@ __all__ = [
     "TestStreamModel",
     "RTPStreamModel",
     "V4L2StreamModel",
+    "BaseStreamModel"
 ]
