@@ -24,18 +24,21 @@ class RTPConfig(BaseModel):
 
 
 class StreamType(str, Enum):
-    RTP = "rtp"
-    TEST = "test"
     RTSP = "rtsp"
+    TEST = "test"
+    RTP = "rtp"
     V4L2 = "v4l2"
     MPEG4I = "mpeg4i"
     MP2T = "mp2t"
 
+    @classmethod
+    def list(cls):
+        """Return a list of all valid stream types."""
+        return [stream.value for stream in cls]
+
 
 class StreamSettings(BaseModel):
     bitrate: Optional[int] = 2048
-    v4l2_srcDevice: Optional[str] = None
-    rtsp_settings: Optional[str] = None
 
     class Config:
         extra = "ignore"

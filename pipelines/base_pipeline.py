@@ -18,7 +18,6 @@ from elements import (NVH265DecWrapper,
 
 
 class BaseStreamPipeline(ABC):
-
     def __init__(self):
         """Initializes the GStreamer pipeline and sets up the message bus."""
         self._instance = Gst.Pipeline.new("pipeline")
@@ -166,7 +165,6 @@ class BaseStreamPipeline(ABC):
             self._instance.set_state(Gst.State.NULL)
 
             for element in self._elements:
-                # element.get_element().set_state(Gst.State.NULL)
                 self._instance.remove(element.get_element())
 
             for element in self._elements:

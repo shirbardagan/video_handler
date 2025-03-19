@@ -6,22 +6,24 @@ from pipelines.test_pipeline import TESTStreamPipeline
 from pipelines.rtsp_pipeline import RTSPStreamPipeline
 from pipelines.rtp_pipeline import RTPStreamPipeline
 from pipelines.v4l2_pipeline import V4L2StreamPipeline
+from models.play_command.request.base_stream import StreamType
 
 
 class StreamPipelineFactory:
     _pipeline_mapping = {
-        "rtsp": RTSPStreamPipeline,
-        "test": TESTStreamPipeline,
-        "rtp": RTPStreamPipeline,
-        "v4l2": V4L2StreamPipeline,
-        "mpeg4i": MPEG4IStreamPipeline,
-        "mp2t": MP2TStreamPipeline,
+        StreamType.RTSP: RTSPStreamPipeline,
+        StreamType.TEST: TESTStreamPipeline,
+        StreamType.RTP: RTPStreamPipeline,
+        StreamType.V4L2: V4L2StreamPipeline,
+        StreamType.MPEG4I: MPEG4IStreamPipeline,
+        StreamType.MP2T: MP2TStreamPipeline,
     }
 
     @classmethod
     def get_pipeline_type(cls, stream_type: str) -> BaseStreamPipeline:
         try:
-            pipeline_class = cls._pipeline_mapping.get(stream_type)
+            stream_type_enum = StreamType(stream_type)
+            pipeline_class = cls._pipeline_mapping.get(stream_type_enum)
             return pipeline_class()
         except Exception as e:
             logger.error("While trying to define pipeline type: %s", e)
