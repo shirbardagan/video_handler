@@ -1,4 +1,5 @@
 import gi
+from coloring.initialize import initialized
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
@@ -13,6 +14,7 @@ class GStreamerElementWrapper:
     """
     _element_to_string: str
     _instances = {}
+    initialized = False
 
     def __init__(self, element_type: str, element_name: str):
         """
@@ -25,7 +27,10 @@ class GStreamerElementWrapper:
         self._element = Gst.ElementFactory.make(element_type, element_name)
 
         if not self._element:
+            self.initialized = False
             logger.error(f"Failed to create GStreamer element: %s with name: %s", element_type, element_name)
+        else:
+            self.initialized = False
 
         self._element_to_string = element_name
         self._name = element_name

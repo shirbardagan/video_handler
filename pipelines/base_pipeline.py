@@ -1,3 +1,5 @@
+from base64 import decode
+
 import gi
 
 gi.require_version('Gst', '1.0')
@@ -82,7 +84,11 @@ class BaseStreamPipeline(ABC):
         """Selects an H.265 decoder based on GPU availability."""
         if use_gpu:
             try:
-                return NVH265DecWrapper("nvh265decoder")
+                decoder = NVH265DecWrapper("nvh265decoder")
+                if decoder.initialized:
+                    return decoder
+                else:
+                    logger.warning("Failed initializing GPU H.264 decoder, replacing it with CPU H.264 decoder.")
             except Exception as e:
                 logger.error("Failed initializing GPU H.265 decoder: %s", e)
 
@@ -93,7 +99,11 @@ class BaseStreamPipeline(ABC):
         """Selects an H.264 encoder based on GPU availability."""
         if use_gpu:
             try:
-                return NVH264EncWrapper("nvh264encoder")
+                encoder = NVH264EncWrapper("nvh264encoder")
+                if encoder.initialized:
+                    return encoder
+                else:
+                    logger.warning("Failed initializing GPU H.264 encoder, replacing it with CPU H.264 encoder.")
             except Exception as e:
                 logger.error("Failed initializing GPU H.264 encoder: %s", e)
 
