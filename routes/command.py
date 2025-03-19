@@ -29,9 +29,9 @@ async def enable_video(data: BaseStreamModel = Body(...)):
     if data.command == "play":
         app.state.request_data = data
 
-        # if hasattr(app.state, "curr_pipeline"):
-        #     if app.state.curr_pipeline is not None:
-        #         app.state.curr_pipeline.set_state(Gst.State.NULL)
+        if hasattr(app.state, "curr_pipeline"):
+            if app.state.curr_pipeline is not None:
+                app.state.curr_pipeline.set_state(Gst.State.NULL)
         #
         # if hasattr(app.state, "curr_object"):
         #     if app.state.curr_object is not None:

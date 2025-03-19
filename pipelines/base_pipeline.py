@@ -164,10 +164,9 @@ class BaseStreamPipeline(ABC):
         """
         try:
             self._instance.set_state(Gst.State.NULL)
-            # self._instance.unref()
 
             for element in self._elements:
-                element.get_element().set_state(Gst.State.NULL)
+                # element.get_element().set_state(Gst.State.NULL)
                 self._instance.remove(element.get_element())
 
             for element in self._elements:
