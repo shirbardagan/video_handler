@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, HTTPException
 from starlette.responses import JSONResponse
 import gi
 from gi.repository import Gst
@@ -21,7 +21,7 @@ StreamData = Union[
 video_stream_factory = StreamPipelineFactory()
 
 
-def generate_response(data, success: bool = True, status_code: int = 200):
+def generate_response(data: StreamData, success: bool = True, status_code: int = 200):
     """
     Generates a structured JSON response for video commands.
 
@@ -36,7 +36,7 @@ def generate_response(data, success: bool = True, status_code: int = 200):
         "status": success,
         "ws_port": data.multicast_in.port if data.multicast_in else 0,
         "host_ip": data.multicast_in.ip if data.multicast_in else "",
-        "endpoint": f"{data.multicast_in.ip}:{data.multicast_in.port}" if data.multicast_in else "",
+        "endpoint": f"ws://{data.multicast_in.ip}:{data.multicast_in.port}" if data.multicast_in else "",
         "active_ws_port": data.multicast_in.port if data.multicast_in else 0,
         "klv": getattr(data, "klv", None)
     }
@@ -50,17 +50,12 @@ async def enable_video(data: StreamData = Body(...)):
 
         if data.stream_type not in StreamType.list():
             logger.error("Invalid stream type: %s. Allowed types: %s", data.stream_type, StreamType.list())
-            return generate_response(
-                data,
-                success=False,
-                status_code=400
-            )
-        if hasattr(app.state, "curr_pipeline"):
-            if app.state.curr_pipeline is not None:
-                app.state.curr_pipeline.set_state(Gst.State.NULL)
+            raise HTTPException(status_code=400, detail=f"Invalid stream type: {data.stream_type}")
+
+        if getattr(app.state, "curr_pipeline", None):
+            app.state.curr_pipeline.set_state(Gst.State.NULL)
 
         pipeline = video_stream_factory.get_pipeline_type(data.stream_type)
-
         mpeg_pipeline = pipeline.create_pipeline()
         app.state.curr_pipeline = mpeg_pipeline
 

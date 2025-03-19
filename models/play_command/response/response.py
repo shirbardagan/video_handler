@@ -10,7 +10,7 @@ class PlayResponseModel(BaseModel):
     host_ip: str
     endpoint: str
     active_ws_port: int
-    klv: Optional[KLVModel]
+    klv: Optional[KLVModel] = None
 
     class Config:
         extra = "ignore"

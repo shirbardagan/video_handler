@@ -4,7 +4,9 @@ import os
 
 router = APIRouter()
 
-html_path = os.getenv("HTML_PATH")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+html_path = os.path.join(BASE_DIR, "..", "static", "index.html")
+# html_path = os.getenv("HTML_PATH")
 
 @router.get("/")
 async def index():
