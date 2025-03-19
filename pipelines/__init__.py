@@ -1,3 +1,4 @@
+from .base_pipeline import BaseStreamPipeline
 from .mp2t_h264_pipeline import MP2TH264StreamPipeline
 from .webrtc_pipeline import WebRTCPipeline
 from .rtsp_pipeline import RTSPStreamPipeline
@@ -10,5 +11,6 @@ __all__ = [
     RTSPStreamPipeline,
     RTPStreamPipeline,
     MP2TH265StreamPipeline,
-    MP2TH264StreamPipeline
+    MP2TH264StreamPipeline,
+    BaseStreamPipeline
 ]

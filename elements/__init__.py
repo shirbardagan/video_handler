@@ -1,6 +1,8 @@
 from .appsink import AppSinkWrapper, VideoAppSink, DataAppSink
 from .autovideosink import AutoVideoSinkWrapper
 from .avdec_h264 import AVDecH264Wrapper
+from .avdec_h265 import AVDecH265Wrapper
+from .base_element_wrapper import GStreamerElementWrapper
 from .capsfilter import CapsFilterWrapper
 from .filesrc import FileSrcWrapper
 from .h264parse import H264ParseWrapper
@@ -45,7 +47,9 @@ __all__ = [
     RTPGSTPayWrapper,
     NVH264EncWrapper,
     DataAppSink,
-    RTSPSrcWrapper
+    RTSPSrcWrapper,
+    AVDecH265Wrapper,
+    GStreamerElementWrapper
 ]
 
 

@@ -1,16 +1,17 @@
 import functools
-
-from common.base_logger import logger
-from elements import VideoAppSink, UDPSrcWrapper, RTPH264DePayWrapper, H264ParseWrapper, CapsFilterWrapper, RTPH264Pay
-from pipelines.base_pipeline import BaseStreamPipeline
-from config.pipelines_config import CapsConfig
-
 import gi
-
+from gi.repository import Gst, GstRtsp
 gi.require_version('Gst', '1.0')
 gi.require_version('GstRtsp', '1.0')
-from gi.repository import Gst, GstRtsp
 
+from elements import (VideoAppSink,
+                      UDPSrcWrapper,
+                      RTPH264DePayWrapper,
+                      H264ParseWrapper,
+                      CapsFilterWrapper,
+                      RTPH264Pay)
+from pipelines import BaseStreamPipeline
+from common.base_logger import logger
 from config.pipelines_config import CapsConfig
 
 caps_conf = CapsConfig()
@@ -35,11 +36,13 @@ class RTPStreamPipeline(BaseStreamPipeline):
                     self.videosink]
 
         self.has_elements_initialized(elements)
-        self.udpsrc.set_property("uri", "udp://239.192.201.200:6011")
-        self.udpsrc.set_property("multicast-iface", "lo")
-        self.rtph264pay.set_property("config-interval", -1)
+        self.udpsrc.set_multicast_properties()
+
         self.capsfilter0.set_property("caps", caps_conf.rtp)
         self.capsfilter1.set_property("caps", caps_conf.h264)
+
+        self.rtph264pay.set_property("config-interval", -1)
+
         self.videosink.set_property("emit-signals", True)
         self.videosink.set_property("sync", False)
 

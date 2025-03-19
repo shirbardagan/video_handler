@@ -29,13 +29,9 @@ class MP2TStreamPipeline(BaseStreamPipeline):
             elements = [self.udpsrc, self.tsdemux, self.klvparse, self.datasink]
             self.has_elements_initialized(elements)
 
-            AddressTuple = namedtuple("AddressTuple", ["ip", "port", "iface"])
-            addr = AddressTuple(ip="239.3.43.3", port=6146, iface="lo")
-            # addr = AddressTuple(ip="239.10.1.102", port=6022, iface="lo")
-            self.udpsrc.set_properties(addr)
+            self.udpsrc.set_multicast_properties()
 
             self.datasink.set_property("emit-signals", True)
-
         else:
             self._instance = MP2TStreamPipeline._shared_instance
 

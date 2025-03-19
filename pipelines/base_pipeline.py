@@ -1,25 +1,21 @@
-import threading
-from abc import abstractmethod, ABC
-
-from aiortc.rtcdtlstransport import srtp_profile
-from typing_extensions import List, Tuple
-
-from app_instance import app
-from common.base_logger import logger
 import gi
-
-from elements import NVH265DecWrapper, NVH264EncWrapper, X264enc
-from elements.appsrc import VideoAppSrc
-from elements.avdec_h265 import AVDecH265Wrapper
-from elements.base_element_wrapper import GStreamerElementWrapper
 
 gi.require_version('Gst', '1.0')
 gi.require_version("GstApp", "1.0")
 from gi.repository import Gst, GLib, GstApp
 
+from abc import abstractmethod, ABC
+from typing_extensions import List, Tuple
+
+from common.base_logger import logger
+from elements import (NVH265DecWrapper,
+                      NVH264EncWrapper,
+                      X264enc,
+                      AVDecH265Wrapper,
+                      GStreamerElementWrapper)
+
 
 class BaseStreamPipeline(ABC):
-    _lock = threading.Lock()
 
     def __init__(self):
         """Initializes the GStreamer pipeline and sets up the message bus."""
@@ -30,22 +26,40 @@ class BaseStreamPipeline(ABC):
 
     @abstractmethod
     def create_pipeline(self) -> Gst.Pipeline:
-        """
-        Abstract method to be implemented by subclasses to define the pipeline structure.
-        """
+        """Abstract method to be implemented by subclasses to define the pipeline structure."""
         pass
 
     @staticmethod
     def on_bus_message(bus: Gst.Bus, msg: Gst.Message) -> bool:
+        """
+        Callback function to handle messages from the GStreamer bus.
+
+        Args:
+            bus (Gst.Bus): The GStreamer message bus.
+            msg (Gst.Message): The message received from the bus.
+
+        Returns:
+            bool: Always returns True to indicate successful processing.
+
+        Notes:
+            Uncomment relevant sections to enable logging for different message types:
+            - ERROR: Logs errors with details.
+            - WARNING: Logs warnings with additional debug info.
+            - INFO: Logs informational messages.
+            - STATE_CHANGED: Logs state transitions of GStreamer elements.
+        """
         # if msg.type == Gst.MessageType.ERROR:
         #     err, debug = msg.parse_error()
         #     logger.error(f"Error from {msg.src.get_name()}: {err.message} ({debug})")
+        #
         # elif msg.type == Gst.MessageType.WARNING:
         #     warn, debug = msg.parse_warning()
         #     logger.warning(f"Warning from {msg.src.get_name()}: {warn.message} ({debug})")
+        #
         # elif msg.type == Gst.MessageType.INFO:
         #     info, debug = msg.parse_info()
         #     logger.info(f"Info from {msg.src.get_name()}: {info.message} ({debug})")
+        #
         # elif msg.type == Gst.MessageType.STATE_CHANGED:
         #     old_state, new_state, pending = msg.parse_state_changed()
         #     logger.debug(f"{msg.src.get_name()} changed state from {old_state} to {new_state}")
@@ -56,9 +70,7 @@ class BaseStreamPipeline(ABC):
         """
         Checks if all elements in the pipeline are successfully initialized.
 
-        Args:
-            elements: List of GStreamer elements.
-        Logs an error if any element is not initialized.
+        Args: elements: List of GStreamer elements.
         """
         if any(e is None for e in elements):
             logger.error("Not all elements could be created.")
@@ -66,32 +78,26 @@ class BaseStreamPipeline(ABC):
         return True
 
     @staticmethod
-    def select_h265_decoder(use_gpu):
-        try:
-            if use_gpu:
-                try:
-                    return NVH265DecWrapper("nvh265decoder")
-                except Exception as e:
-                    logger.error("Failed initializing gpu h265 decoder", e)
-                    return AVDecH265Wrapper("avh265decoder")
-            else:
-                return AVDecH265Wrapper("avh265decoder")
-        except Exception as e:
-            logger.error("While trying to determine gpu/cpu decoder: %s", e)
+    def select_h265_decoder(use_gpu: bool) -> GStreamerElementWrapper:
+        """Selects an H.265 decoder based on GPU availability."""
+        if use_gpu:
+            try:
+                return NVH265DecWrapper("nvh265decoder")
+            except Exception as e:
+                logger.error("Failed initializing GPU H.265 decoder: %s", e)
+
+        return AVDecH265Wrapper("avh265decoder")
 
     @staticmethod
-    def select_h264_encoder(use_gpu):
-        try:
-            if use_gpu:
-                try:
-                    return NVH264EncWrapper("nvh264encoder")
-                except Exception as e:
-                    logger.error("Failed initializing gpu h264 encoder", e)
-                    return X264enc("x264encoder")
-            else:
-                return X264enc("x264encoder")
-        except Exception as e:
-            logger.error("While trying to determine gpu/cpu encoder: %s", e)
+    def select_h264_encoder(use_gpu: bool) -> GStreamerElementWrapper:
+        """Selects an H.264 encoder based on GPU availability."""
+        if use_gpu:
+            try:
+                return NVH264EncWrapper("nvh264encoder")
+            except Exception as e:
+                logger.error("Failed initializing GPU H.264 encoder: %s", e)
+
+        return X264enc("x264encoder")
 
     @staticmethod
     def link_elements(links: List[Tuple[GStreamerElementWrapper, GStreamerElementWrapper]]) -> bool:
@@ -100,7 +106,6 @@ class BaseStreamPipeline(ABC):
 
         Args:
             links: A list of tuples where each tuple contains a source and a sink element.
-        Logs an error if linking fails.
         """
         for src, sink in links:
             try:
@@ -110,15 +115,19 @@ class BaseStreamPipeline(ABC):
                 return False
         return True
 
-    def start_pipeline(self):
-        ret = self._instance.set_state(Gst.State.PLAYING)
+    def start_pipeline(self) -> bool:
+        """
+        Starts the GStreamer pipeline by setting its state to PLAYING.
 
-        if ret == Gst.StateChangeReturn.FAILURE:
-            logger.error("Unable to set the MPEGPipeline to the playing state")
+        Returns:
+            bool: True if the pipeline successfully starts, False otherwise.
+        """
+        if self._instance.set_state(Gst.State.PLAYING) == Gst.StateChangeReturn.FAILURE:
+            logger.error("Failed to start the pipeline: Unable to set the pipeline to the PLAYING state.")
             return False
-        else:
-            logger.info("MPEGPipeline is now playing!!")
-            return True
+
+        logger.info("Pipeline started successfully and is now in the PLAYING state.")
+        return True
 
     def add_elements(self, elements: List[GStreamerElementWrapper]) -> None:
         """
@@ -143,19 +152,18 @@ class BaseStreamPipeline(ABC):
         it is removed from the open connections list before being released.
         Logs an error if resource cleanup fails.
         """
-        with self._lock:
-            try:
-                self._instance.set_state(Gst.State.NULL)
-                # self._instance.unref()
-                for element in self._elements:
-                    element.get_element().set_state(Gst.State.NULL)
-                for element in self._elements:
-                    if element.get_element().get_state(Gst.CLOCK_TIME_NONE)[1] == Gst.State.NULL:
-                        element.get_element().unref()
-                return True
-            except Exception as e:
-                logger.error("While releasing pipeline resources: %s", e)
-                return False
+        try:
+            self._instance.set_state(Gst.State.NULL)
+            # self._instance.unref()
+            for element in self._elements:
+                element.get_element().set_state(Gst.State.NULL)
+            for element in self._elements:
+                if element.get_element().get_state(Gst.CLOCK_TIME_NONE)[1] == Gst.State.NULL:
+                    element.get_element().unref()
+            return True
+        except Exception as e:
+            logger.error("While releasing pipeline resources: %s", e)
+            return False
 
     @staticmethod
     def get_pipeline_string(links: List[Tuple[GStreamerElementWrapper, GStreamerElementWrapper]]) -> str:

@@ -17,19 +17,25 @@ router = APIRouter()
 
 video_stream_factory = StreamPipelineFactory()
 
+def generate_response(data):
+    response_data = {"status": True, "ws_port": data.multicast_in.port, "host_ip": data.multicast_in.ip,
+                     "endpoint": f"{data.multicast_in.ip}:{str(data.multicast_in.port)}",
+                     "active_ws_port": data.multicast_in.port, "klv": None}
+    response_data = PlayResponseModel(**response_data)
+    return response_data
 
 @router.post("/video/command/enable")
 async def enable_video(data: BaseStreamModel = Body(...)):
     if data.command == "play":
         app.state.request_data = data
 
-        if hasattr(app.state, "curr_pipeline"):
-            if app.state.curr_pipeline is not None:
-                app.state.curr_pipeline.set_state(Gst.State.NULL)
-
-        if hasattr(app.state, "curr_object"):
-            if app.state.curr_object is not None:
-                app.state.curr_object.unref()
+        # if hasattr(app.state, "curr_pipeline"):
+        #     if app.state.curr_pipeline is not None:
+        #         app.state.curr_pipeline.set_state(Gst.State.NULL)
+        #
+        # if hasattr(app.state, "curr_object"):
+        #     if app.state.curr_object is not None:
+        #         app.state.curr_object.unref()
 
         pipeline = video_stream_factory.get_pipeline_type(data.stream_type)
         app.state.curr_object = pipeline
@@ -40,10 +46,7 @@ async def enable_video(data: BaseStreamModel = Body(...)):
         pipeline_status = pipeline.start_pipeline()
 
         if pipeline_status:
-            response_data = {"status": 200, "ws_port": data.multicast_in.port, "host_ip": data.multicast_in.ip,
-                             "endpoint": f"{data.multicast_in.ip}:{str(data.multicast_in.port)}",
-                             "active_ws_port": data.multicast_in.port, "klv": None}
-            response_data = PlayResponseModel(**response_data)
-            return response_data
+            res = generate_response(data)
+            return res
     elif data.command == "bit":
         pass

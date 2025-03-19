@@ -1,5 +1,6 @@
 from enum import Enum
 
+from fastapi import HTTPException
 from typing_extensions import Optional
 from pydantic import Field, BaseModel, model_validator
 
@@ -57,13 +58,12 @@ class BaseStreamModel(BaseModel):
 
         if stream_type == StreamType.RTSP:
             if not settings or not settings.rtsp_settings:
-                raise ValueError("When stream_type is 'rtsp', settings must have 'rtsp_settings' with rtsp path.")
-        return values
-
-    @model_validator(mode="before")
-    @classmethod
-    def validate_klv(cls, values):
-        """Ensure klv is present in the MP2TStreamModel request"""
-        if "klv" not in values or values["klv"] is None:
-            raise ValueError("The 'klv' field is required for MP2TStreamModel.")
+                raise HTTPException(
+                    status_code=422,
+                    detail={
+                        "status": "error",
+                        "message": "When stream_type is 'rtsp', settings must have 'rtsp_settings' with rtsp path.",
+                        "missing_field": "rtsp_settings",
+                    }
+                )
         return values

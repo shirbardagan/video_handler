@@ -14,7 +14,8 @@ router = APIRouter()
 @router.on_event("startup")
 async def startup_event() -> None:
     logger.info("On setup.")
-    Gst.init(None)
+    if not Gst.is_initialized():
+        Gst.init(None)
 
     app.state.request_data = None
     app.state.curr_pipeline = None
