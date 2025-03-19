@@ -1,8 +1,4 @@
-import json
-from gi.repository import Gst, GLib, GstApp
-import asyncio
-
-from elements.base_element_wrapper import GStreamerElementWrapper
+from elements import GStreamerElementWrapper
 
 
 class WebRTCBinWrapper(GStreamerElementWrapper):

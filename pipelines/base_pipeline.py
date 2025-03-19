@@ -48,9 +48,9 @@ class BaseStreamPipeline(ABC):
             - INFO: Logs informational messages.
             - STATE_CHANGED: Logs state transitions of GStreamer elements.
         """
-        # if msg.type == Gst.MessageType.ERROR:
-        #     err, debug = msg.parse_error()
-        #     logger.error(f"Error from {msg.src.get_name()}: {err.message} ({debug})")
+        if msg.type == Gst.MessageType.ERROR:
+            err, debug = msg.parse_error()
+            logger.error(f"Error from {msg.src.get_name()}: {err.message} ({debug})")
         #
         # elif msg.type == Gst.MessageType.WARNING:
         #     warn, debug = msg.parse_warning()
@@ -155,8 +155,11 @@ class BaseStreamPipeline(ABC):
         try:
             self._instance.set_state(Gst.State.NULL)
             # self._instance.unref()
+
             for element in self._elements:
                 element.get_element().set_state(Gst.State.NULL)
+                self._instance.remove(element.get_element())
+
             for element in self._elements:
                 if element.get_element().get_state(Gst.CLOCK_TIME_NONE)[1] == Gst.State.NULL:
                     element.get_element().unref()
@@ -178,10 +181,9 @@ class BaseStreamPipeline(ABC):
 
         for element1, element2 in links:
             pipeline_parts.append(element1.get_element_to_string())
-            pipeline_parts.append("!")
 
         pipeline_parts.append(links[-1][1].get_element_to_string())
-        return " ".join(pipeline_parts)
+        return " ! ".join(pipeline_parts)
 
     def get_pipeline_elements(self) -> List[Gst.Element]:
         """Returns a list of the elements of the pipeline."""

@@ -1,7 +1,5 @@
-from common.base_logger import logger
-from elements.base_element_wrapper import GStreamerElementWrapper
+from elements import GStreamerElementWrapper
 
-from gi.repository import Gst
 
 class TSParse(GStreamerElementWrapper):
     def __init__(self, name="tsparse"):

@@ -1,13 +1,12 @@
-from app_instance import app
-from common.base_logger import logger
+import gi
 
-from elements.base_element_wrapper import GStreamerElementWrapper
-
+gi.require_version('Gst', '1.0')
+gi.require_version("GstApp", "1.0")
 from gi.repository import Gst, GLib, GstApp
 
-import threading
-
-pad_lock = threading.Lock()
+from app_instance import app
+from common.base_logger import logger
+from elements import GStreamerElementWrapper
 
 
 class TSDemuxWrapper(GStreamerElementWrapper):

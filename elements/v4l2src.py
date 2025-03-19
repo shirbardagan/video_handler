@@ -1,4 +1,4 @@
-from elements.base_element_wrapper import GStreamerElementWrapper
+from elements import GStreamerElementWrapper
 
 
 class V4L2SrcWrapper(GStreamerElementWrapper):

@@ -1,4 +1,4 @@
-from elements.base_element_wrapper import GStreamerElementWrapper
+from elements import GStreamerElementWrapper
 
 
 class VideoConvertWrapper(GStreamerElementWrapper):

@@ -19,7 +19,7 @@ def configure_logging(level=logging.DEBUG):
     logger = logging.getLogger()
     logger.setLevel(level)
     logger.addHandler(handler)
-    logger.propagate = False  # Prevent duplicate logs
+    logger.propagate = False
 
 configure_logging()
 logger = logging.getLogger(__name__)

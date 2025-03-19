@@ -1,9 +1,8 @@
-import threading
 import gi
-from pycparser.c_ast import Union
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
+
 from common.base_logger import logger
 
 
@@ -12,22 +11,8 @@ class GStreamerElementWrapper:
     A wrapper class for GStreamer elements to simplify creation, configuration,
     linking, and signal handling.
     """
-
     _element_to_string: str
     _instances = {}
-    _lock = threading.Lock()
-
-    # def __new__(cls, *args, **kwargs):
-    #     if getattr(cls, "allow_multiple_instances", False):
-    #         return super().__new__(cls)
-    #
-    #     with cls._lock:
-    #         if cls in cls._instances:
-    #             cls._instances[cls].get_element().set_state(Gst.State.NULL)
-    #             cls._instances[cls].get_element().unref()
-    #         instance = super().__new__(cls)
-    #         cls._instances[cls] = instance
-    #     return cls._instances[cls]
 
     def __init__(self, element_type: str, element_name: str):
         """
@@ -38,13 +23,15 @@ class GStreamerElementWrapper:
             element_name (str): The name to assign to the element.
         """
         self._element = Gst.ElementFactory.make(element_type, element_name)
+
         if not self._element:
             logger.error(f"Failed to create GStreamer element: %s with name: %s", element_type, element_name)
+
         self._element_to_string = element_name
         self._name = element_name
         self._instances[self] = self._element
 
-    def set_property(self, property_name: str, value) -> None:
+    def set_property(self, property_name: str, value) -> bool:
         """
         Sets a property on the GStreamer element.
 
@@ -54,9 +41,11 @@ class GStreamerElementWrapper:
         """
         try:
             self._element.set_property(property_name, value)
-            self._element_to_string += f" {property_name}={value} "
+            self._element_to_string += f" {property_name}={value}"
+            return True
         except Exception as e:
             logger.error(f"Failed to set property %s=%s: %s", property_name, value, e)
+            return False
 
     def get_property(self, property_name: str):
         """

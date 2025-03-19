@@ -1,10 +1,10 @@
-from common.base_logger import logger
-from elements.base_element_wrapper import GStreamerElementWrapper
-
 import gi
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
+
+from common.base_logger import logger
+from elements.base_element_wrapper import GStreamerElementWrapper
 
 
 class RTPGSTPayWrapper(GStreamerElementWrapper):
