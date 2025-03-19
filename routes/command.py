@@ -5,6 +5,8 @@ from gi.repository import Gst
 from typing_extensions import Union
 
 from common.base_logger import logger
+from config.pipelines_config import ElementPropertiesConfig
+from models.bit import BitResponseModel
 from models.play_command.request.base_stream import StreamType
 
 gi.require_version('Gst', '1.0')
@@ -15,13 +17,14 @@ from models.play_command.request import *
 from models.play_command.response import PlayResponseModel
 
 router = APIRouter()
+element_properties_conf = ElementPropertiesConfig()
 
 StreamData = Union[
     RTSPStreamModel, RTPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
 video_stream_factory = StreamPipelineFactory()
 
 
-def generate_response(data: StreamData, success: bool = True, status_code: int = 200):
+def generate_play_response(data: StreamData, success: bool = True, status_code: int = 200):
     """
     Generates a structured JSON response for video commands.
 
@@ -43,6 +46,19 @@ def generate_response(data: StreamData, success: bool = True, status_code: int =
     return JSONResponse(content=PlayResponseModel(**response_data).dict(), status_code=status_code)
 
 
+def generate_bit_response():
+    data = app.state.request_data
+    response_data = {
+        "status": app.state.pipeline_status,
+        "ip": data.multicast_in.ip if data.multicast_in else "",
+        "port": data.multicast_in.port if data.multicast_in else 0,
+        "nic": data.multicast_in.nic if data.multicast_in else "",
+        "connected_users": len(app.state.conns),
+        "iframe_interval": element_properties_conf.iframe_interval
+    }
+    return JSONResponse(content=BitResponseModel(**response_data).dict())
+
+
 @router.post("/video/command/enable")
 async def enable_video(data: StreamData = Body(...)):
     if data.command == "play":
@@ -60,9 +76,12 @@ async def enable_video(data: StreamData = Body(...)):
         app.state.curr_pipeline = mpeg_pipeline
 
         if pipeline.start_pipeline():
-            return generate_response(data, success=True, status_code=200)
+            app.state.pipeline_status = True
+            return generate_play_response(data, success=True, status_code=200)
         else:
-            return generate_response(data, success=False, status_code=500)
+            app.state.pipeline_status = False
+            return generate_play_response(data, success=False, status_code=500)
 
     elif data.command == "bit":
-            pass
+            res = generate_bit_response()
+            return res
