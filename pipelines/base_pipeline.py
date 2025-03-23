@@ -1,5 +1,3 @@
-from base64 import decode
-
 import gi
 
 gi.require_version('Gst', '1.0')

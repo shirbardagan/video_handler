@@ -1,9 +1,7 @@
 import functools
 
-from common.base_logger import logger
 from config.system_config import SystemSettingsConfig
 from elements import VideoConvertWrapper, CapsFilterWrapper, H264ParseWrapper, RTPH264Pay, VideoAppSink, V4L2SrcWrapper
-from elements.nvh264enc import NVH264EncWrapper
 from pipelines.base_pipeline import BaseStreamPipeline
 from config.pipelines_config import CapsConfig
 

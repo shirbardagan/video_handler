@@ -6,7 +6,6 @@ from gi.repository import GObject, Gst
 
 from app_instance import app
 from common.base_logger import logger
-from pipelines.webrtc_pipeline import WebRTCPipeline
 
 router = APIRouter()
 
