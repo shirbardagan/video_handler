@@ -61,8 +61,8 @@ def generate_bit_response():
 
 @router.post("/video/command/enable")
 async def enable_video(data: StreamData = Body(...)):
+    app.state.request_data = data
     if data.command == "play":
-        app.state.request_data = data
 
         if data.stream_type not in StreamType.list():
             logger.error("Invalid stream type: %s. Allowed types: %s", data.stream_type, StreamType.list())
