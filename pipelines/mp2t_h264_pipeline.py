@@ -3,7 +3,7 @@ import functools
 from elements import (
     H264ParseWrapper,
     RTPH264Pay,
-    AppSinkWrapper, VideoAppSink
+    VideoAppSink
 )
 from common.base_logger import logger
 from pipelines.mp2t_pipeline import MP2TStreamPipeline

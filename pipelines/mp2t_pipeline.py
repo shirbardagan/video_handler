@@ -1,7 +1,6 @@
 import functools
-from collections import namedtuple
 
-from elements import TSDemuxWrapper, FileSrcWrapper, KLVParseWrapper, DataAppSink, UDPSrcWrapper
+from elements import TSDemuxWrapper, KLVParseWrapper, DataAppSink, UDPSrcWrapper
 
 from pipelines.base_pipeline import BaseStreamPipeline
 from common.base_logger import logger

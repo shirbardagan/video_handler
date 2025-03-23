@@ -1,5 +1,4 @@
 import asyncio
-import functools
 import json
 
 from app_instance import app

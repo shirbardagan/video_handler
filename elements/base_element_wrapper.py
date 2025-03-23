@@ -1,5 +1,4 @@
 import gi
-from coloring.initialize import initialized
 
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst

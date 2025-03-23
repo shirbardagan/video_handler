@@ -1,10 +1,9 @@
 import functools
 
 from common.base_logger import logger
-from elements import VideoAppSink, UDPSrcWrapper, RTPH264DePayWrapper, H264ParseWrapper, CapsFilterWrapper, RTPH264Pay, \
+from elements import VideoAppSink, RTPH264DePayWrapper, H264ParseWrapper, CapsFilterWrapper, RTPH264Pay, \
     RTSPSrcWrapper
 from pipelines.base_pipeline import BaseStreamPipeline
-from config.pipelines_config import CapsConfig
 
 import gi
 

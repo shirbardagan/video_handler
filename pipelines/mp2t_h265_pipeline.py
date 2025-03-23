@@ -4,7 +4,6 @@ from common.base_logger import logger
 from config.system_config import SystemSettingsConfig
 from elements import (
     H265ParseWrapper,
-    NVH265DecWrapper,
     H264ParseWrapper,
     RTPH264Pay,
     CapsFilterWrapper,
