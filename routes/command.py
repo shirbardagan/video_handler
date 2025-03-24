@@ -59,7 +59,7 @@ def generate_bit_response():
     return JSONResponse(content=BitResponseModel(**response_data).dict())
 
 
-@router.post("/video/command/enable")
+@router.post("/")
 async def enable_video(data: StreamData = Body(...)):
     app.state.request_data = data
     if data.command == "play":
@@ -85,3 +85,6 @@ async def enable_video(data: StreamData = Body(...)):
     elif data.command == "bit":
             res = generate_bit_response()
             return res
+
+    elif data.command == "keepalive":
+        return {"status": True}
