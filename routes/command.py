@@ -1,3 +1,5 @@
+import socket
+
 from fastapi import APIRouter, Body, HTTPException
 from starlette.responses import JSONResponse
 import gi
@@ -22,6 +24,13 @@ element_properties_conf = ElementPropertiesConfig()
 StreamData = Union[
     RTSPStreamModel, RTPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
 video_stream_factory = StreamPipelineFactory()
+
+def get_host_ip():
+    """Returns the local machine's IP address."""
+    try:
+        return socket.gethostbyname(socket.gethostname())
+    except socket.gaierror:
+        return "127.0.0.1"
 
 def check_pipeline_state():
     pipeline_state = getattr(app.state, "curr_pipeline", None)
@@ -50,7 +59,7 @@ def generate_play_response(data: StreamData, success: bool = True, status_code: 
         # "ws_port": data.multicast_in.port if data.multicast_in else 0,
         # "host_ip": data.multicast_in.ip if data.multicast_in else "",
         # TODO: remove hardcoded host-ip/port
-        "host_ip": "188.20.1.79",
+        "host_ip": get_host_ip(),
         "endpoint": f"ws://0.0.0.0:8080" if data.multicast_in else "",
         "active_ws_port": 8080,
         # "active_ws_port": data.multicast_in.port if data.multicast_in else 0,

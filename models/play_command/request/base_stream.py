@@ -6,8 +6,8 @@ from pydantic import Field, BaseModel, model_validator
 
 
 class MulticastIn(BaseModel):
-    ip: Optional[str] = Field(description="Multicast IP")
-    port: int
+    ip: str = Field(description="Multicast IP")
+    port: int = Field(description="Multicast port")
     nic: Optional[str] = Field(default=None, description="Network interface")
 
     class Config:
