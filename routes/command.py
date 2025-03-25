@@ -37,7 +37,7 @@ def get_host_ip():
         return "127.0.0.1"
 
 
-def generate_play_response(data: StreamData, success: bool = True, status_code: int = 200):
+def generate_play_response(data: BaseStreamModel, success: bool = True, status_code: int = 200):
     """
     Generates a structured JSON response for video commands.
 
@@ -48,13 +48,14 @@ def generate_play_response(data: StreamData, success: bool = True, status_code: 
     Returns:
         JSONResponse: A structured HTTP response.
     """
+    logger.info(data)
     response_data = {
         "status": success,
         "ws_port": 8080,
         # "ws_port": data.multicast_in.port if data.multicast_in else 0,
         # "host_ip": data.multicast_in.ip if data.multicast_in else "",
         # TODO: remove hardcoded host-ip/port
-        "host_ip": get_host_ip(),
+        "host_ip": "188.20.1.79",
         "endpoint": f"ws://0.0.0.0:8080" if data.multicast_in else "",
         "active_ws_port": 8080,
         # "active_ws_port": data.multicast_in.port if data.multicast_in else 0,
