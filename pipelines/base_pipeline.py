@@ -1,5 +1,8 @@
 import gi
 
+from app_instance import app
+from models.bit import GstStateEnum
+
 gi.require_version('Gst', '1.0')
 gi.require_version("GstApp", "1.0")
 from gi.repository import Gst, GLib, GstApp
@@ -75,6 +78,19 @@ class BaseStreamPipeline(ABC):
             logger.error("Not all elements could be created.")
             return False
         return True
+
+    @staticmethod
+    def check_pipeline_state():
+        if hasattr(app.state, "curr_pipeline"):
+            pipeline_state = getattr(app.state, "curr_pipeline", None)
+            gst_state = None
+
+            if pipeline_state:
+                state = pipeline_state.get_state(Gst.CLOCK_TIME_NONE)[1]
+                gst_state = GstStateEnum(state.value_nick.upper())
+        else:
+            gst_state = Gst.State.NULL
+        return gst_state
 
     @staticmethod
     def select_h265_decoder(use_gpu: bool) -> GStreamerElementWrapper:
@@ -193,3 +209,5 @@ class BaseStreamPipeline(ABC):
     def get_pipeline_elements(self) -> List[Gst.Element]:
         """Returns a list of the elements of the pipeline."""
         return self._elements
+
+

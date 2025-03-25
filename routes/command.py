@@ -17,6 +17,7 @@ from app_instance import app
 from factory.stream_pipeline_factory import StreamPipelineFactory
 from models.play_command.request import *
 from models.play_command.response import PlayResponseModel
+from pipelines import BaseStreamPipeline
 
 router = APIRouter()
 element_properties_conf = ElementPropertiesConfig()
@@ -25,21 +26,13 @@ StreamData = Union[
     RTSPStreamModel, RTPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
 video_stream_factory = StreamPipelineFactory()
 
+
 def get_host_ip():
     """Returns the local machine's IP address."""
     try:
         return socket.gethostbyname(socket.gethostname())
     except socket.gaierror:
         return "127.0.0.1"
-
-def check_pipeline_state():
-    pipeline_state = getattr(app.state, "curr_pipeline", None)
-    gst_state = None
-
-    if pipeline_state:
-        state = pipeline_state.get_state(Gst.CLOCK_TIME_NONE)[1]
-        gst_state = GstStateEnum(state.value_nick.upper())
-    return gst_state
 
 
 def generate_play_response(data: StreamData, success: bool = True, status_code: int = 200):
@@ -71,11 +64,7 @@ def generate_play_response(data: StreamData, success: bool = True, status_code: 
 def generate_bit_response():
     data = app.state.request_data
     pipeline_state = getattr(app.state, "curr_pipeline", None)
-    gst_state = None
-
-    if pipeline_state:
-        state = pipeline_state.get_state(Gst.CLOCK_TIME_NONE)[1]
-        gst_state = GstStateEnum(state.value_nick.upper())
+    gst_state = BaseStreamPipeline.check_pipeline_state()
 
     response_data = {
         "status": app.state.pipeline_status,
@@ -118,8 +107,8 @@ async def enable_video(data: StreamData = Body(...)):
             return generate_play_response(data, success=False, status_code=500)
 
     elif data.command == "bit":
-            res = generate_bit_response()
-            return res
+        res = generate_bit_response()
+        return res
 
     elif data.command == "keepalive":
         return {"status": True}
