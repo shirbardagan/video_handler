@@ -5,7 +5,7 @@ from fastapi import FastAPI
 app = FastAPI(
     version="1.0.0",
     docs_url="/api-docs",
-    swagger_ui_parameters={"useLocalFiles": True}
+    swagger_ui_parameters={"useLocalStorage": True}
 )
 
 

@@ -6,7 +6,7 @@ from typing_extensions import Union
 
 from common.base_logger import logger
 from config.pipelines_config import ElementPropertiesConfig
-from models.bit import BitResponseModel
+from models.bit import BitResponseModel, GstStateEnum
 from models.play_command.request.base_stream import StreamType
 
 gi.require_version('Gst', '1.0')
@@ -23,6 +23,15 @@ StreamData = Union[
     RTSPStreamModel, RTPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
 video_stream_factory = StreamPipelineFactory()
 
+def check_pipeline_state():
+    pipeline_state = getattr(app.state, "curr_pipeline", None)
+    gst_state = None
+
+    if pipeline_state:
+        state = pipeline_state.get_state(Gst.CLOCK_TIME_NONE)[1]
+        gst_state = GstStateEnum(state.value_nick.upper())
+    return gst_state
+
 
 def generate_play_response(data: StreamData, success: bool = True, status_code: int = 200):
     """
@@ -37,10 +46,14 @@ def generate_play_response(data: StreamData, success: bool = True, status_code: 
     """
     response_data = {
         "status": success,
-        "ws_port": data.multicast_in.port if data.multicast_in else 0,
-        "host_ip": data.multicast_in.ip if data.multicast_in else "",
-        "endpoint": f"ws://{data.multicast_in.ip}:{data.multicast_in.port}" if data.multicast_in else "",
-        "active_ws_port": data.multicast_in.port if data.multicast_in else 0,
+        "ws_port": 8080,
+        # "ws_port": data.multicast_in.port if data.multicast_in else 0,
+        # "host_ip": data.multicast_in.ip if data.multicast_in else "",
+        # TODO: remove hardcoded host-ip/port
+        "host_ip": "188.20.1.79",
+        "endpoint": f"ws://0.0.0.0:8080" if data.multicast_in else "",
+        "active_ws_port": 8080,
+        # "active_ws_port": data.multicast_in.port if data.multicast_in else 0,
         "klv": getattr(data, "klv", None)
     }
     return JSONResponse(content=PlayResponseModel(**response_data).dict(), status_code=status_code)
@@ -48,13 +61,26 @@ def generate_play_response(data: StreamData, success: bool = True, status_code: 
 
 def generate_bit_response():
     data = app.state.request_data
+    pipeline_state = getattr(app.state, "curr_pipeline", None)
+    gst_state = None
+
+    if pipeline_state:
+        state = pipeline_state.get_state(Gst.CLOCK_TIME_NONE)[1]
+        gst_state = GstStateEnum(state.value_nick.upper())
+
     response_data = {
         "status": app.state.pipeline_status,
-        "ip": data.multicast_in.ip if data.multicast_in else "",
-        "port": data.multicast_in.port if data.multicast_in else 0,
-        "nic": data.multicast_in.nic if data.multicast_in else "",
         "connected_users": len(app.state.conns),
-        "iframe_interval": element_properties_conf.iframe_interval
+        "state": gst_state,
+        "bit": {
+            "klv": getattr(data, "klv", None),
+            "transcode": {
+                "ip": data.multicast_in.ip if data.multicast_in else "",
+                "port": data.multicast_in.port if data.multicast_in else 0,
+                "nic": data.multicast_in.nic if data.multicast_in else "",
+                "iframe_interval": element_properties_conf.iframe_interval
+            }
+        }
     }
     return JSONResponse(content=BitResponseModel(**response_data).dict())
 
@@ -62,8 +88,8 @@ def generate_bit_response():
 @router.post("/")
 async def enable_video(data: StreamData = Body(...)):
     app.state.request_data = data
-    if data.command == "play":
 
+    if data.command == "play":
         if data.stream_type not in StreamType.list():
             logger.error("Invalid stream type: %s. Allowed types: %s", data.stream_type, StreamType.list())
             raise HTTPException(status_code=400, detail=f"Invalid stream type: {data.stream_type}")
