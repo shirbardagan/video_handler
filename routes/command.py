@@ -8,7 +8,7 @@ from typing_extensions import Union
 
 from common.base_logger import logger
 from config.pipelines_config import ElementPropertiesConfig
-from models.bit import BitResponseModel, GstStateEnum
+from models.bit import BitResponseModel, BitKeepAliveCommandsModel
 from models.play_command.request.base_stream import StreamType
 
 gi.require_version('Gst', '1.0')
@@ -33,6 +33,7 @@ def get_host_ip():
     try:
         return socket.gethostbyname(socket.gethostname())
     except socket.gaierror:
+        logger.warning("Failed to retrieve local IP address, returning fallback 127.0.0.1.")
         return "127.0.0.1"
 
 
@@ -86,10 +87,21 @@ def generate_bit_response():
     return JSONResponse(content=BitResponseModel(**response_data).dict())
 
 
+def generate_keepalive_response():
+    curr_pipeline_gst_state = BaseStreamPipeline.check_pipeline_state()
+
+    res = {
+        "status": True,
+        "stream":
+            {
+                "state": curr_pipeline_gst_state
+            }
+    }
+    return res
+
+
 @router.post("/")
-async def enable_video(data: StreamData = Body(...)):
-
-
+async def enable_video(data: Union[StreamData,BitKeepAliveCommandsModel]):
     if data.command == "play":
         app.state.request_data = data
         if data.stream_type not in StreamType.list():
@@ -115,4 +127,5 @@ async def enable_video(data: StreamData = Body(...)):
         return res
 
     elif data.command == "keepalive":
-        return {"status": True}
+        res = generate_keepalive_response()
+        return res

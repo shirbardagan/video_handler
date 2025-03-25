@@ -7,10 +7,10 @@ from models.play_command.request.mp2t import KLVModel
 
 
 class GstStateEnum(str, Enum):
-    NULL = "NULL"
-    READY = "READY"
-    PAUSED = "PAUSED"
-    PLAYING = "PLAYING"
+    NULL = "null"
+    READY = "ready"
+    PAUSED = "paused"
+    PLAYING = "playing"
 
 
 class TranscodeSettings(BaseModel):
@@ -30,3 +30,7 @@ class BitResponseModel(BaseModel):
     connected_users: int
     state: Optional[GstStateEnum]
     bit: BitData
+
+
+class BitKeepAliveCommandsModel(BaseModel):
+    command: str
