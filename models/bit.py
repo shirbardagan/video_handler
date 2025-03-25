@@ -1,10 +1,32 @@
+from enum import Enum
+
 from pydantic import BaseModel
+from typing_extensions import Optional
+
+from models.play_command.request.mp2t import KLVModel
 
 
-class BitResponseModel(BaseModel):
+class GstStateEnum(str, Enum):
+    NULL = "NULL"
+    READY = "READY"
+    PAUSED = "PAUSED"
+    PLAYING = "PLAYING"
+
+
+class TranscodeSettings(BaseModel):
     ip: str
     port: int
     nic: str
-    connected_users: int
-    status: bool
     iframe_interval: int
+
+
+class BitData(BaseModel):
+    klv: Optional[KLVModel]
+    transcode: TranscodeSettings
+
+
+class BitResponseModel(BaseModel):
+    status: bool
+    connected_users: int
+    state: Optional[GstStateEnum]
+    bit: BitData
