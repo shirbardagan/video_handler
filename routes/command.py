@@ -63,19 +63,21 @@ def generate_play_response(data: StreamData, success: bool = True, status_code: 
 
 def generate_bit_response():
     data = app.state.request_data
-    pipeline_state = getattr(app.state, "curr_pipeline", None)
-    gst_state = BaseStreamPipeline.check_pipeline_state()
+    multicast_settings = data.multicast_in
+    curr_pipeline_gst_state = BaseStreamPipeline.check_pipeline_state()
+    number_of_connections = len(app.state.conns)
+    klv_settings = getattr(data, "klv", None)
 
     response_data = {
         "status": app.state.pipeline_status,
-        "connected_users": len(app.state.conns),
-        "state": gst_state,
+        "connected_users": number_of_connections,
+        "state": curr_pipeline_gst_state,
         "bit": {
-            "klv": getattr(data, "klv", None),
+            "klv": klv_settings,
             "transcode": {
-                "ip": data.multicast_in.ip if data.multicast_in else "",
-                "port": data.multicast_in.port if data.multicast_in else 0,
-                "nic": data.multicast_in.nic if data.multicast_in else "",
+                "ip": multicast_settings.ip if multicast_settings else "",
+                "port": multicast_settings.port if multicast_settings else 0,
+                "nic": multicast_settings.nic if multicast_settings else "",
                 "iframe_interval": element_properties_conf.iframe_interval
             }
         }
@@ -85,9 +87,10 @@ def generate_bit_response():
 
 @router.post("/")
 async def enable_video(data: StreamData = Body(...)):
-    app.state.request_data = data
+
 
     if data.command == "play":
+        app.state.request_data = data
         if data.stream_type not in StreamType.list():
             logger.error("Invalid stream type: %s. Allowed types: %s", data.stream_type, StreamType.list())
             raise HTTPException(status_code=400, detail=f"Invalid stream type: {data.stream_type}")
