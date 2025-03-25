@@ -24,6 +24,7 @@ element_properties_conf = ElementPropertiesConfig()
 
 StreamData = Union[
     RTSPStreamModel, RTPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
+
 video_stream_factory = StreamPipelineFactory()
 
 

@@ -1,7 +1,7 @@
-from typing_extensions import Optional
+from typing_extensions import Optional, Literal
 
-from pydantic import Field, BaseModel, model_validator
-from .base_stream import BaseStreamModel
+from pydantic import Field, BaseModel
+from .base_stream import BaseStreamModel, StreamType
 
 
 class KLVModel(BaseModel):
@@ -15,7 +15,7 @@ class KLVModel(BaseModel):
 
 
 class MP2TStreamModel(BaseStreamModel):
-    stream_type: str = "mp2t"
+    stream_type: Literal[StreamType.MP2T]
     klv: Optional[KLVModel] = Field(default=None, description="KLV pipeline settings")
 
     class Config:

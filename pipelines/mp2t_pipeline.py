@@ -19,7 +19,10 @@ class MP2TStreamPipeline(BaseStreamPipeline):
         if type(self) is MP2TStreamPipeline:
             super().__init__()
             MP2TStreamPipeline._shared_instance = self._instance
-            self.klv_enabled = app.state.request_data.klv.enable
+            if getattr(app.state.request_data,"klv"):
+                self.klv_enabled = app.state.request_data.klv.enable
+            else:
+                self.klv_enabled = False
 
             self.udpsrc = UDPSrcWrapper()
             self.tsdemux = TSDemuxWrapper()

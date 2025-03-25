@@ -31,29 +31,30 @@ class DataAppSink(AppSinkWrapper):
         Returns:
             Gst.FlowReturn: GST_FLOW_OK if the operation is successful.
         """
-        if app.state.request_data.klv.enable:
-            try:
-                sample = appsink.pull_sample()
-                buffer = sample.get_buffer()
+        if getattr(app.state.request_data,"klv"):
+            if app.state.request_data.klv.enable:
+                try:
+                    sample = appsink.pull_sample()
+                    buffer = sample.get_buffer()
 
-                succ, info = buffer.map(Gst.MapFlags.READ)
-                if not succ:
-                    logger.error("Failed to map buffer")
-                    return Gst.FlowReturn.ERROR
-                buffer.unmap(info)
+                    succ, info = buffer.map(Gst.MapFlags.READ)
+                    if not succ:
+                        logger.error("Failed to map buffer")
+                        return Gst.FlowReturn.ERROR
+                    buffer.unmap(info)
 
-                json_data = json.loads(info.data.decode('utf-8'))
-                json_string = json.dumps(json_data, indent=4)
+                    json_data = json.loads(info.data.decode('utf-8'))
+                    json_string = json.dumps(json_data, indent=4)
 
-                msg = {"event": "video_data", "data": json_string}
-                json_msg = json.dumps(msg)
+                    msg = {"event": "video_data", "data": json_string}
+                    json_msg = json.dumps(msg)
 
-                channels = getattr(app.state, "channels", [])
-                if channels:
-                    for channel in channels:
-                        channel.emit("send-string", json_msg)
-            except Exception as e:
-                logger.error("When extracting data sample from data sink: %s", e)
+                    channels = getattr(app.state, "channels", [])
+                    if channels:
+                        for channel in channels:
+                            channel.emit("send-string", json_msg)
+                except Exception as e:
+                    logger.error("When extracting data sample from data sink: %s", e)
         return Gst.FlowReturn.OK
 
 
