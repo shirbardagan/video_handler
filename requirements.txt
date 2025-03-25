@@ -10,3 +10,4 @@ asyncio
 typing
 typing-extensions
 colorlog
+starlette
