@@ -1,17 +1,17 @@
 import socket
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, HTTPException
 from starlette.responses import JSONResponse
-import gi
-from gi.repository import Gst
 from typing_extensions import Union
+
+import gi
+gi.require_version('Gst', '1.0')
+from gi.repository import Gst
 
 from common.base_logger import logger
 from config_models.config import PROPERTY_IFRAME_INTERVAL
 from models.bit_keepalive import BitResponseModel, BitKeepAliveCommandsModel
 from models.play_command.request.base_stream import StreamType
-
-gi.require_version('Gst', '1.0')
 
 from app_instance import app
 from factory.stream_pipeline_factory import StreamPipelineFactory

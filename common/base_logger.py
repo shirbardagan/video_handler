@@ -1,7 +1,12 @@
 import logging
 import colorlog
 
-def configure_logging(level=logging.DEBUG):
+from config_models.system_config import SystemSettingsConfig
+
+system_conf = SystemSettingsConfig()
+
+
+def configure_logging(level=system_conf.log_level):
     formatter = colorlog.ColoredFormatter(
         "%(log_color)s%(levelname)s - %(message)s",
         log_colors={
@@ -20,6 +25,7 @@ def configure_logging(level=logging.DEBUG):
     logger.setLevel(level)
     logger.addHandler(handler)
     logger.propagate = False
+
 
 configure_logging()
 logger = logging.getLogger(__name__)
