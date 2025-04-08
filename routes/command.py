@@ -65,7 +65,10 @@ def generate_play_response(data: BaseStreamModel, success: bool = True, status_c
 
 def generate_bit_response():
     data = app.state.request_data
-    multicast_settings = data.multicast_in
+    if data:
+        multicast_settings = data.multicast_in
+    else:
+        multicast_settings = None
     curr_pipeline_gst_state = BaseStreamPipeline.check_pipeline_state()
     number_of_connections = len(app.state.conns)
     klv_settings = getattr(data, "klv", None)
