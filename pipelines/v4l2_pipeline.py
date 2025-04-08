@@ -34,6 +34,7 @@ class V4L2StreamPipeline(BaseStreamPipeline):
 
         device_src = getattr(app.state.request_data,"v4l2_src")
         self.v4l2src.set_property("device", device_src)
+
         self.videosink.set_property("emit-signals", True)
 
         self.rtph264pay.set_property("config-interval", -1)

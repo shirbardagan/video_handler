@@ -38,8 +38,8 @@ class TESTStreamPipeline(BaseStreamPipeline):
         self.videosink.set_property("emit-signals", True)
         self.videosink.set_property("async", False)
 
-        self.h264parse.set_property("config_models-interval", -1)
-        self.rtph264pay.set_property("config_models-interval", -1)
+        self.h264parse.set_property("config-interval", -1)
+        self.rtph264pay.set_property("config-interval", -1)
 
         self.rtph264pay.set_property("pt", 96)
 

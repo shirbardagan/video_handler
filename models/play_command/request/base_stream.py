@@ -57,10 +57,11 @@ class BaseStreamModel(BaseModel):
     @classmethod
     def validate_rtsp_settings(cls, values):
         stream_type = values.get("stream_type")
-        settings = values.get("settings")
+        rtsp_settings = values.get("rtsp_settings")
+        multicast_in = values.get("multicast_in")
 
         if stream_type == StreamType.RTSP:
-            if not settings or not settings.rtsp_settings:
+            if not rtsp_settings:
                 raise HTTPException(
                     status_code=422,
                     detail={
@@ -69,7 +70,14 @@ class BaseStreamModel(BaseModel):
                         "missing_field": "rtsp_settings",
                     }
                 )
-        elif stream_type == StreamType.V4L2:
-            if not settings or not settings.rtsp_settings:
-                pass
+        elif stream_type == StreamType.RTP or stream_type == StreamType.MP2T:
+            if not multicast_in:
+                raise HTTPException(
+                    status_code=422,
+                    detail={
+                        "status": "error",
+                        "message": "When stream_type is 'mp2t' or 'rtp', you must specify ip and port.",
+                        "missing_field": "multicast_in",
+                    }
+                )
         return values

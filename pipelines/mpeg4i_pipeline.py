@@ -23,8 +23,8 @@ class MPEG4IStreamPipeline(BaseStreamPipeline):
         self.has_elements_initialized(elements)
 
         self.filesrc.set_property("location", "/home/elbit/Downloads/santa.mp4")
-        self.h264parse.set_property("config_models-interval", -1)
-        self.rtph264pay.set_property("config_models-interval", -1)
+        self.h264parse.set_property("config-interval", -1)
+        self.rtph264pay.set_property("config-interval", -1)
         self.videosink.set_property("emit-signals", True)
         # self.videosink.set_property("async", True)
 
