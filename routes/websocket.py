@@ -4,8 +4,9 @@ from starlette.websockets import WebSocketDisconnect
 
 from app_instance import app
 from common.base_logger import logger
-from webrtc_handler.websocket_handler import WebRTCClient
 from config_models.system_config import SystemSettingsConfig
+from webrtc_handler.websocket_handler import WebRTCClient
+from config_models.config import SYSTEM_DEFAULT_VALUE
 
 import gi
 
@@ -21,7 +22,6 @@ from gi.repository import GstSdp
 router = APIRouter()
 system_conf = SystemSettingsConfig()
 
-
 def handle_websocket_disconnect(webrtc_client: WebRTCClient):
     """Handles cleanup when the WebSocket connection is closed."""
     logger.info("WebSocket connection closed by the client.")
@@ -30,7 +30,7 @@ def handle_websocket_disconnect(webrtc_client: WebRTCClient):
         app.state.webrtc_conn_videosrc.remove(webrtc_client.videosrc)
 
     if hasattr(webrtc_client, "webrtc_pipeline"):
-        # webrtc_client.webrtc_pipeline.unref()
+        webrtc_client.webrtc_pipeline.unref()
         webrtc_client.webrtc_pipeline = None
 
     if hasattr(webrtc_client, "conn") and webrtc_client.conn in app.state.conns:
@@ -47,7 +47,7 @@ async def websocket_handler(conn: WebSocket):
     await conn.accept()
     app.state.conns.append(conn)
     if int(system_conf.max_users) > len(app.state.webrtc_conn_videosrc) or int(
-            system_conf.max_users) == system_conf.default_value:
+            system_conf.max_users) == SYSTEM_DEFAULT_VALUE:
         webrtc_client = WebRTCClient(conn)
         webrtc_client.start()
         try:
