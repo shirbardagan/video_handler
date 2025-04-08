@@ -1,7 +1,7 @@
 from common.base_logger import logger
 from elements import WebRTCBinWrapper
 from elements.appsrc import VideoAppSrc
-from pipelines.base_pipeline import BaseStreamPipeline
+from pipelines import BaseStreamPipeline
 
 import gi
 gi.require_version("GstSdp", "1.0")

@@ -5,7 +5,7 @@ from config_models.system_config import SystemSettingsConfig
 from elements import X264enc, H264ParseWrapper, RTPH264Pay
 from elements.appsink import VideoAppSink
 from elements.videotestsrc import VideoTestSrcWrapper
-from pipelines.base_pipeline import BaseStreamPipeline
+from pipelines import BaseStreamPipeline
 from gi.repository import Gst
 
 

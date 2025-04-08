@@ -3,7 +3,7 @@ import functools
 from common.base_logger import logger
 from elements import FileSrcWrapper, H264ParseWrapper, RTPH264Pay, VideoAppSink
 from elements.qtdemux import QTDemuxWrapper
-from pipelines.base_pipeline import BaseStreamPipeline
+from pipelines import BaseStreamPipeline
 
 
 class MPEG4IStreamPipeline(BaseStreamPipeline):
