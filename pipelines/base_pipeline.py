@@ -1,7 +1,7 @@
 import gi
 
 from app_instance import app
-from models.bit import GstStateEnum
+from models.bit_keepalive import GstStateEnum
 
 gi.require_version('Gst', '1.0')
 gi.require_version("GstApp", "1.0")
