@@ -40,7 +40,7 @@ class RTSPStreamPipeline(BaseStreamPipeline):
         self.capsfilter0.set_property("caps", CAPS_RTP)
         self.capsfilter1.set_property("caps", CAPS_H264)
 
-        self.rtph264pay.set_property("config_models-interval", -1)
+        self.rtph264pay.set_property("config-interval", -1)
 
         self.videosink.set_property("emit-signals", True)
         self.videosink.set_property("sync", False)

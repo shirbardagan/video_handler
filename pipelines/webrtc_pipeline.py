@@ -4,7 +4,6 @@ from elements.appsrc import VideoAppSrc
 from pipelines.base_pipeline import BaseStreamPipeline
 
 import gi
-
 gi.require_version("GstSdp", "1.0")
 from gi.repository import Gst, GObject, GstSdp
 
@@ -30,7 +29,7 @@ class WebRTCPipeline(BaseStreamPipeline):
             self.videosrc.set_property("is-live", True)
             self.videosrc.set_property("do-timestamp", True)
         except Exception as e:
-            logger.error("While initializing webrtcbin pipeline: %s", e)
+            logger.error("While initializing WebRTCbin pipeline: %s", e)
 
     def create_pipeline(self) -> Gst.Pipeline:
         self._add_elements()

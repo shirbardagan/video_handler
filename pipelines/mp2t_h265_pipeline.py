@@ -53,9 +53,9 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
             self.h264encoder.set_property("tune", "zerolatency")
             self.h264encoder.set_property("speed-preset", "ultrafast")
 
-        self.h265parse.set_property("config_models-interval", -1)
-        self.h264parse.set_property("config_models-interval", -1)
-        self.rtph264pay.set_property("config_models-interval", -1)
+        self.h265parse.set_property("config-interval", -1)
+        self.h264parse.set_property("config-interval", -1)
+        self.rtph264pay.set_property("config-interval", -1)
 
         self.videosink.set_property("emit-signals", True)
         self.videosink.set_property("sync", False)
