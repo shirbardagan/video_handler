@@ -87,9 +87,11 @@ class BaseStreamPipeline(ABC):
 
             if pipeline_state:
                 state = pipeline_state.get_state(Gst.CLOCK_TIME_NONE)[1]
-                gst_state = GstStateEnum(state.value_nick.upper())
+                gst_state = GstStateEnum(state.value_nick.lower())
+                if gst_state.value == GstStateEnum.PAUSED or gst_state.value == GstStateEnum.NULL:
+                    gst_state = GstStateEnum.STOPPED
         else:
-            gst_state = Gst.State.NULL
+            gst_state = GstStateEnum.NULL
         return gst_state
 
     @staticmethod
@@ -209,5 +211,3 @@ class BaseStreamPipeline(ABC):
     def get_pipeline_elements(self) -> List[Gst.Element]:
         """Returns a list of the elements of the pipeline."""
         return self._elements
-
-
