@@ -12,9 +12,7 @@ from elements import (VideoAppSink,
                       RTPH264Pay)
 from pipelines import BaseStreamPipeline
 from common.base_logger import logger
-from config.pipelines_config import CapsConfig
-
-caps_conf = CapsConfig()
+from config_models.config import CAPS_RTP, CAPS_H264
 
 
 class RTPStreamPipeline(BaseStreamPipeline):
@@ -38,10 +36,10 @@ class RTPStreamPipeline(BaseStreamPipeline):
         self.has_elements_initialized(elements)
         self.udpsrc.set_multicast_properties()
 
-        self.capsfilter0.set_property("caps", caps_conf.rtp)
-        self.capsfilter1.set_property("caps", caps_conf.h264)
+        self.capsfilter0.set_property("caps", CAPS_RTP)
+        self.capsfilter1.set_property("caps", CAPS_H264)
 
-        self.rtph264pay.set_property("config-interval", -1)
+        self.rtph264pay.set_property("config_models-interval", -1)
 
         self.videosink.set_property("emit-signals", True)
         self.videosink.set_property("sync", False)

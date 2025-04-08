@@ -6,14 +6,11 @@ from elements import VideoAppSink, RTPH264DePayWrapper, H264ParseWrapper, CapsFi
 from pipelines.base_pipeline import BaseStreamPipeline
 
 import gi
-
 gi.require_version('Gst', '1.0')
 gi.require_version('GstRtsp', '1.0')
 from gi.repository import Gst, GstRtsp
 
-from config.pipelines_config import CapsConfig
-
-caps_conf = CapsConfig()
+from config_models.config import CAPS_RTP, CAPS_H264
 
 
 class RTSPStreamPipeline(BaseStreamPipeline):
@@ -39,10 +36,10 @@ class RTSPStreamPipeline(BaseStreamPipeline):
         self.rtspsrc.set_property("location", "")
 
 
-        self.capsfilter0.set_property("caps", caps_conf.rtp)
-        self.capsfilter1.set_property("caps", caps_conf.h264)
+        self.capsfilter0.set_property("caps", CAPS_RTP)
+        self.capsfilter1.set_property("caps", CAPS_H264)
 
-        self.rtph264pay.set_property("config-interval", -1)
+        self.rtph264pay.set_property("config_models-interval", -1)
 
         self.videosink.set_property("emit-signals", True)
         self.videosink.set_property("sync", False)

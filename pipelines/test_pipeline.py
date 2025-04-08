@@ -1,7 +1,7 @@
 import functools
 
 from common.base_logger import logger
-from config.system_config import SystemSettingsConfig
+from config_models.system_config import SystemSettingsConfig
 from elements import X264enc, H264ParseWrapper, RTPH264Pay
 from elements.appsink import VideoAppSink
 from elements.videotestsrc import VideoTestSrcWrapper
@@ -38,8 +38,8 @@ class TESTStreamPipeline(BaseStreamPipeline):
         self.videosink.set_property("emit-signals", True)
         self.videosink.set_property("async", False)
 
-        self.h264parse.set_property("config-interval", -1)
-        self.rtph264pay.set_property("config-interval", -1)
+        self.h264parse.set_property("config_models-interval", -1)
+        self.rtph264pay.set_property("config_models-interval", -1)
 
         self.rtph264pay.set_property("pt", 96)
 

@@ -1,17 +1,14 @@
 import functools
 
-from config.system_config import SystemSettingsConfig
+from config_models.system_config import SystemSettingsConfig
 from elements import VideoConvertWrapper, CapsFilterWrapper, H264ParseWrapper, RTPH264Pay, VideoAppSink, V4L2SrcWrapper
 from pipelines.base_pipeline import BaseStreamPipeline
-from config.pipelines_config import CapsConfig
+from config_models.config import CAPS_H264
 
 import gi
 from gi.repository import Gst
-
-
 gi.require_version('Gst', '1.0')
 
-caps_conf = CapsConfig()
 system_conf = SystemSettingsConfig()
 
 class V4L2StreamPipeline(BaseStreamPipeline):
@@ -36,9 +33,9 @@ class V4L2StreamPipeline(BaseStreamPipeline):
         self.v4l2src.set_property("device", "/dev/video0")
         self.videosink.set_property("emit-signals", True)
 
-        self.rtph264pay.set_property("config-interval", -1)
+        self.rtph264pay.set_property("config_models-interval", -1)
 
-        self.capsfilter.set_property("caps", caps_conf.h264)
+        self.capsfilter.set_property("caps", CAPS_H264)
 
     def create_pipeline(self) -> Gst.Pipeline:
         self._add_elements()
