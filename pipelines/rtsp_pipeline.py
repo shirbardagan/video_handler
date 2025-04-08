@@ -1,5 +1,6 @@
 import functools
 
+from app_instance import app
 from common.base_logger import logger
 from elements import VideoAppSink, RTPH264DePayWrapper, H264ParseWrapper, CapsFilterWrapper, RTPH264Pay, \
     RTSPSrcWrapper
@@ -33,8 +34,8 @@ class RTSPStreamPipeline(BaseStreamPipeline):
 
         self.has_elements_initialized(elements)
 
-        self.rtspsrc.set_property("location", "")
-
+        rtsp_path = getattr(app.state.request_data, "rtsp_settings")
+        self.rtspsrc.set_property("location", rtsp_path)
 
         self.capsfilter0.set_property("caps", CAPS_RTP)
         self.capsfilter1.set_property("caps", CAPS_H264)

@@ -55,7 +55,7 @@ class BaseStreamModel(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def validate_settings(cls, values):
+    def validate_rtsp_settings(cls, values):
         stream_type = values.get("stream_type")
         settings = values.get("settings")
 
@@ -69,4 +69,7 @@ class BaseStreamModel(BaseModel):
                         "missing_field": "rtsp_settings",
                     }
                 )
+        elif stream_type == StreamType.V4L2:
+            if not settings or not settings.rtsp_settings:
+                pass
         return values
