@@ -4,7 +4,7 @@ from app_instance import app
 from common.base_logger import logger
 from elements import VideoAppSink, RTPH264DePayWrapper, H264ParseWrapper, CapsFilterWrapper, RTPH264Pay, \
     RTSPSrcWrapper
-from pipelines.base_pipeline import BaseStreamPipeline
+from pipelines import BaseStreamPipeline
 
 import gi
 gi.require_version('Gst', '1.0')

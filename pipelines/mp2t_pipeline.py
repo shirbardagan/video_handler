@@ -3,7 +3,7 @@ import functools
 from app_instance import app
 from elements import TSDemuxWrapper, KLVParseWrapper, DataAppSink, UDPSrcWrapper
 
-from pipelines.base_pipeline import BaseStreamPipeline
+from pipelines import BaseStreamPipeline
 from common.base_logger import logger
 
 import gi

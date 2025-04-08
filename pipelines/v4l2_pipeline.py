@@ -3,7 +3,7 @@ import functools
 from app_instance import app
 from config_models.system_config import SystemSettingsConfig
 from elements import VideoConvertWrapper, CapsFilterWrapper, H264ParseWrapper, RTPH264Pay, VideoAppSink, V4L2SrcWrapper
-from pipelines.base_pipeline import BaseStreamPipeline
+from pipelines import BaseStreamPipeline
 from config_models.config import CAPS_H264
 
 import gi

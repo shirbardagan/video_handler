@@ -9,7 +9,7 @@ gi.require_version('GstSdp', '1.0')
 gi.require_version('GstWebRTC', '1.0')
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GObject, GstSdp, GstWebRTC
-from pipelines.webrtc_pipeline import WebRTCPipeline
+from pipelines import WebRTCPipeline
 
 gi.require_version('Gst', '1.0')
 gi.require_version('GstWebRTC', '1.0')
