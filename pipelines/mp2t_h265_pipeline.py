@@ -1,7 +1,7 @@
 import functools
 
 from common.base_logger import logger
-from config.system_config import SystemSettingsConfig
+from config_models.system_config import SystemSettingsConfig
 from elements import (
     H265ParseWrapper,
     H264ParseWrapper,
@@ -10,16 +10,14 @@ from elements import (
     VideoAppSink,
     NVH264EncWrapper
 )
-from elements.gldownload import GLDownloadWrapper
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
-from config.pipelines_config import CapsConfig
+from config_models.config import CAPS_H264
 
 import gi
 from gi.repository import Gst
-
 gi.require_version('Gst', '1.0')
 
-caps_conf = CapsConfig()
+
 system_conf = SystemSettingsConfig()
 
 
@@ -55,15 +53,15 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
             self.h264encoder.set_property("tune", "zerolatency")
             self.h264encoder.set_property("speed-preset", "ultrafast")
 
-        self.h265parse.set_property("config-interval", -1)
-        self.h264parse.set_property("config-interval", -1)
-        self.rtph264pay.set_property("config-interval", -1)
+        self.h265parse.set_property("config_models-interval", -1)
+        self.h264parse.set_property("config_models-interval", -1)
+        self.rtph264pay.set_property("config_models-interval", -1)
 
         self.videosink.set_property("emit-signals", True)
         self.videosink.set_property("sync", False)
         self.videosink.set_property("async", False)
 
-        self.capsfilter.set_property("caps", caps_conf.h264)
+        self.capsfilter.set_property("caps", CAPS_H264)
 
     def create_pipeline(self) -> Gst.Pipeline:
         self._add_elements()

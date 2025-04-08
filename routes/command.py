@@ -7,7 +7,7 @@ from gi.repository import Gst
 from typing_extensions import Union
 
 from common.base_logger import logger
-from config.pipelines_config import ElementPropertiesConfig
+from config_models.config import PROPERTY_IFRAME_INTERVAL
 from models.bit_keepalive import BitResponseModel, BitKeepAliveCommandsModel
 from models.play_command.request.base_stream import StreamType
 
@@ -20,7 +20,6 @@ from models.play_command.response import PlayResponseModel
 from pipelines import BaseStreamPipeline
 
 router = APIRouter()
-element_properties_conf = ElementPropertiesConfig()
 
 StreamData = Union[
     RTSPStreamModel, RTPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
@@ -81,7 +80,7 @@ def generate_bit_response():
                 "ip": multicast_settings.ip if multicast_settings else "",
                 "port": multicast_settings.port if multicast_settings else 0,
                 "nic": multicast_settings.nic if multicast_settings else "",
-                "iframe_interval": element_properties_conf.iframe_interval
+                "iframe_interval": PROPERTY_IFRAME_INTERVAL
             }
         }
     }

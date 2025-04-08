@@ -5,7 +5,7 @@ from starlette.websockets import WebSocketDisconnect
 from app_instance import app
 from common.base_logger import logger
 from webrtc_handler.websocket_handler import WebRTCClient
-from config.system_config import SystemSettingsConfig
+from config_models.system_config import SystemSettingsConfig
 
 import gi
 

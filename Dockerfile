@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     libnice10 \
     meson \
     build-essential \
-    pkg-config \
+    pkg-config_models \
     cmake \
     gir1.2-gst-plugins-base-1.0 \
     gir1.2-gst-plugins-bad-1.0 \
@@ -34,7 +34,7 @@ ENV GST_PLUGIN_PATH=/opt/gstreamer-plugins
 RUN git clone https://github.com/nlohmann/json --branch v3.10.5 --depth 1 nlohmann_json && cd nlohmann_json && \
     mkdir build && cd build && \
     cmake -D JSON_BuildTests=OFF .. && \
-    cmake --build . --config Release -- -j`nproc` && \
+    cmake --build . --config_models Release -- -j`nproc` && \
     `which cmake` --install .
 
 WORKDIR /opt
@@ -43,7 +43,7 @@ RUN cd gstreamer-plugins/klvparse && \
     mkdir build && \
     cd build && \
     cmake -DBuildTests=OFF -DBuildPlugin=ON .. && \
-    cmake --build . --config Release -- -j$(nproc) && \
+    cmake --build . --config_models Release -- -j$(nproc) && \
     cmake --install .
 
 
