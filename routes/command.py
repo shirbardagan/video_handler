@@ -8,7 +8,7 @@ from typing_extensions import Union
 
 from common.base_logger import logger
 from config.pipelines_config import ElementPropertiesConfig
-from models.bit import BitResponseModel, BitKeepAliveCommandsModel
+from models.bit_keepalive import BitResponseModel, BitKeepAliveCommandsModel
 from models.play_command.request.base_stream import StreamType
 
 gi.require_version('Gst', '1.0')
