@@ -1,5 +1,6 @@
 import functools
 
+from app_instance import app
 from config_models.system_config import SystemSettingsConfig
 from elements import VideoConvertWrapper, CapsFilterWrapper, H264ParseWrapper, RTPH264Pay, VideoAppSink, V4L2SrcWrapper
 from pipelines.base_pipeline import BaseStreamPipeline
@@ -30,10 +31,12 @@ class V4L2StreamPipeline(BaseStreamPipeline):
                     self.rtph264pay, self.videosink]
 
         self.has_elements_initialized(elements)
-        self.v4l2src.set_property("device", "/dev/video0")
+
+        device_src = getattr(app.state.request_data,"v4l2_src")
+        self.v4l2src.set_property("device", device_src)
         self.videosink.set_property("emit-signals", True)
 
-        self.rtph264pay.set_property("config_models-interval", -1)
+        self.rtph264pay.set_property("config-interval", -1)
 
         self.capsfilter.set_property("caps", CAPS_H264)
 
