@@ -1,10 +1,11 @@
 import socket
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from starlette.responses import JSONResponse
 from typing_extensions import Union
 
 import gi
+
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
@@ -27,22 +28,24 @@ StreamData = Union[
 video_stream_factory = StreamPipelineFactory()
 
 
-def get_host_ip():
-    """Returns the local machine's IP address."""
+def get_host_ip_port() -> str:
+    """Returns the local machine's IP and port."""
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
-        return s.getsockname()[0]
+        host_ip = s.getsockname()[0]
+        return host_ip
     except socket.gaierror:
         logger.warning("Failed to retrieve local IP address, returning fallback 127.0.0.1.")
         return "127.0.0.1"
 
 
-def generate_play_response(data: BaseStreamModel, success: bool = True, status_code: int = 200):
+def generate_play_response(data: BaseStreamModel, server_port: int, success: bool = True, status_code: int = 200):
     """
     Generates a structured JSON response for video commands.
 
     Args:
+        server_port: Server port.
         data (BaseStreamModel): Input data containing stream details.
         success (bool): Indicates if the operation was successful.
         status_code (int): HTTP status code.
@@ -50,11 +53,14 @@ def generate_play_response(data: BaseStreamModel, success: bool = True, status_c
         JSONResponse: A structured HTTP response.
     """
     logger.info(data)
+    host_ip = get_host_ip_port()
+
     response_data = {
         "status": success,
-        "ws_port": 8080,
-        "host_ip": get_host_ip(),
-        "endpoint": f"ws://0.0.0.0:8080" if data.multicast_in else "",
+        "ws_port": server_port,
+        "host_ip": host_ip,
+        # TODO: remove hardcoded endpoint and replace it with dynamic port
+        "endpoint": f"ws://{host_ip}:{server_port}" if data.multicast_in else "",
         "active_ws_port": 8080,
         "klv": getattr(data, "klv", None)
     }
@@ -102,7 +108,8 @@ def generate_keepalive_response():
 
 
 @router.post("/")
-async def enable_video(data: Union[StreamData,BitKeepAliveCommandsModel]):
+async def enable_video(data: Union[StreamData, BitKeepAliveCommandsModel], request: Request):
+    _, server_port = request.url.hostname, request.url.port
     if data.command == "play":
         app.state.request_data = data
         if data.stream_type not in StreamType.list():
@@ -118,10 +125,10 @@ async def enable_video(data: Union[StreamData,BitKeepAliveCommandsModel]):
 
         if pipeline.start_pipeline():
             app.state.pipeline_status = True
-            return generate_play_response(data, success=True, status_code=200)
+            return generate_play_response(data, server_port, success=True, status_code=200)
         else:
             app.state.pipeline_status = False
-            return generate_play_response(data, success=False, status_code=500)
+            return generate_play_response(data, server_port, success=False, status_code=500)
 
     elif data.command == "bit":
         res = generate_bit_response()
