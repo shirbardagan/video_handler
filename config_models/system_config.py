@@ -8,6 +8,7 @@ class SystemSettingsConfig(BaseSettings):
     max_users: Union[int, str] = Field(-1, description="Maximum number of users allowed")
     use_gpu: bool = True
     log_level: str = "INFO"
+    port: int = 8080
 
     @field_validator("max_users", mode="before")
     @classmethod
