@@ -28,8 +28,8 @@ StreamData = Union[
 video_stream_factory = StreamPipelineFactory()
 
 
-def get_host_ip_port() -> str:
-    """Returns the local machine's IP and port."""
+def get_host_ip() -> str:
+    """Returns the local machine's IP."""
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
@@ -59,7 +59,6 @@ def generate_play_response(data: BaseStreamModel, server_port: int, success: boo
         "status": success,
         "ws_port": server_port,
         "host_ip": host_ip,
-        # TODO: remove hardcoded endpoint and replace it with dynamic port
         "endpoint": f"ws://{host_ip}:{server_port}" if data.multicast_in else "",
         "active_ws_port": 8080,
         "klv": getattr(data, "klv", None)
