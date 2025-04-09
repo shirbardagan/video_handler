@@ -30,7 +30,9 @@ video_stream_factory = StreamPipelineFactory()
 def get_host_ip():
     """Returns the local machine's IP address."""
     try:
-        return socket.gethostbyname(socket.gethostname())
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        return s.getsockname()[0]
     except socket.gaierror:
         logger.warning("Failed to retrieve local IP address, returning fallback 127.0.0.1.")
         return "127.0.0.1"
@@ -51,13 +53,9 @@ def generate_play_response(data: BaseStreamModel, success: bool = True, status_c
     response_data = {
         "status": success,
         "ws_port": 8080,
-        # "ws_port": data.multicast_in.port if data.multicast_in else 0,
-        # "host_ip": data.multicast_in.ip if data.multicast_in else "",
-        # TODO: remove hardcoded host-ip/port
-        "host_ip": "188.20.1.79",
+        "host_ip": get_host_ip(),
         "endpoint": f"ws://0.0.0.0:8080" if data.multicast_in else "",
         "active_ws_port": 8080,
-        # "active_ws_port": data.multicast_in.port if data.multicast_in else 0,
         "klv": getattr(data, "klv", None)
     }
     return JSONResponse(content=PlayResponseModel(**response_data).dict(), status_code=status_code)

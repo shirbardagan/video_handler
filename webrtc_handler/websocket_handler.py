@@ -3,17 +3,14 @@ import json
 
 from app_instance import app
 from common.base_logger import logger
-import gi
-
-gi.require_version('GstSdp', '1.0')
-gi.require_version('GstWebRTC', '1.0')
-gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GObject, GstSdp, GstWebRTC
 from pipelines import WebRTCPipeline
 
-gi.require_version('Gst', '1.0')
-gi.require_version('GstWebRTC', '1.0')
+import gi
+from gi.repository import Gst, GObject, GstSdp, GstWebRTC
+
 gi.require_version('GstSdp', '1.0')
+gi.require_version('GstWebRTC', '1.0')
+gi.require_version('Gst', '1.0')
 
 
 class WebRTCClient:
@@ -28,6 +25,7 @@ class WebRTCClient:
         pipeline: The GStreamer pipeline that processes media data.
         webrtc: The webrtcbin element in the GStreamer pipeline that handles WebRTC communication.
     """
+
     def __init__(self, conn):
         self.data_channel = None
         self.conn = conn
@@ -120,7 +118,6 @@ class WebRTCClient:
 
         self.data_channel = self.webrtc.emit("create-data-channel", "klvdata", None)
         self.data_channel.connect("on-open", self.on_data_channel_open)
-
 
     def send_ice_candidate_message(self, _, mlineindex: int, candidate: str) -> bool:
         """
