@@ -60,7 +60,6 @@ def generate_play_response(data: BaseStreamModel, server_port: int, success: boo
         "ws_port": server_port,
         "host_ip": host_ip,
         "endpoint": f"ws://{host_ip}:{server_port}" if data.multicast_in else "",
-        "active_ws_port": 8080,
         "klv": getattr(data, "klv", None)
     }
     return JSONResponse(content=PlayResponseModel(**response_data).dict(), status_code=status_code)

@@ -9,7 +9,6 @@ class PlayResponseModel(BaseModel):
     ws_port: int
     host_ip: str
     endpoint: str
-    active_ws_port: int
     klv: Optional[KLVModel] = None
 
     class Config:
