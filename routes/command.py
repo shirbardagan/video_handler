@@ -53,7 +53,7 @@ def generate_play_response(data: BaseStreamModel, server_port: int, success: boo
         JSONResponse: A structured HTTP response.
     """
     logger.info(data)
-    host_ip = get_host_ip_port()
+    host_ip = get_host_ip()
 
     response_data = {
         "status": success,
