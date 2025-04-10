@@ -22,6 +22,7 @@ from gi.repository import GstSdp
 router = APIRouter()
 system_conf = SystemSettingsConfig()
 
+
 def handle_websocket_disconnect(webrtc_client: WebRTCClient):
     """Handles cleanup when the WebSocket connection is closed."""
     logger.info("WebSocket connection closed by the client.")

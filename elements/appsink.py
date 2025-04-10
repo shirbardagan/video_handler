@@ -18,6 +18,7 @@ class AppSinkWrapper(GStreamerElementWrapper):
 
 class DataAppSink(AppSinkWrapper):
     """A subclass of AppSinkWrapper for handling JSON data received through a datasink."""
+
     def __init__(self, name="appsink"):
         super().__init__("appsink", name)
 
@@ -31,7 +32,7 @@ class DataAppSink(AppSinkWrapper):
         Returns:
             Gst.FlowReturn: GST_FLOW_OK if the operation is successful.
         """
-        if getattr(app.state.request_data,"klv"):
+        if getattr(app.state.request_data, "klv"):
             if app.state.request_data.klv.enable:
                 if app.state.request_data.klv.datachannel:
                     try:
@@ -64,6 +65,7 @@ class DataAppSink(AppSinkWrapper):
 
 class VideoAppSink(AppSinkWrapper):
     """A subclass of AppSinkWrapper for handling video samples received through an appsink."""
+
     def __init__(self, name="appsink"):
         super().__init__("appsink", name)
 

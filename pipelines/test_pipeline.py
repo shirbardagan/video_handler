@@ -8,7 +8,6 @@ from elements.videotestsrc import VideoTestSrcWrapper
 from pipelines import BaseStreamPipeline
 from gi.repository import Gst
 
-
 system_conf = SystemSettingsConfig()
 
 
@@ -44,6 +43,7 @@ class TESTStreamPipeline(BaseStreamPipeline):
         self.rtph264pay.set_property("pt", 96)
 
         self.videotestsrc.set_property("pattern", 18)
+
     def create_pipeline(self) -> Gst.Pipeline:
         self._add_elements()
         self._connect_signals()

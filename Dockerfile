@@ -1,8 +1,5 @@
 FROM python:3.12
 
-ENV SYSTEM_MAX_USERS=3
-ENV SYSTEM_USE_GPU=True
-
 WORKDIR /opt
 COPY package.json .
 

@@ -10,5 +10,6 @@ app = FastAPI(
 )
 system_conf = SystemSettingsConfig()
 
+
 def start_server():
     uvicorn.run(app, host="0.0.0.0", port=system_conf.port)

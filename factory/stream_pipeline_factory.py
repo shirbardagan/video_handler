@@ -1,12 +1,12 @@
 from common.base_logger import logger
-from pipelines import  (BaseStreamPipeline,
-                        MP2TStreamPipeline,
-                        MPEG4IStreamPipeline,
-                        TESTStreamPipeline,
-                        RTSPStreamPipeline,
-                        RTPStreamPipeline,
-                        V4L2StreamPipeline
-)
+from pipelines import (BaseStreamPipeline,
+                       MP2TStreamPipeline,
+                       MPEG4IStreamPipeline,
+                       TESTStreamPipeline,
+                       RTSPStreamPipeline,
+                       RTPStreamPipeline,
+                       V4L2StreamPipeline
+                       )
 from models.play_command.request.base_stream import StreamType
 
 

@@ -4,6 +4,7 @@ from elements.appsrc import VideoAppSrc
 from pipelines import BaseStreamPipeline
 
 import gi
+
 gi.require_version("GstSdp", "1.0")
 from gi.repository import Gst, GObject, GstSdp
 
