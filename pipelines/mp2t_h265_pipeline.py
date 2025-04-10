@@ -15,8 +15,8 @@ from config_models.config import CAPS_H264
 
 import gi
 from gi.repository import Gst
-gi.require_version('Gst', '1.0')
 
+gi.require_version('Gst', '1.0')
 
 system_conf = SystemSettingsConfig()
 

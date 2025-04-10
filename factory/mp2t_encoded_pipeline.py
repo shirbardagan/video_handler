@@ -1,6 +1,7 @@
 from common.base_logger import logger
 from pipelines import MP2TH265StreamPipeline, MP2TH264StreamPipeline
 
+
 class MP2TFactory:
     _pipeline_mapping = {
         "video/x-h264": MP2TH264StreamPipeline,

@@ -7,6 +7,7 @@ from elements import VideoAppSink, RTPH264DePayWrapper, H264ParseWrapper, CapsFi
 from pipelines import BaseStreamPipeline
 
 import gi
+
 gi.require_version('Gst', '1.0')
 gi.require_version('GstRtsp', '1.0')
 from gi.repository import Gst, GstRtsp

@@ -47,4 +47,3 @@ class MPEG4IStreamPipeline(BaseStreamPipeline):
         self.rtph264pay.link(self.videosink)
 
         return self._instance
-

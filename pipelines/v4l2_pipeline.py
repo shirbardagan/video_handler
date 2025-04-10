@@ -8,9 +8,11 @@ from config_models.config import CAPS_H264
 
 import gi
 from gi.repository import Gst
+
 gi.require_version('Gst', '1.0')
 
 system_conf = SystemSettingsConfig()
+
 
 class V4L2StreamPipeline(BaseStreamPipeline):
     def __init__(self):
@@ -32,7 +34,7 @@ class V4L2StreamPipeline(BaseStreamPipeline):
 
         self.has_elements_initialized(elements)
 
-        device_src = getattr(app.state.request_data,"v4l2_src")
+        device_src = getattr(app.state.request_data, "v4l2_src")
         self.v4l2src.set_property("device", device_src)
 
         self.videosink.set_property("emit-signals", True)
@@ -49,7 +51,8 @@ class V4L2StreamPipeline(BaseStreamPipeline):
 
     def _add_elements(self):
         elements_to_add = [
-            self.v4l2src, self.videoconvert, self.h264encoder, self.capsfilter, self.h264parse, self.rtph264pay, self.videosink
+            self.v4l2src, self.videoconvert, self.h264encoder, self.capsfilter, self.h264parse, self.rtph264pay,
+            self.videosink
         ]
         self.add_elements(elements_to_add)
 
