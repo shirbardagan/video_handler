@@ -20,7 +20,7 @@ class MP2TH264StreamPipeline(MP2TStreamPipeline):
         self._elements = []
         initialized_pipeline_elements_tuple = (H264ParseWrapper(),
                                                RTPH264Pay(),
-                                               VideoAppSink()
+                                               VideoAppSink("videosink")
                                                )
 
         (self.h264parse, self.rtph264pay, self.videosink) = initialized_pipeline_elements_tuple
