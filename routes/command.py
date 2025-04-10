@@ -40,7 +40,8 @@ def get_host_ip() -> str:
         return "127.0.0.1"
 
 
-def generate_play_response(data: BaseStreamModel, server_port: int, success: bool = True, status_code: int = 200):
+def generate_play_response(data: BaseStreamModel, server_port: int, success: bool = True,
+                           status_code: int = 200) -> JSONResponse:
     """
     Generates a structured JSON response for video commands.
 
@@ -65,7 +66,13 @@ def generate_play_response(data: BaseStreamModel, server_port: int, success: boo
     return JSONResponse(content=PlayResponseModel(**response_data).dict(), status_code=status_code)
 
 
-def generate_bit_response():
+def generate_bit_response() -> JSONResponse:
+    """
+    Generates a structured JSON response for bit commands.
+
+    Returns:
+        JSONResponse: A structured HTTP response.
+    """
     data = app.state.request_data
     if data:
         multicast_settings = data.multicast_in
