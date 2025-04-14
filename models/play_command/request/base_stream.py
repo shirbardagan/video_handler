@@ -46,7 +46,7 @@ class StreamSettings(BaseModel):
 
 class BaseStreamModel(BaseModel):
     command: str
-    stream_type: str
+    stream_type: StreamType
     settings: StreamSettings = None
     multicast_in: MulticastIn = None
 

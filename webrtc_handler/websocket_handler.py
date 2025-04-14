@@ -6,11 +6,12 @@ from common.base_logger import logger
 from pipelines import WebRTCPipeline
 
 import gi
-from gi.repository import Gst, GObject, GstSdp, GstWebRTC
 
 gi.require_version('GstSdp', '1.0')
 gi.require_version('GstWebRTC', '1.0')
 gi.require_version('Gst', '1.0')
+
+from gi.repository import Gst, GObject, GstSdp, GstWebRTC
 
 
 class WebRTCClient:
