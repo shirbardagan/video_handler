@@ -34,4 +34,5 @@ class BitResponseModel(BaseModel):
 
 
 class BitKeepAliveCommandsModel(BaseModel):
+    """Model for commands: 'bit', 'keepalive', and 'version'."""
     command: str

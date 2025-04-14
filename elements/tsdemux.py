@@ -16,6 +16,7 @@ class TSDemuxWrapper(GStreamerElementWrapper):
     @staticmethod
     def on_pad_added(dataparser, _, pad) -> None:
         from factory.mp2t_encoded_pipeline import MP2TFactory
+        logger.info("On on_pad_added of tsdemux")
         pad_name = pad.get_name()
         pad_caps = pad.query_caps(None)
         structure_name = pad_caps.to_string()

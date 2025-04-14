@@ -31,7 +31,7 @@ def handle_websocket_disconnect(webrtc_client: WebRTCClient):
         app.state.webrtc_conn_videosrc.remove(webrtc_client.videosrc)
 
     if hasattr(webrtc_client, "webrtc_pipeline"):
-        webrtc_client.webrtc_pipeline.unref()
+        # webrtc_client.webrtc_pipeline.unref()
         webrtc_client.webrtc_pipeline = None
 
     if hasattr(webrtc_client, "conn") and webrtc_client.conn in app.state.conns:

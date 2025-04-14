@@ -1,5 +1,3 @@
-import socket
-
 from fastapi import APIRouter, HTTPException, Request
 from starlette.responses import JSONResponse
 from typing_extensions import Union
@@ -13,6 +11,7 @@ from common.base_logger import logger
 from config_models.config import PROPERTY_IFRAME_INTERVAL
 from models.bit_keepalive import BitResponseModel, BitKeepAliveCommandsModel
 from models.play_command.request.base_stream import StreamType
+from config_models.config import SYSTEM_DEFAULT_HOST
 
 from app_instance import app
 from factory.stream_pipeline_factory import StreamPipelineFactory
@@ -27,17 +26,6 @@ StreamData = Union[
 
 video_stream_factory = StreamPipelineFactory()
 
-
-def get_host_ip() -> str:
-    """Returns the local machine's IP."""
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        host_ip = s.getsockname()[0]
-        return host_ip
-    except socket.gaierror:
-        logger.warning("Failed to retrieve local IP address, returning fallback 127.0.0.1.")
-        return "127.0.0.1"
 
 
 def generate_play_response(data: BaseStreamModel, server_port: int, success: bool = True,
@@ -54,7 +42,7 @@ def generate_play_response(data: BaseStreamModel, server_port: int, success: boo
         JSONResponse: A structured HTTP response.
     """
     logger.info(data)
-    host_ip = get_host_ip()
+    host_ip = getattr(app.state, "host_ip", SYSTEM_DEFAULT_HOST)
 
     response_data = {
         "status": success,
