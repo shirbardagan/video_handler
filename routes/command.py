@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 from typing_extensions import Union
 
@@ -10,8 +10,7 @@ from gi.repository import Gst
 from common.base_logger import logger
 from config_models.config import PROPERTY_IFRAME_INTERVAL, SYSTEM_DEFAULT_PORT
 from models.bit_keepalive import BitResponseModel, BitCommandModel, KeepaliveCommandModel, \
-    VersionCommandModel
-from models.play_command.request.base_stream import StreamType
+    VersionCommandModel, StopCommandModel
 from config_models.config import SYSTEM_DEFAULT_HOST
 
 from app_instance import app
@@ -24,7 +23,7 @@ router = APIRouter()
 
 StreamData = Union[
     RTSPStreamModel, RTPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
-Command = Union [KeepaliveCommandModel, BitCommandModel, VersionCommandModel]
+Command = Union [KeepaliveCommandModel, BitCommandModel, VersionCommandModel, StopCommandModel]
 
 video_stream_factory = StreamPipelineFactory()
 
@@ -128,3 +127,7 @@ async def enable_video(data: Union[Command, StreamData], request: Request):
     elif data.command == "keepalive":
         res = generate_keepalive_response()
         return res
+
+    elif data.command == "stop":
+        if getattr(app.state, "curr_pipeline", None):
+            app.state.curr_pipeline.set_state(Gst.State.NULL)
