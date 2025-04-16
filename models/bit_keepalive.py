@@ -1,8 +1,9 @@
 from enum import Enum
 
 from pydantic import BaseModel
-from typing_extensions import Optional
+from typing_extensions import Optional, Literal
 
+from models.commands import CommandsEnum
 from models.play_command.request.mp2t import KLVModel
 
 
@@ -33,6 +34,16 @@ class BitResponseModel(BaseModel):
     bit: BitData
 
 
-class BitKeepAliveCommandsModel(BaseModel):
+class BitCommandModel(BaseModel):
     """Model for commands: 'bit', 'keepalive', and 'version'."""
-    command: str
+    command: Literal[CommandsEnum.BIT]
+
+
+class KeepaliveCommandModel(BaseModel):
+    """Model for commands: 'bit', 'keepalive', and 'version'."""
+    command: Literal[CommandsEnum.KEEPALIVE]
+
+
+class VersionCommandModel(BaseModel):
+    """Model for commands: 'bit', 'keepalive', and 'version'."""
+    command: Literal[CommandsEnum.VERSION]

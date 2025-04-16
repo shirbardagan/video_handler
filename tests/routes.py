@@ -113,12 +113,11 @@ def test_play_command_rtp_stream_type_no_multicast_in():
         response = client.post("/", json=payload)
         assert response.status_code == 422
 
-# def test_enable_video_invalid_stream_type():
-#     with TestClient(app) as client:
-#         payload = {
-#             "command": "play",
-#             "stream_type": "invalid_stream_type"
-#         }
-#         response = client.post("/", json=payload)
-#         assert response.status_code == 400
-#         assert "Invalid stream type" in response.json()["detail"]
+def test_enable_video_invalid_stream_type():
+    with TestClient(app) as client:
+        payload = {
+            "command": "play",
+            "stream_type": "invalid_stream_type"
+        }
+        response = client.post("/", json=payload)
+        assert response.status_code == 422

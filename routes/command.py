@@ -9,7 +9,8 @@ from gi.repository import Gst
 
 from common.base_logger import logger
 from config_models.config import PROPERTY_IFRAME_INTERVAL, SYSTEM_DEFAULT_PORT
-from models.bit_keepalive import BitResponseModel, BitKeepAliveCommandsModel
+from models.bit_keepalive import BitResponseModel, BitCommandModel, KeepaliveCommandModel, \
+    VersionCommandModel
 from models.play_command.request.base_stream import StreamType
 from config_models.config import SYSTEM_DEFAULT_HOST
 
@@ -23,6 +24,7 @@ router = APIRouter()
 
 StreamData = Union[
     RTSPStreamModel, RTPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
+Command = Union [KeepaliveCommandModel, BitCommandModel, VersionCommandModel]
 
 video_stream_factory = StreamPipelineFactory()
 
@@ -100,13 +102,10 @@ def generate_keepalive_response():
 
 
 @router.post("/")
-async def enable_video(data: Union[StreamData, BitKeepAliveCommandsModel], request: Request):
+async def enable_video(data: Union[Command, StreamData], request: Request):
     _, server_port = request.url.hostname, request.url.port if request.url.port is not None else SYSTEM_DEFAULT_PORT
     if data.command == "play":
         app.state.request_data = data
-        if data.stream_type not in StreamType.list():
-            logger.error("Invalid stream type: %s. Allowed types: %s", data.stream_type, StreamType.list())
-            raise HTTPException(status_code=400, detail=f"Invalid stream type: {data.stream_type}")
 
         if getattr(app.state, "curr_pipeline", None):
             app.state.curr_pipeline.set_state(Gst.State.NULL)

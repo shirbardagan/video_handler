@@ -1,8 +1,10 @@
 from enum import Enum
 
 from fastapi import HTTPException
-from typing_extensions import Optional
+from typing_extensions import Optional, Literal
 from pydantic import Field, BaseModel, model_validator
+
+from models.commands import CommandsEnum
 
 
 class MulticastIn(BaseModel):
@@ -45,7 +47,7 @@ class StreamSettings(BaseModel):
 
 
 class BaseStreamModel(BaseModel):
-    command: str
+    command: Literal[CommandsEnum.PLAY]
     stream_type: StreamType
     settings: StreamSettings = None
     multicast_in: MulticastIn = None
