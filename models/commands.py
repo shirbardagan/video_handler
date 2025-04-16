@@ -5,3 +5,4 @@ class CommandsEnum(str, Enum):
     PLAY = "play"
     KEEPALIVE = "keepalive"
     VERSION = "version"
+    STOP = "stop"

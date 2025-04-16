@@ -35,15 +35,19 @@ class BitResponseModel(BaseModel):
 
 
 class BitCommandModel(BaseModel):
-    """Model for commands: 'bit', 'keepalive', and 'version'."""
+    """Model for command 'bit'."""
     command: Literal[CommandsEnum.BIT]
 
 
 class KeepaliveCommandModel(BaseModel):
-    """Model for commands: 'bit', 'keepalive', and 'version'."""
+    """Model for command 'keepalive'."""
     command: Literal[CommandsEnum.KEEPALIVE]
 
 
 class VersionCommandModel(BaseModel):
-    """Model for commands: 'bit', 'keepalive', and 'version'."""
+    """Model for command 'version'."""
     command: Literal[CommandsEnum.VERSION]
+
+class StopCommandModel(BaseModel):
+    """Model for command 'version'."""
+    command: Literal[CommandsEnum.STOP]
