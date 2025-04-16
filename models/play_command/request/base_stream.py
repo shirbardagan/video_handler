@@ -55,7 +55,7 @@ class BaseStreamModel(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def validate_rtsp_settings(cls, values):
+    def validate_fields_settings(cls, values):
         stream_type = values.get("stream_type")
         rtsp_settings = values.get("rtsp_settings")
         multicast_in = values.get("multicast_in")
