@@ -3,5 +3,7 @@ CAPS_RTP="application/x-rtp,media=video,clock-rate=90000,encoding-name=H264,payl
 
 SYSTEM_DEFAULT_VALUE=-1
 SYSTEM_DEFAULT_HOST="127.0.0.1"
+SYSTEM_DEFAULT_PORT=8080
+
 
 PROPERTY_IFRAME_INTERVAL=30

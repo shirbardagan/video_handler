@@ -1,6 +1,6 @@
 from typing_extensions import Optional, Literal
 
-from pydantic import Field, BaseModel
+from pydantic import Field, BaseModel, model_validator
 from .base_stream import BaseStreamModel, StreamType
 
 
@@ -21,3 +21,12 @@ class MP2TStreamModel(BaseStreamModel):
     class Config:
         arbitrary_types_allowed = True
         extra = "ignore"
+
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_mp2t_settings(cls, values):
+        klv = values.get("klv")
+        if not klv:
+            values["klv"] = KLVModel(**{field: True for field in KLVModel.__fields__})
+        return values

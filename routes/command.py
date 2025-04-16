@@ -8,7 +8,7 @@ gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
 from common.base_logger import logger
-from config_models.config import PROPERTY_IFRAME_INTERVAL
+from config_models.config import PROPERTY_IFRAME_INTERVAL, SYSTEM_DEFAULT_PORT
 from models.bit_keepalive import BitResponseModel, BitKeepAliveCommandsModel
 from models.play_command.request.base_stream import StreamType
 from config_models.config import SYSTEM_DEFAULT_HOST
@@ -25,7 +25,6 @@ StreamData = Union[
     RTSPStreamModel, RTPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
 
 video_stream_factory = StreamPipelineFactory()
-
 
 
 def generate_play_response(data: BaseStreamModel, server_port: int, success: bool = True,
@@ -102,7 +101,7 @@ def generate_keepalive_response():
 
 @router.post("/")
 async def enable_video(data: Union[StreamData, BitKeepAliveCommandsModel], request: Request):
-    _, server_port = request.url.hostname, request.url.port
+    _, server_port = request.url.hostname, request.url.port if request.url.port is not None else SYSTEM_DEFAULT_PORT
     if data.command == "play":
         app.state.request_data = data
         if data.stream_type not in StreamType.list():
