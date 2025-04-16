@@ -10,6 +10,7 @@ from common.base_logger import logger
 
 router = APIRouter()
 
+
 def get_host_ip() -> str:
     """Returns the local machine's IP."""
     try:
@@ -20,6 +21,7 @@ def get_host_ip() -> str:
     except socket.gaierror:
         logger.warning("Failed to retrieve local IP address, returning fallback 127.0.0.1.")
         return "127.0.0.1"
+
 
 @router.on_event("startup")
 async def startup_event() -> None:
