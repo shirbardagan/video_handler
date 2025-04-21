@@ -1,5 +1,5 @@
 #!/bin/bash
 
-PORT=${PORT:-8080}
+PORT=${SYSTEM_PORT:-5050}
 
 exec uvicorn main:app --host '0.0.0.0' --port "$PORT"

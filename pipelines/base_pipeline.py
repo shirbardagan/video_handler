@@ -86,7 +86,7 @@ class BaseStreamPipeline(ABC):
             gst_state = None
 
             if pipeline_state:
-                state = pipeline_state.get_state(Gst.CLOCK_TIME_NONE)[1]
+                state = pipeline_state.get_state(1000)[1]
                 gst_state = GstStateEnum(state.value_nick.lower())
                 if gst_state.value == GstStateEnum.PAUSED or gst_state.value == GstStateEnum.NULL:
                     gst_state = GstStateEnum.STOPPED
