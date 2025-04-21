@@ -1,3 +1,5 @@
+import threading
+
 from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 from typing_extensions import Union
@@ -23,7 +25,7 @@ router = APIRouter()
 
 StreamData = Union[
     RTSPStreamModel, RTPStreamModel, V4L2StreamModel, TestStreamModel, MPEG4IStreamConfig, MP2TStreamModel]
-Command = Union [KeepaliveCommandModel, BitCommandModel, VersionCommandModel, StopCommandModel]
+Command = Union[KeepaliveCommandModel, BitCommandModel, VersionCommandModel, StopCommandModel]
 
 video_stream_factory = StreamPipelineFactory()
 
@@ -64,8 +66,10 @@ def generate_bit_response() -> JSONResponse:
     data = app.state.request_data
     if data:
         multicast_settings = data.multicast_in
+        nic = getattr(multicast_settings, "nic", None)
     else:
         multicast_settings = None
+        nic = None
     curr_pipeline_gst_state = BaseStreamPipeline.check_pipeline_state()
     number_of_connections = len(app.state.conns)
     klv_settings = getattr(data, "klv", None)
@@ -79,7 +83,7 @@ def generate_bit_response() -> JSONResponse:
             "transcode": {
                 "ip": multicast_settings.ip if multicast_settings else "",
                 "port": multicast_settings.port if multicast_settings else 0,
-                "nic": multicast_settings.nic if multicast_settings else "",
+                "nic": nic,
                 "iframe_interval": PROPERTY_IFRAME_INTERVAL
             }
         }
@@ -119,7 +123,6 @@ async def enable_video(data: Union[Command, StreamData], request: Request):
         else:
             app.state.pipeline_status = False
             return generate_play_response(data, server_port, success=False, status_code=500)
-
     elif data.command == "bit":
         res = generate_bit_response()
         return res

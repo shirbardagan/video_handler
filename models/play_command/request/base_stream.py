@@ -1,7 +1,7 @@
 from enum import Enum
 
 from fastapi import HTTPException
-from typing_extensions import Optional, Literal
+from typing_extensions import Optional, Literal, Union
 from pydantic import Field, BaseModel, model_validator
 
 from models.commands import CommandsEnum
@@ -10,7 +10,7 @@ from models.commands import CommandsEnum
 class MulticastIn(BaseModel):
     ip: str = Field(description="Multicast IP")
     port: int = Field(description="Multicast port")
-    nic: Optional[str] = Field(default=None, description="Network interface")
+    nic: Optional[Union[str, None]] = Field(default=None, description="Network interface")
 
     class Config:
         extra = "ignore"

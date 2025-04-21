@@ -19,6 +19,6 @@ class UDPSrcWrapper(GStreamerElementWrapper):
         AddressTuple = namedtuple("AddressTuple", ["ip", "port", "iface"])
         addr = AddressTuple(ip=self._multicast_data.ip, port=self._multicast_data.port, iface=self._multicast_data.nic)
 
-        self.set_property("multicast-group", addr.ip)
+        self.set_property("address", addr.ip)
         self.set_property("port", addr.port)
         self.set_property("multicast-iface", addr.iface)
