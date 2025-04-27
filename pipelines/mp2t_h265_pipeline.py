@@ -49,6 +49,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
             self.h264encoder.set_property("gop-size", 30)
             self.h265decoder.set_property("max-errors", -1)
         else:
+            self.h265decoder.set_property("max-errors", -1)
             self.h264encoder.set_property("key-int-max", 30)
             self.h264encoder.set_property("tune", "zerolatency")
             self.h264encoder.set_property("speed-preset", "ultrafast")
@@ -56,6 +57,8 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         self.h265parse.set_property("config-interval", -1)
         self.h264parse.set_property("config-interval", -1)
         self.rtph264pay.set_property("config-interval", -1)
+
+        self.rtph264pay.set_property("pt", 96)
 
         self.videosink.set_property("emit-signals", True)
         self.videosink.set_property("sync", False)

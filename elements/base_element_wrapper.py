@@ -29,7 +29,7 @@ class GStreamerElementWrapper:
             self.initialized = False
             logger.error(f"Failed to create GStreamer element: %s with name: %s", element_type, element_name)
         else:
-            self.initialized = False
+            self.initialized = True
 
         self._element_to_string = element_name
         self._name = element_name
