@@ -74,11 +74,13 @@ class WebRTCClient:
         try:
             text = offer.sdp.as_text()
             logger.info(f"sending SDP offer")
-            msg = json.dumps({'event': 'offer', 'data':
-                {
-                    'type': 'offer',
-                    'sdp': text
-                }
+            msg = json.dumps({'event': 'offer',
+                              'type': 'sdp',
+                              'data':
+                                  {
+                                      'type': 'offer',
+                                      'sdp': text
+                                  }
                               })
             asyncio.run_coroutine_threadsafe(self.conn.send_text(msg), app.state.event_loop)
             return True
@@ -129,10 +131,12 @@ class WebRTCClient:
             candidate: The ICE candidate to be sent to the remote peer.
         """
         try:
-            icemsg = json.dumps({'event': 'candidate', 'data':
-                {
-                    'candidate': candidate,
-                    'sdpMLineIndex': mlineindex}
+            icemsg = json.dumps({'event': 'candidate',
+                                 'type': 'ice',
+                                 'data':
+                                     {
+                                         'candidate': candidate,
+                                         'sdpMLineIndex': mlineindex}
                                  })
             logger.debug("Sending ICE candidate: %s", icemsg)
             asyncio.run_coroutine_threadsafe(self.conn.send_text(icemsg), app.state.event_loop)
