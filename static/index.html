@@ -6,18 +6,18 @@
     <title>Synced Video Playback</title>
     <style>
         #messageContainer {
-            white-space: pre-wrap;  /* Ensures newlines and spaces are respected */
-            font-family: 'Courier New', monospace;  /* Monospace font for better alignment */
-            font-size: 14px; /* Optional: adjust font size */
-            background-color: #f4f4f4; /* Optional: background color */
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            background-color: #f4f4f4;
             padding: 10px;
             border-radius: 5px;
             margin-top: 10px;
-            overflow: auto; /* Ensure long content doesn't overflow */
+            overflow: auto;
         }
         .message {
             margin-bottom: 10px;
-            word-wrap: break-word;  /* Ensure long words break appropriately */
+            word-wrap: break-word;
         }
     </style>
 
@@ -25,21 +25,12 @@
 <body id="body">
     <video id="video1" autoplay playsinline muted controls></video>
 
-    <div>
-        <button type="button" onClick="playClick()">Play</button>
-    </div>
-
-    <div id="messageContainer"></div> <!-- ✅ Messages appear here -->
+    <div id="messageContainer"></div>
 
     <script>
         let conn = new WebSocket('ws://' + window.location.host + '/ws');
         let pc = new RTCPeerConnection();
         let dataChannel = pc.createDataChannel("data");
-
-        window.playClick = () => {
-            console.log("Sending play event to server...");
-            conn.send(JSON.stringify({ event: 'play', data: '' }));
-        };
 
         pc.ontrack = function(event) {
             if (event.track.kind === 'video') {
