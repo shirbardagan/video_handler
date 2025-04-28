@@ -83,15 +83,18 @@ class BaseStreamPipeline(ABC):
     def check_pipeline_state():
         if hasattr(app.state, "curr_pipeline"):
             pipeline_state = getattr(app.state, "curr_pipeline", None)
-            gst_state = None
 
             if pipeline_state:
-                state = pipeline_state.get_state(1000)[1]
+                state = pipeline_state.get_state(1)[1]
                 gst_state = GstStateEnum(state.value_nick.lower())
-                if gst_state.value == GstStateEnum.PAUSED or gst_state.value == GstStateEnum.NULL:
+                if gst_state.value == GstStateEnum.PAUSED or gst_state.value == GstStateEnum.PLAYING:
+                    gst_state = GstStateEnum.PLAYING
+                elif gst_state.value == GstStateEnum.NULL:
                     gst_state = GstStateEnum.STOPPED
+            else:
+                gst_state = GstStateEnum.IDLE
         else:
-            gst_state = GstStateEnum.NULL
+            gst_state = GstStateEnum.IDLE
         return gst_state
 
     @staticmethod

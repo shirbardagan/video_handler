@@ -13,6 +13,7 @@ class GstStateEnum(str, Enum):
     PAUSED = "paused"
     PLAYING = "playing"
     STOPPED = "stopped"
+    IDLE = "idle"
 
 
 class TranscodeSettings(BaseModel):
