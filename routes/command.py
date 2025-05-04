@@ -1,5 +1,3 @@
-import threading
-
 from fastapi import APIRouter, Request
 from starlette.responses import JSONResponse
 from typing_extensions import Union
@@ -104,6 +102,13 @@ def generate_keepalive_response():
     return res
 
 
+def generate_stop_response():
+    res = {
+        "status": True
+    }
+    return res
+
+
 @router.post("/")
 async def enable_video(data: Union[Command, StreamData], request: Request):
     _, server_port = request.url.hostname, request.url.port if request.url.port is not None else SYSTEM_DEFAULT_PORT
@@ -134,3 +139,5 @@ async def enable_video(data: Union[Command, StreamData], request: Request):
     elif data.command == "stop":
         if getattr(app.state, "curr_pipeline", None):
             app.state.curr_pipeline.set_state(Gst.State.NULL)
+        res = generate_stop_response()
+        return res
