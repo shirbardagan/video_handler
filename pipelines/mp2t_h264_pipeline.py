@@ -6,6 +6,7 @@ from elements import (
     VideoAppSink
 )
 from common.base_logger import logger
+from elements.queue import QueueWrapper
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
 
 import gi
@@ -19,13 +20,14 @@ class MP2TH264StreamPipeline(MP2TStreamPipeline):
         super().__init__()
         self._elements = []
         initialized_pipeline_elements_tuple = (H264ParseWrapper(),
+                                               QueueWrapper("queue"),
                                                RTPH264Pay(),
                                                VideoAppSink("videosink")
                                                )
 
-        (self.h264parse, self.rtph264pay, self.videosink) = initialized_pipeline_elements_tuple
+        (self.h264parse, self.queue, self.rtph264pay, self.videosink) = initialized_pipeline_elements_tuple
 
-        elements = [self.h264parse, self.rtph264pay, self.videosink]
+        elements = [self.h264parse, self.queue, self.rtph264pay, self.videosink]
 
         if not all(elements):
             logger.error("Not all elements could be created.")
@@ -40,7 +42,7 @@ class MP2TH264StreamPipeline(MP2TStreamPipeline):
 
     def _add_elements(self):
         elements_to_add = [
-            self.h264parse, self.rtph264pay, self.videosink
+            self.h264parse, self.queue, self.rtph264pay, self.videosink
         ]
         self.add_elements(elements_to_add)
 
@@ -49,7 +51,8 @@ class MP2TH264StreamPipeline(MP2TStreamPipeline):
 
     def _link_elements(self):
         links = [
-            (self.h264parse, self.rtph264pay),
+            (self.h264parse, self.queue),
+            (self.queue, self.rtph264pay),
             (self.rtph264pay, self.videosink),
         ]
         self.link_elements(links)

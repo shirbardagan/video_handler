@@ -1,4 +1,6 @@
 import functools
+import queue
+import time
 
 from app_instance import app
 from elements import TSDemuxWrapper, KLVParseWrapper, DataAppSink, UDPSrcWrapper
@@ -7,7 +9,7 @@ from pipelines import BaseStreamPipeline
 from common.base_logger import logger
 
 import gi
-from gi.repository import Gst
+from gi.repository import Gst, GLib
 
 gi.require_version('Gst', '1.0')
 
@@ -40,6 +42,9 @@ class MP2TStreamPipeline(BaseStreamPipeline):
             self.datasink.set_property("emit-signals", True)
         else:
             self._instance = MP2TStreamPipeline._shared_instance
+
+    app.state.time_inside3 = 0
+
 
     def create_pipeline(self) -> Gst.Pipeline:
         self._add_elements()

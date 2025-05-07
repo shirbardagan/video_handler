@@ -1,5 +1,8 @@
 import functools
+import queue
+import time
 
+from app_instance import app
 from common.base_logger import logger
 from config_models.system_config import SystemSettingsConfig
 from elements import (
@@ -39,6 +42,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
 
         elements = [self.h265parse, self.h265decoder, self.h264encoder, self.h264parse, self.rtph264pay,
                     self.videosink]
+        # TODO: add queue max-size-buffers=0 max-size-time=0 max-size-bytes=0 to the pipeline
 
         self.has_elements_initialized(elements)
 
@@ -65,6 +69,27 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         self.videosink.set_property("async", False)
 
         self.capsfilter.set_property("caps", CAPS_H264)
+
+        udp_src_pad = self.videosink.get_element().get_static_pad("sink")
+        udp_src_pad.add_probe(Gst.PadProbeType.BUFFER, self.videosink_probe)
+
+    app.state.counter = 0
+    app.state.queue = queue.Queue()
+    app.state.time_inside = 0
+    def videosink_probe(self, pad, info):
+        # print("videosinkkkkkkkkkk", app.state.time_inside)
+        app.state.time_inside += 1
+        buffer = info.get_buffer()
+        if buffer:
+            current_pts = buffer.pts
+            if current_pts != Gst.CLOCK_TIME_NONE:
+                if app.state.last_pts is not None:
+                    diff_ns = current_pts - app.state.last_pts
+                    diff_ms = diff_ns / Gst.MSECOND
+                    # print(f"Time difference: {diff_ms:.2f} ms")
+                app.state.last_pts = current_pts
+
+        return Gst.PadProbeReturn.OK
 
     def create_pipeline(self) -> Gst.Pipeline:
         self._add_elements()

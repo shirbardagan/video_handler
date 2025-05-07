@@ -31,6 +31,7 @@ async def startup_event() -> None:
     app.state.request_data = None
     app.state.curr_pipeline = None
     app.state.pipeline_status = False
+    app.state.last_multicast = ""
 
     app.state.webrtc_conn_videosrc = []
     app.state.channels = []

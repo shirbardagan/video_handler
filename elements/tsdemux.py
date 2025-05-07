@@ -13,10 +13,11 @@ class TSDemuxWrapper(GStreamerElementWrapper):
     def __init__(self, name="tsdemux"):
         super().__init__("tsdemux", name)
 
-    @staticmethod
-    def on_pad_added(dataparser, _, pad) -> None:
+
+    def on_pad_added(self, dataparser, _, pad) -> None:
         from factory.mp2t_encoded_pipeline import MP2TFactory
         logger.info("On on_pad_added of tsdemux")
+        pad.add_probe(Gst.PadProbeType.BUFFER, self.tsdemux_probe)
         pad_name = pad.get_name()
         pad_caps = pad.query_caps(None)
         structure_name = pad_caps.to_string()
@@ -44,3 +45,13 @@ class TSDemuxWrapper(GStreamerElementWrapper):
                     logger.error(f"Failed to link pad %s to klvparse sink.", pad_name)
         else:
             logger.warning(f"Unexpected pad: %s - %s", pad_name, structure_name)
+
+
+
+    def tsdemux_probe(self, pad, info):
+        # print("tsdemuxxx", app.state.time_inside3)
+        app.state.time_inside3 += 1
+        buffer = info.get_buffer()
+        if buffer:
+            app.state.last_pts = buffer.pts
+        return Gst.PadProbeReturn.OK

@@ -22,6 +22,7 @@ from .webrtcbin import WebRTCBinWrapper
 from .rtph264pay import RTPH264Pay
 from .x264enc import X264enc
 from .x265enc import X265enc
+from .timeoverlay import TimeOverlayWrapper
 
 __all__ = [
     UDPSrcWrapper,
@@ -49,7 +50,8 @@ __all__ = [
     DataAppSink,
     RTSPSrcWrapper,
     AVDecH265Wrapper,
-    GStreamerElementWrapper
+    GStreamerElementWrapper,
+    TimeOverlayWrapper
 ]
 
 

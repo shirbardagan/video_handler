@@ -79,9 +79,9 @@ def generate_bit_response() -> JSONResponse:
         "bit": {
             "klv": klv_settings,
             "transcode": {
-                "ip": multicast_settings.ip if multicast_settings else "",
-                "port": multicast_settings.port if multicast_settings else 0,
-                "nic": nic,
+                "ip": multicast_settings.ip if multicast_settings and number_of_connections != 0 else "",
+                "port": multicast_settings.port if multicast_settings and number_of_connections != 0 else 0,
+                "nic": nic if number_of_connections != 0 else None,
                 "iframe_interval": PROPERTY_IFRAME_INTERVAL
             }
         }
@@ -109,25 +109,41 @@ def generate_stop_response():
     return res
 
 
+def set_pipeline_state(pipeline, state) -> bool:
+    if not pipeline:
+        logger.warning("Attempted to change state of the pipeline.")
+        return False
+    result = pipeline.set_state(state)
+    logger.debug(f"Pipeline set to {state.value_nick}.")
+    return result == Gst.StateChangeReturn.SUCCESS
+
+
 @router.post("/")
 async def enable_video(data: Union[Command, StreamData], request: Request):
     _, server_port = request.url.hostname, request.url.port if request.url.port is not None else SYSTEM_DEFAULT_PORT
     if data.command == "play":
         app.state.request_data = data
+        multicast_ip = data.multicast_in.ip
+        if app.state.last_multicast == multicast_ip:
+            if set_pipeline_state(app.state.curr_pipeline, Gst.State.PLAYING):
+                app.state.pipeline_status = True
+                return generate_play_response(data, server_port)
+
+        app.state.last_multicast = multicast_ip
 
         if getattr(app.state, "curr_pipeline", None):
-            app.state.curr_pipeline.set_state(Gst.State.NULL)
+            set_pipeline_state(app.state.curr_pipeline, Gst.State.PAUSED)
 
         pipeline = video_stream_factory.get_pipeline_type(data.stream_type)
-        mpeg_pipeline = pipeline.create_pipeline()
-        app.state.curr_pipeline = mpeg_pipeline
+        app.state.curr_pipeline = pipeline.create_pipeline()
 
         if pipeline.start_pipeline():
             app.state.pipeline_status = True
-            return generate_play_response(data, server_port, success=True, status_code=200)
         else:
             app.state.pipeline_status = False
-            return generate_play_response(data, server_port, success=False, status_code=500)
+
+        return generate_play_response(data, server_port, success=app.state.pipeline_status,
+                                      status_code=200 if app.state.pipeline_status else 500)
     elif data.command == "bit":
         res = generate_bit_response()
         return res
@@ -138,6 +154,6 @@ async def enable_video(data: Union[Command, StreamData], request: Request):
 
     elif data.command == "stop":
         if getattr(app.state, "curr_pipeline", None):
-            app.state.curr_pipeline.set_state(Gst.State.NULL)
+            set_pipeline_state(app.state.curr_pipeline, Gst.State.PAUSED)
         res = generate_stop_response()
         return res
