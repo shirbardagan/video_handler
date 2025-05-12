@@ -8,8 +8,11 @@ from .filesrc import FileSrcWrapper
 from .h264parse import H264ParseWrapper
 from .h265parse import H265ParseWrapper
 from .klvparse import KLVParseWrapper
+from .mpeg4filter import MPEG4Filter
+from .mpeg4videoparse import MPEG4VideoParse
 from .nvh264enc import NVH264EncWrapper
 from .nvh265dec import NVH265DecWrapper
+from .nvmpeg4videodec import NVMPEG4VideoDec
 from .rtpgstpay import RTPGSTPayWrapper
 from .rtph264depay import RTPH264DePayWrapper
 from .rtpklvpay import RTPKLVPayWrapper
@@ -41,6 +44,8 @@ __all__ = [
     RTPH264DePayWrapper,
     AVDecH264Wrapper,
     X265enc,
+    MPEG4Filter,
+    MPEG4VideoParse,
     VideoAppSink,
     V4L2SrcWrapper,
     RTPKLVPayWrapper,
@@ -49,7 +54,8 @@ __all__ = [
     DataAppSink,
     RTSPSrcWrapper,
     AVDecH265Wrapper,
-    GStreamerElementWrapper
+    GStreamerElementWrapper,
+    NVMPEG4VideoDec
 ]
 
 
