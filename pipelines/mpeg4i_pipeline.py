@@ -4,9 +4,15 @@ from common.base_logger import logger
 from config_models.config import CAPS_MPEG4I, CAPS_H264
 from config_models.system_config import SystemSettingsConfig
 from elements import H264ParseWrapper, RTPH264Pay, VideoAppSink, UDPSrcWrapper, \
-    CapsFilterWrapper, NVMPEG4VideoDec, NVH264EncWrapper, MPEG4Filter, MPEG4VideoParse
+    CapsFilterWrapper, NVMPEG4VideoDec, NVH264EncWrapper, MPEG4Filter, MPEG4VideoParse, GStreamerElementWrapper, \
+    AVDecMPEG4Wrapper
 from elements.queue import QueueWrapper
 from pipelines import BaseStreamPipeline
+
+import gi
+from gi.repository import Gst
+
+gi.require_version('Gst', '1.0')
 
 system_conf = SystemSettingsConfig()
 
@@ -18,7 +24,7 @@ class MPEG4IStreamPipeline(BaseStreamPipeline):
                                                CapsFilterWrapper("mpeg4capsfilter"),
                                                MPEG4Filter(),
                                                MPEG4VideoParse(),
-                                               NVMPEG4VideoDec(),
+                                               self.select_mpeg4_decoder(system_conf.use_gpu),
                                                QueueWrapper(),
                                                self.select_h264_encoder(system_conf.use_gpu),
                                                CapsFilterWrapper("h264capsfilter"),
@@ -43,9 +49,8 @@ class MPEG4IStreamPipeline(BaseStreamPipeline):
             self.h264encoder.set_property("preset", "low-latency-hp")
             self.h264encoder.set_property("zerolatency", True)
             self.h264encoder.set_property("gop-size", 30)
-            # self.h265decoder.set_property("max-errors", -1)
+            self.h264encoder.set_property("max-errors", -1)
         else:
-            # self.h265decoder.set_property("max-errors", -1)
             self.h264encoder.set_property("key-int-max", 30)
             self.h264encoder.set_property("tune", "zerolatency")
             self.h264encoder.set_property("speed-preset", "ultrafast")
@@ -62,34 +67,50 @@ class MPEG4IStreamPipeline(BaseStreamPipeline):
         self.capsfilter0.set_property("caps", CAPS_MPEG4I)
         self.capsfilter1.set_property("caps", CAPS_H264)
 
-    def create_pipeline(self):
-        try:
-            self._instance.add(self.udpsrc.get_element())
-            self._instance.add(self.mpeg4filter.get_element())
-            self._instance.add(self.mpeg4videoparse.get_element())
-            self._instance.add(self.nvmpeg4videodec.get_element())
-            self._instance.add(self.queue.get_element())
-            self._instance.add(self.h264encoder.get_element())
-            self._instance.add(self.capsfilter0.get_element())
-            self._instance.add(self.capsfilter1.get_element())
-            self._instance.add(self.h264parse.get_element())
-            self._instance.add(self.rtph264pay.get_element())
-            self._instance.add(self.videosink.get_element())
-        except Exception as e:
-            logger.error("While adding elements to the pipeline: %s", e)
+    def create_pipeline(self) -> Gst.Pipeline:
+        self._add_elements()
+        self._connect_signals()
+        self._link_elements()
+        return self._instance
 
-        self.udpsrc.link(self.capsfilter0)
-        self.capsfilter0.link(self.mpeg4filter)
-        self.mpeg4filter.link(self.mpeg4videoparse)
+    def _add_elements(self):
+        elements_to_add = [self.udpsrc, self.mpeg4filter, self.mpeg4videoparse, self.nvmpeg4videodec, self.queue,
+                           self.h264encoder, self.capsfilter0, self.capsfilter1, self.h264parse, self.rtph264pay,
+                           self.videosink]
 
+        self.add_elements(elements_to_add)
+
+    def _connect_signals(self):
         self.videosink.connect("new-sample", functools.partial(self.videosink.on_data_sample))
 
-        self.mpeg4videoparse.link(self.nvmpeg4videodec)
-        self.nvmpeg4videodec.link(self.queue)
-        self.queue.link(self.h264encoder)
-        self.h264encoder.link(self.capsfilter1)
-        self.capsfilter1.link(self.h264parse)
-        self.h264parse.link(self.rtph264pay)
-        self.rtph264pay.link(self.videosink)
+    def _link_elements(self):
+        links = [
+            (self.udpsrc, self.capsfilter0),
+            (self.capsfilter0, self.mpeg4filter),
+            (self.mpeg4filter, self.mpeg4videoparse),
+            (self.mpeg4videoparse, self.nvmpeg4videodec),
+            (self.nvmpeg4videodec, self.queue),
+            (self.queue, self.h264encoder),
+            (self.h264encoder, self.capsfilter1),
+            (self.capsfilter1, self.h264parse),
+            (self.h264parse, self.rtph264pay),
+            (self.rtph264pay, self.videosink),
+        ]
+        self.link_elements(links)
+        pipeline_to_string = self.get_pipeline_string(links)
+        logger.info("Pipeline string: %s", pipeline_to_string)
 
-        return self._instance
+    @staticmethod
+    def select_mpeg4_decoder(use_gpu: bool) -> GStreamerElementWrapper:
+        """Selects an H.265 decoder based on GPU availability."""
+        if use_gpu:
+            try:
+                decoder = NVMPEG4VideoDec("nvmpeg4decoder")
+                if decoder.initialized:
+                    return decoder
+                else:
+                    logger.warning("Failed initializing GPU H.264 decoder, replacing it with CPU H.264 decoder.")
+            except Exception as e:
+                logger.error("Failed initializing GPU H.265 decoder: %s", e)
+
+        return AVDecMPEG4Wrapper("avmpeg4decoder")
