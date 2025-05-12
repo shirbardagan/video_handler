@@ -109,8 +109,8 @@ class MPEG4IStreamPipeline(BaseStreamPipeline):
                 if decoder.initialized:
                     return decoder
                 else:
-                    logger.warning("Failed initializing GPU H.264 decoder, replacing it with CPU H.264 decoder.")
+                    logger.warning("Failed initializing GPU MPEG4 decoder, replacing it with CPU MPEG4 decoder.")
             except Exception as e:
-                logger.error("Failed initializing GPU H.265 decoder: %s", e)
+                logger.error("Failed initializing GPU MPEG4 decoder: %s", e)
 
         return AVDecMPEG4Wrapper("avmpeg4decoder")
