@@ -102,7 +102,7 @@ class MPEG4IStreamPipeline(BaseStreamPipeline):
 
     @staticmethod
     def select_mpeg4_decoder(use_gpu: bool) -> GStreamerElementWrapper:
-        """Selects an H.265 decoder based on GPU availability."""
+        """Selects an MPEG4 decoder based on GPU availability."""
         if use_gpu:
             try:
                 decoder = NVMPEG4VideoDec("nvmpeg4decoder")
