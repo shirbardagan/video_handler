@@ -2,14 +2,14 @@
 
 ## REQUIREMENTS:
 
--   nlohmann_json version v3.10.5 [here](https://github.com/nlohmann/json/releases/tag/v3.10.5):
-    ```
-    git clone https://github.com/nlohmann/json --branch v3.10.5 --depth 1 nlohmann_json && cd nlohmann_json && \
-    mkdir build && cd build && \
-    cmake -D JSON_BuildTests=OFF .. && \
-    cmake --build . --config Release -- -j`nproc` && \
-    sudo `which cmake` --install .
-    ```
+- nlohmann_json version v3.10.5 [here](https://github.com/nlohmann/json/releases/tag/v3.10.5):
+  ```
+  git clone https://github.com/nlohmann/json --branch v3.10.5 --depth 1 nlohmann_json && cd nlohmann_json && \
+  mkdir build && cd build && \
+  cmake -D JSON_BuildTests=OFF .. && \
+  cmake --build . --config Release -- -j`nproc` && \
+  sudo `which cmake` --install .
+  ```
 
 ## BUILD
 
@@ -23,7 +23,6 @@ cmake \
 cmake --build . --config Release -- -j`nproc` && \
 sudo `which cmake` --install .
 ```
-
 
 ```typescript
 {
