@@ -10,6 +10,7 @@ from elements import (
     VideoAppSink,
     NVH264EncWrapper
 )
+from elements.queue import QueueWrapper
 from pipelines.mp2t_pipeline import MP2TStreamPipeline
 from config_models.config import CAPS_H264
 
@@ -26,6 +27,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
         super().__init__()
         self._elements = []
         initialized_pipeline_elements_tuple = (H265ParseWrapper("h265parser"),
+                                               QueueWrapper(),
                                                self.select_h265_decoder(system_conf.use_gpu),
                                                self.select_h264_encoder(system_conf.use_gpu),
                                                CapsFilterWrapper("h264capsfilter"),
@@ -34,7 +36,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
                                                VideoAppSink("videosink")
                                                )
 
-        (self.h265parse, self.h265decoder, self.h264encoder,
+        (self.h265parse, self.queue, self.h265decoder, self.h264encoder,
          self.capsfilter, self.h264parse, self.rtph264pay, self.videosink) = initialized_pipeline_elements_tuple
 
         elements = [self.h265parse, self.h265decoder, self.h264encoder, self.h264parse, self.rtph264pay,
@@ -49,7 +51,6 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
             self.h264encoder.set_property("gop-size", 30)
             self.h265decoder.set_property("max-errors", -1)
         else:
-            self.h265decoder.set_property("max-errors", -1)
             self.h264encoder.set_property("key-int-max", 30)
             self.h264encoder.set_property("tune", "zerolatency")
             self.h264encoder.set_property("speed-preset", "ultrafast")
@@ -74,7 +75,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
 
     def _add_elements(self):
         elements_to_add = [
-            self.h265parse, self.h265decoder, self.h264encoder, self.capsfilter, self.h264parse,
+            self.h265parse, self.queue, self.h265decoder, self.h264encoder, self.capsfilter, self.h264parse,
             self.rtph264pay, self.videosink
         ]
         self.add_elements(elements_to_add)
@@ -84,7 +85,8 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
 
     def _link_elements(self):
         links = [
-            (self.h265parse, self.h265decoder),
+            (self.h265parse, self.queue),
+            (self.queue, self.h265decoder),
             (self.h265decoder, self.h264encoder),
             (self.h264encoder, self.capsfilter),
             (self.capsfilter, self.h264parse),

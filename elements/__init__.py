@@ -59,9 +59,3 @@ __all__ = [
     GStreamerElementWrapper,
     NVMPEG4VideoDec
 ]
-
-
-
-
-
-

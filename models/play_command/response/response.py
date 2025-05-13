@@ -14,6 +14,7 @@ class PlayResponseModel(BaseModel):
     class Config:
         extra = "ignore"
 
+
 try:
     PlayResponseModel(ws_port=None)
 except ValidationError as exc:

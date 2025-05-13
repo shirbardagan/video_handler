@@ -22,7 +22,6 @@ class MP2TStreamModel(BaseStreamModel):
         arbitrary_types_allowed = True
         extra = "ignore"
 
-
     @model_validator(mode="before")
     @classmethod
     def validate_mp2t_settings(cls, values):
