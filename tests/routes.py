@@ -1,6 +1,5 @@
 from fastapi.testclient import TestClient
 from main import app
-from models.play_command.request.mp2t import KLVModel
 
 
 def test_enable_video_bit():
