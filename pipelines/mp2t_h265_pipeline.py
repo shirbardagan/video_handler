@@ -52,7 +52,7 @@ class MP2TH265StreamPipeline(MP2TStreamPipeline):
             self.h265decoder.set_property("max-errors", -1)
         else:
             self.h264encoder.set_property("key-int-max", 30)
-            self.h264encoder.set_property("tune", "zerolatency")
+            # self.h264encoder.set_property("tune", "zerolatency")
             self.h264encoder.set_property("speed-preset", "ultrafast")
 
         self.h265parse.set_property("config-interval", -1)
