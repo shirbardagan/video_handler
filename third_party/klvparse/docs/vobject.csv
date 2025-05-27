@@ -1,5 +1,0 @@
-1, Ontology, ontology, 0x01
-2, Ontology_Class, class, 0x02
-
-(.+), (.+), (.+), (.+)
-    

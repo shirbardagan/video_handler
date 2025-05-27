@@ -27,6 +27,8 @@ def get_host_ip() -> str:
 async def startup_event() -> None:
     if not Gst.is_initialized():
         Gst.init(None)
+    app.state.liveness = True
+    app.state.readiness = True
 
     app.state.request_data = None
     app.state.curr_pipeline = None

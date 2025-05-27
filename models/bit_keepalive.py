@@ -51,5 +51,5 @@ class VersionCommandModel(BaseModel):
 
 
 class StopCommandModel(BaseModel):
-    """Model for command 'version'."""
+    """Model for command 'stop'."""
     command: Literal[CommandsEnum.STOP]

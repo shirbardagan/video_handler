@@ -119,15 +119,14 @@ async def enable_video(data: Union[Command, StreamData], request: Request):
             app.state.curr_pipeline.set_state(Gst.State.NULL)
 
         pipeline = video_stream_factory.get_pipeline_type(data.stream_type)
-        mpeg_pipeline = pipeline.create_pipeline()
-        app.state.curr_pipeline = mpeg_pipeline
+        app.state.curr_pipeline = pipeline.create_pipeline()
 
         if pipeline.start_pipeline():
             app.state.pipeline_status = True
-            return generate_play_response(data, server_port, success=True, status_code=200)
         else:
             app.state.pipeline_status = False
-            return generate_play_response(data, server_port, success=False, status_code=500)
+        return generate_play_response(data, server_port, success=False,
+                                      status_code=200 if app.state.pipeline_status else 500)
     elif data.command == "bit":
         res = generate_bit_response()
         return res

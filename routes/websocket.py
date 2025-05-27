@@ -73,6 +73,7 @@ async def websocket_handler(conn: WebSocket):
         await conn.send_json(
             {"warning": f"Maximum {system_conf.max_users} connections reached. Not opening connection."})
         await conn.close()
+        app.state.conns.remove(conn)
         return
 
 

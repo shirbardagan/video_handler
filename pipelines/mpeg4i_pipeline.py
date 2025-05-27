@@ -54,6 +54,7 @@ class MPEG4IStreamPipeline(BaseStreamPipeline):
             self.h264encoder.set_property("key-int-max", 30)
             self.h264encoder.set_property("tune", "zerolatency")
             self.h264encoder.set_property("speed-preset", "ultrafast")
+            self.h264encoder.set_property("interlaced", False)
 
         self.h264parse.set_property("config-interval", -1)
         self.rtph264pay.set_property("config-interval", -1)
@@ -94,7 +95,7 @@ class MPEG4IStreamPipeline(BaseStreamPipeline):
             (self.h264encoder, self.capsfilter1),
             (self.capsfilter1, self.h264parse),
             (self.h264parse, self.rtph264pay),
-            (self.rtph264pay, self.videosink),
+            (self.rtph264pay, self.videosink)
         ]
         self.link_elements(links)
         pipeline_to_string = self.get_pipeline_string(links)
