@@ -1,0 +1,3 @@
+[console_scripts]
+coloring = coloring.__main__:main
+
