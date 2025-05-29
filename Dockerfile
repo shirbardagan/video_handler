@@ -7,11 +7,6 @@ ENV SYSTEM_LOG_LEVEL=INFO
 
 WORKDIR /opt
 
-ENV CUDA_HOME=/usr/local/cuda
-ENV NVENCODE_CFLAGS="-I${CUDA_HOME}/include"
-ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
-ENV PATH="${CUDA_HOME}/bin:${PATH}"
-
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -40,20 +35,14 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install --no-cache-dir --upgrade meson
 
-WORKDIR /usr/local/cuda/lib64
-RUN mkdir stubs
 
 WORKDIR /opt
 
 COPY third_party/Video_Codec_SDK ./Video_Codec_SDK
-COPY third_party/nvcodec/* /usr/lib/x86_64-linux-gnu
-
-RUN ln -sf libnvcuvid.so.535.230.02 /usr/lib/x86_64-linux-gnu/libnvcuvid.so.1 && \
-    ln -sf libnvidia-encode.so.535.230.02 /usr/lib/x86_64-linux-gnu/libnvidia-encode.so.1
+COPY third_party/nvcodec/*.so /usr/lib/x86_64-linux-gnu
 
 COPY third_party/gst-plugins-bad-1.20.3 ./gst-plugins-bad-1.20.3
 RUN cp /opt/Video_Codec_SDK/Interface/* /usr/local/cuda/include
-RUN cp /opt/Video_Codec_SDK/Lib/linux/stubs/x86_64/* /usr/local/cuda/lib64/stubs
 
 RUN cd gst-plugins-bad-1.20.3 && meson setup build \
         -Dbuildtype=release \
