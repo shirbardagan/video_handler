@@ -78,6 +78,7 @@ class MPEG4IStreamPipeline(BaseStreamPipeline):
         elements_to_add = [self.udpsrc, self.mpeg4filter, self.mpeg4videoparse, self.nvmpeg4videodec, self.queue,
                            self.h264encoder, self.capsfilter0, self.capsfilter1, self.h264parse, self.rtph264pay,
                            self.videosink]
+
         self.add_elements(elements_to_add)
 
     def _connect_signals(self):
