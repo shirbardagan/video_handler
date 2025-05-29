@@ -11,7 +11,6 @@ from pipelines import BaseStreamPipeline
 
 import gi
 from gi.repository import Gst
-
 gi.require_version('Gst', '1.0')
 
 system_conf = SystemSettingsConfig()
