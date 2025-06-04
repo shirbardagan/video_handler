@@ -25,6 +25,8 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     ninja-build \
     pkg-config \
+    git \
+    cmake \
     libgstreamer1.0-dev \
     libgstreamer-plugins-base1.0-dev \
     nvidia-container-toolkit \
@@ -35,6 +37,24 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install --no-cache-dir --upgrade meson
 
+RUN mkdir gstreamer-plugins
+COPY third_party/klvparse /opt/gstreamer-plugins/klvparse
+ENV GST_PLUGIN_PATH=/opt/gstreamer-plugins
+
+RUN git clone https://github.com/nlohmann/json --branch v3.10.5 --depth 1 nlohmann_json && cd nlohmann_json && \
+    mkdir build && cd build && \
+    cmake -D JSON_BuildTests=OFF .. && \
+    cmake --build . --config Release -- -j`nproc` && \
+    `which cmake` --install .
+
+WORKDIR /opt
+
+RUN cd gstreamer-plugins/klvparse && \
+    mkdir build && \
+    cd build && \
+    cmake -DBuildTests=OFF -DBuildPlugin=ON .. && \
+    cmake --build . --config Release -- -j$(nproc) && \
+    cmake --install .
 
 WORKDIR /opt
 

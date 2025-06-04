@@ -1,0 +1,17 @@
+1, Track ID, track_id, 0x01
+2, Detection Status, detection_status, 0x02
+3, Start Time Stamp, start_timestamp, 0x03
+4, End Time Stamp, end_timestamp, 0x04
+5, Bounding box, bounding_box, 0x05
+6, Algorithm, algorithm, 0x06
+7, Confidence, confidence, 0x07
+8, Number of Track Points, number_of_track_points, 0x08
+9, Locus, locus, 0x09
+10, Velocity, velocity, 0x0a
+11, Acceleration, acceleration, 0x0b
+12, Algorithm ID, algorithm_id, 0x0c
+
+
+
+(.+), (.+), (.+), (.+)
+__TAGS(number_tag, tag_number, $4, "$3"); // $1

@@ -1,0 +1,143 @@
+1, Checksum, checksum, 0x01, uint64
+2, Precision Time Stamp, precision_time_stamp, 0x02, uint64
+3, Mission ID, mission_id, 0x03, string
+4, Platform Tail Number, platform_tail_number, 0x04, string
+5, Platform Heading Angle, platform_heading_angle, 0x05, float [0 -> 360]
+6, Platform Pitch Angle, platform_pitch_angle, 0x06, string | float [-20 -> 20]
+7, Platform Roll Angle, platform_roll_angle, 0x07, string | float [-50 -> 50]
+8, Platform True Airspeed, platform_true_airspeed, 0x08, uint8
+9, Platform Indicated Airspeed, platform_indicated_airspeed, 0x09, uint8
+10, Platform Designation, platform_designation, 0x0A, string 
+11, Image Source Sensor, image_source_sensor, 0x0B, string
+12, Image Coordinate System, image_coordinate_system, 0x0C, string
+13, Sensor Latitude, sensor_latitude, 0x0D, string | double [-90 -> 90]
+14, Sensor Longitude, sensor_longitude, 0x0E, string | double [-180 -> 180]
+15, Sensor True Altitude, sensor_true_altitude, 0x0F, float [-900 -> 19000]
+16, Sensor Horizontal Field of View, sensor_horizontal_field_of_view, 0x10, float [0 -> 180]
+17, Sensor Vertical Field of View, sensor_vertical_field_of_view, 0x11, float [0 -> 180]
+18, Sensor Relative Azimuth Angle, sensor_relative_azimuth_angle, 0x12, double [0 -> 360]
+19, Sensor Relative Elevation Angle, sensor_relative_elevation_angle, 0x13, string | double [-180 -> 180]
+20, Sensor Relative Roll Angle, sensor_relative_roll_angle, 0x14, double [0 -> 360]
+21, Slant Range, slant_range, 0x15, double [0 -> 5_000_000]
+22, Target Width, target_width, 0x16, float [0 -> 1_000]
+23, Frame Center Latitude, frame_center_latitude, 0x17, string | double [-90 -> 90]
+24, Frame Center Longitude, frame_center_longitude, 0x18, string | double [-180 -> 180]
+25, Frame Center Elevation, frame_center_elevation, 0x19, float [-900 -> 19000]
+26, Offset Corner Latitude Point 1, offset_corner_latitude_point_1, 0x1A, string | float [-0.075 -> 0.075]
+27, Offset Corner Longitude Point 1, offset_corner_longitude_point_1, 0x1B, string | float [-0.075 -> 0.075]
+28, Offset Corner Latitude Point 2, offset_corner_latitude_point_2, 0x1C, string | float [-0.075 -> 0.075]
+29, Offset Corner Longitude Point 2, offset_corner_longitude_point_2, 0x1D, string | float [-0.075 -> 0.075]
+30, Offset Corner Latitude Point 3, offset_corner_latitude_point_3, 0x1E, string | float [-0.075 -> 0.075]
+31, Offset Corner Longitude Point 3, offset_corner_longitude_point_3, 0x1F, string | float [-0.075 -> 0.075]
+32, Offset Corner Latitude Point 4, offset_corner_latitude_point_4, 0x20, string | float [-0.075 -> 0.075]
+33, Offset Corner Longitude Point 4, offset_corner_longitude_point_4, 0x21, string | float [-0.075 -> 0.075]
+34, Icing Detected, icing_detected, 0x22, "Detector off" | "No icing Detected" | "Icing Detected"
+35, Wind Direction, wind_direction, 0x23, float [0 -> 360]
+36, Wind Speed, wind_speed, 0x24, float [0 -> 100]
+37, Static Pressure, static_pressure, 0x25, float [0 -> 5000]
+38, Density Altitude, density_altitude, 0x26, float [-900 -> 19000]
+39, Outside Air Temperature, outside_air_temperature, 0x27, uint8
+40, Target Location Latitude, target_location_latitude, 0x28, string | double [-90 -> 90]
+41, Target Location Longitude, target_location_longitude, 0x29, string | double [-180 -> 180]
+42, Target Location Elevation, target_location_elevation, 0x2A, float [-900 -> 19000]
+43, Target Track Gate Width, target_track_gate_width, 0x2B, uint16
+44, Target Track Gate Height, target_track_gate_height, 0x2C, uint16
+45, Target Error Estimate - CE90, target_error_estimate_ce90, 0x2D, float [0 -> 4095]
+46, Target Error Estimate - LE90, target_error_estimate_le90, 0x2E, float [0 -> 4095]
+47, Generic Flag Data, generic_flag_data, 0x2F, uint8
+48, Security Local Set, security_local_set, 0x30, object
+49, Differential Pressure, differential_pressure, 0x31, float [0 -> 5000]
+50, Platform Angle of Attack, platform_angle_of_attack, 0x32, string | float [-20 -> 20]
+51, Platform Vertical Speed, platform_vertical_speed, 0x33, string | float [-180 -> 180]
+52, Platform Sideslip Angle, platform_sideslip_angle, 0x34, string | float [-20 -> 20]
+53, Airfield Barometric Pressure, airfield_barometric_pressure, 0x35, float [0 -> 5000]
+54, Airfield Elevation, airfield_elevation, 0x36, float [-900 -> 19000]
+55, Relative Humidity, relative_humidity, 0x37, float [0 -> 100]
+56, Platform Ground Speed, platform_ground_speed, 0x38, uint8
+57, Ground Range, ground_range, 0x39, double [0 -> 5_000_000]
+58, Platform Fuel Remaining, platform_fuel_remaining, 0x3A, float [0 -> 10_000]
+59, Platform Call Sign, platform_call_sign, 0x3B, string
+60, Weapon Load, weapon_load, 0x3C, uint16
+61, Weapon Fired, weapon_fired, 0x3D, uint8
+62, Laser PRF Code, laser_prf_code, 0x3E, uint16
+63, Sensor Field of View Name, sensor_field_of_view_name, 0x3F, "Ultranarrow" | "Narrow" | "Medium" | "Wide" | "Ultrawide" | "Narrow Medium" | "2x Ultranarrow" | "4x Ultranarrow" | "Continuous Zoom" | "Reserved - Do not use"
+64, Platform Magnetic Heading, platform_magnetic_heading, 0x40, float [0 -> 360]
+65, UAS Datalink LS Version Number, uas_datalink_ls_version_number, 0x41, uint8
+66, Deprecated, deprecated, 0x42
+66, Target Location Covariance Matrix, target_location_covariance_matrix, 0x42, string | double [-90 -> 90]
+67, Alternate Platform Latitude, alternate_platform_latitude, 0x43, string | double [-90 -> 90]
+68, Alternate Platform Longitude, alternate_platform_longitude, 0x44, string | double [-180 -> 180]
+69, Alternate Platform Altitude, alternate_platform_altitude, 0x45, float [-900 -> 19000]
+70, Alternate Platform Name, alternate_platform_name, 0x46, string
+71, Alternate Platform Heading, alternate_platform_heading, 0x47, float [0 -> 360]
+72, Event Start Time - UTC, event_start_time_utc, 0x48, uint64
+73, RVT Local Set, rvt_local_set, 0x49, object
+74, VMTI Local Set, vmti_local_set, 0x4A, VMTI
+75, Sensor Ellipsoid Height, sensor_ellipsoid_height, 0x4B
+76, Alternate Platform Ellipsoid  Heigh, alternate_platform_ellipsoid_height, 0x4C
+77, Operational Mode, operational_mode, 0x4D
+78, Frame Center Height Above  Ellipsoi, frame_center_height_above_ellipsoid, 0x4E
+79, Sensor North Velocity, sensor_north_velocity, 0x4F
+80, Sensor East Velocity, sensor_east_velocity, 0x50
+81, Image Horizon Pixel Pack, image_horizon_pixel_pack, 0x51
+82, Corner Latitude Point 1 (Full), corner_latitude_point_1, 0x52
+83, Corner Longitude Point 1 (Full), corner_longitude_point_1, 0x53
+84, Corner Latitude Point 2 (Full), corner_latitude_point_2, 0x54
+85, Corner Longitude Point 2 (Full), corner_longitude_point_2, 0x55
+86, Corner Latitude Point 3 (Full), corner_latitude_point_3, 0x56
+87, Corner Longitude Point 3 (Full), corner_longitude_point_3, 0x57
+88, Corner Latitude Point 4 (Full), corner_latitude_point_4, 0x58
+89, Corner Longitude Point 4 (Full), corner_longitude_point_4, 0x59
+90, Platform Pitch Angle (Full), platform_pitch_angle_full, 0x5A
+91, Platform Roll Angle (Full), platform_roll_angle_full, 0x5B
+92, Platform Angle of Attack (Full), platform_angle_of_attack_full, 0x5C
+93, Platform Sideslip Angle (Full), platform_sideslip_angle_full, 0x5D
+94, MIIS Core Identifier, miis_core_identifier, 0x5E
+95, SAR Motion Imagery Local Set, sar_motion_imagery_local_set, 0x5F
+96, Target Width Extended, target_width_extended, 0x60
+97, Range Image Local Set, range_image_local_set, 0x61
+98, Geo-Registration Local Set, geo_registration_local_set, 0x62
+99, Composite Imaging Local Set, composite_imaging_local_set, 0x63
+100, Segment Local Set, segment_local_set, 0x64
+101, Amend Local Set, amend_local_set, 0x65
+102, SDCC-FLP, sdcc_flp, 0x66
+103, Density Altitude Extended, density_altitude_extended, 0x67
+104, Sensor Ellipsoid Height Extended, sensor_ellipsoid_height_extended, 0x68
+105, Alternate Platform Ellipsoid Height Extended, alternate_platform_ellipsoid_height_extended, 0x69
+106, Stream Designator, stream_designator, 0x6A
+107, Operational Base, operational_base, 0x6B
+108, Broadcast Source, broadcast_source, 0x6C
+109, Range To Recovery Location, range_to_recovery_location, 0x6D
+110, Time Airborne, time_airborne, 0x6E
+111, Propulsion Unit Speed, propulsion_unit_speed, 0x6F
+112, Platform Course Angle, platform_course_angle, 0x70
+113, Altitude AGL, altitude_agl, 0x71
+114, Radar Altimeter, radar_altimeter, 0x72
+115, Control Command, control_command, 0x73
+116, Control Command Verification List, control_command_verification_list, 0x74
+117, Sensor Azimuth Rate, sensor_azimuth_rate, 0x75
+118, Sensor Elevation Rate, sensor_elevation_rate, 0x76
+119, Sensor Roll Rate, sensor_roll_rate, 0x77
+120, On-board MI Storage Percent Full, onboard_mi_storage_percent_full, 0x78
+121, Active Wavelength List, active_wavelength_list, 0x79
+122, Country Codes, country_codes, 0x7A
+123, Number of NAVSATs in View, number_of_navsats_in_view, 0x7B
+124, Positioning Method Source, positioning_method_source, 0x7C
+125, Platform Status, platform_status, 0x7D
+126, Sensor Control Mode, sensor_control_mode, 0x7E
+127, Sensor Frame Rate Pack, sensor_frame_rate_pack, 0x7F
+128, Wavelengths List, wavelengths_list, 0x80
+129, Target ID, target_id, 0x81
+130, Airbase Locations, airbase_locations, 0x82
+131, Take-off Time, takeoff_time, 0x83
+132, Transmission Frequency, transmission_frequency, 0x84
+133, On-board MI Storage Capacity, onboard_mi_storage_capacity, 0x85
+134, Zoom Percentage, zoom_percentage, 0x86
+135, Communications Method, communications_method, 0x87
+136, Leap Seconds, leap_seconds, 0x88
+137, Correction Offset, correction_offset, 0x89
+138, Payload List, payload_list, 0x8A
+139, Active Payloads, active_payloads, 0x8B
+140, Weapons Stores, weapons_stores, 0x8C
+141, Waypoint List, waypoint_list, 0x8D
+142, View Domain, view_domain, 0x8E
