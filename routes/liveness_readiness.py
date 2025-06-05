@@ -3,9 +3,11 @@ from fastapi.responses import JSONResponse
 
 from app_instance import app
 from models.bit_keepalive import Liveness
-from third_party.plugins.python.gstklvparse import logger
+import logging
 
 router = APIRouter()
+
+logger = logging.getLogger(__name__)
 
 
 @router.post("/api/pod/setliveness")

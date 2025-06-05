@@ -56,5 +56,5 @@ class StopCommandModel(BaseModel):
 
 
 class Liveness(BaseModel):
-    """Model for command 'stop'."""
+    """Model for liveness route."""
     liveness : bool
