@@ -53,3 +53,8 @@ class VersionCommandModel(BaseModel):
 class StopCommandModel(BaseModel):
     """Model for command 'stop'."""
     command: Literal[CommandsEnum.STOP]
+
+
+class Liveness(BaseModel):
+    """Model for command 'stop'."""
+    liveness : bool

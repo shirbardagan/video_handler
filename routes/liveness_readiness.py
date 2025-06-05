@@ -1,23 +1,36 @@
-from fastapi import FastAPI
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-app = FastAPI()
+from app_instance import app
+from models.bit_keepalive import Liveness
+from third_party.plugins.python.gstklvparse import logger
+
+router = APIRouter()
 
 
-@app.post("/api/pod/setliveness")
-def set_liveness():
+@router.post("/api/pod/setliveness")
+def set_liveness(data: Liveness):
     """Check if the app is running."""
-    return JSONResponse(content={"status": "true"}, status_code=200)
+    try:
+        liveness_request = getattr(data, "liveness", None)
+        if liveness_request:
+            app.state.liveness = liveness_request
+            return JSONResponse(content={"status": "true"}, status_code=200)
+        else:
+            return JSONResponse(content={"status": "false", "message": "Liveness value is empty."}, status_code=400)
+    except Exception as e:
+        logger.warning("Could not change liveness to false: %s", e)
 
 
-@app.get("/api/pod/getreadiness")
+@router.get("/api/pod/getreadiness")
 def get_readiness():
     """Check if the app is ready."""
     if app.state.readiness:
         return JSONResponse(content={"status": "true"}, status_code=200)
     return JSONResponse(content={"status": "false"}, status_code=503)
 
-@app.get("/api/pod/getliveness")
+
+@router.get("/api/pod/getliveness")
 def get_liveness():
     """Check if the app is ready."""
     if app.state.liveness:
