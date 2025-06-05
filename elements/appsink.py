@@ -43,9 +43,8 @@ class DataAppSink(AppSinkWrapper):
                         if not succ:
                             logger.error("Failed to map buffer")
                             return Gst.FlowReturn.ERROR
-                        buffer.unmap(info)
 
-                        json_data = json.loads(info.data.decode('utf-8'))
+                        json_data = json.loads(bytes(info.data).decode('utf-8'))
                         json_string = json.dumps(json_data, indent=4)
 
                         msg = {"event": "video_data", "data": json_string}
@@ -57,6 +56,8 @@ class DataAppSink(AppSinkWrapper):
                                 channel.emit("send-string", json_msg)
                     except Exception as e:
                         logger.error("When extracting data sample from data sink: %s", e)
+                    finally:
+                        buffer.unmap(info)
                 if app.state.request_data.klv.websocket:
                     # TODO: handle websocket case, what ip/port?
                     pass

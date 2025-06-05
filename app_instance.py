@@ -8,7 +8,11 @@ from config_models.system_config import SystemSettingsConfig
 app = FastAPI(
     version="1.0.0",
     docs_url="/api-docs",
-    swagger_ui_parameters={"useLocalStorage": True}
+    redoc_url=None,
+    openapi_url="/openapi.json",
+    swagger_ui_parameters={"useLocalStorage": True},
+    swagger_ui_oauth2_redirect_url=None,
+    swagger_ui_init_oauth={}
 )
 system_conf = SystemSettingsConfig()
 

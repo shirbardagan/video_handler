@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-dev \
     python3-gi \
+    python3-gst-1.0  \
+    gstreamer1.0-python3-plugin-loader \
     gstreamer1.0-tools \
     gstreamer1.0-plugins-base \
     gstreamer1.0-plugins-good \
@@ -39,7 +41,12 @@ RUN pip install --no-cache-dir --upgrade meson
 
 RUN mkdir gstreamer-plugins
 COPY third_party/klvparse /opt/gstreamer-plugins/klvparse
-ENV GST_PLUGIN_PATH=/opt/gstreamer-plugins
+
+RUN cd gstreamer-plugins
+RUN mkdir python-plugins
+COPY third_party/plugins /opt/gstreamer-plugins/python-plugins
+
+ENV GST_PLUGIN_PATH=/opt/gstreamer-plugins:/opt/gstreamer-plugins/python-plugins
 
 RUN git clone https://github.com/nlohmann/json --branch v3.10.5 --depth 1 nlohmann_json && cd nlohmann_json && \
     mkdir build && cd build && \
