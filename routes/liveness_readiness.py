@@ -19,7 +19,7 @@ def set_liveness(data: Liveness):
             app.state.liveness = liveness_request
             return JSONResponse(content={"status": "true"}, status_code=200)
         else:
-            return JSONResponse(content={"status": "false", "message": "Liveness value is empty."}, status_code=400)
+            return JSONResponse(content={"status": "false", "message": "Liveness value is empty."}, status_code=422)
     except Exception as e:
         logger.warning("Could not change liveness to false: %s", e)
 

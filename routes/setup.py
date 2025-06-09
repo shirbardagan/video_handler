@@ -40,7 +40,9 @@ async def startup_event() -> None:
     app.state.event_loop = asyncio.get_running_loop()
     app.state.host_ip = get_host_ip()
 
-    thread_pipeline = Thread(target=GObject.MainLoop().run)
+    mainloop = GObject.MainLoop()
+    app.state.mainloop = mainloop
+    thread_pipeline = Thread(target=mainloop.run, daemon=True)
     thread_pipeline.start()
 
     logger.debug("On setup. Application running on host %s.", app.state.host_ip)
